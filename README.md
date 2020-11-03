@@ -1,2 +1,3 @@
-# MCAdmin
-A Discord bot for Minecraft players
+# Steve.
+
+A Discord bot for Minecraft players and communities!
