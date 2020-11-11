@@ -36,6 +36,91 @@ client.on('message', message => {
             .setFooter('Made by Alienics 👾')
         message.channel.send(helpEmbed);
     }
+
+    if (command === 'status') {
+        (async () => {
+            // Get status from API
+            const response = await fetch(`https://eu.mc-api.net/v3/server/ping/${env.url.urn}`,);
+            const status = await response.json();
+
+            // Check status
+            if (status.status && status.online) {
+
+                // Get player list
+                var playerList = 'None';
+                if (status.players.online > 0) {
+                    var playerList = '';
+                    for (var i = 0; i < status.players.online; i++) {
+                        if (i % 4 == 0) {
+                            playerList += `\n`;
+                        }
+                        playerList += `${status.players.sample[i].name}, `;
+                    }
+                    playerList = playerList.substring(0, playerList.length - 2);
+                }
+                
+                // Create and send embed
+                const statusEmbed = new Discord.MessageEmbed()
+                    .setColor('#2ECC71')
+                    .setTitle('Server Status')
+                    .addFields(
+                        { name: 'Status', value: `Online\n`, inline: true },
+                        { name: 'Version', value: `${status.version.name}\n`, inline: true },
+                    )
+                    .setThumbnail(`https://eu.mc-api.net/v3/server/favicon/${env.url.urn}`)
+                    .addFields(
+                        { name: 'Players', value: `${status.players.online}/${status.players.max}\n`, inline: true },
+                        { name: 'List', value: `${playerList}\n`, inline: true },
+                    )
+                    .setFooter(`${env.footer}`)
+                message.channel.send(statusEmbed);
+
+            } else {
+
+                // Create and send embed
+                const statusEmbed = new Discord.MessageEmbed()
+                    .setColor('#E74C3C')
+                    .setTitle('Server Status')
+                    .addFields(
+                        { name: 'Status', value: `Offline\n`, inline: true },
+                        { name: 'Version', value: `Unkown\n`, inline: true },
+                    )
+                    .addFields(
+                        { name: 'Players', value: `None\n`, inline: true },
+                    )
+                    .setFooter(`${env.footer}`)
+                message.channel.send(statusEmbed);
+            }
+        })();
+
+        // const status = JSON.parse(fs.readFileSync(path.join(__dirname, "fakeserver.json")));
+
+        // var playerList = '';
+        // for (var i = 0; i < status.players.online; i++) {
+        //     if (i % 4 == 0) {
+        //         playerList += `\n`;
+        //     }
+        //     playerList += `${status.players.sample[i].name}, `;
+        // }
+        // playerList = playerList.substring(0, playerList.length - 2);
+
+        // const statusEmbed = new Discord.MessageEmbed()
+        //     .setColor('#2ECC71')
+        //     .setTitle('Server Status')
+        //     .addFields(
+        //         { name: 'Status', value: `Online\n`, inline: true },
+        //         { name: 'Version', value: `${status.version.name}\n`, inline: true },
+        //     )
+        //     .setThumbnail(`https://eu.mc-api.net/v3/server/favicon/${env.url.urn}`)
+        //     .addFields(
+        //         { name: 'Players', value: `${status.players.online}/${status.players.max}\n`, inline: true },
+        //         { name: 'List', value: `${playerList}\n`, inline: true },
+        //     )
+        //     .setFooter(`${env.footer}`)
+        // message.channel.send(statusEmbed);
+
+    }
+
 });
 
 client.login(auth.token);
