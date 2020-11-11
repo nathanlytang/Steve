@@ -1,8 +1,10 @@
 const Discord = require('discord.js');
 const fs = require('fs');
 const path = require("path");
-var env = JSON.parse(fs.readFileSync(path.join(__dirname, "env.json")));
-var logo = path.join(__dirname, "..\assets\logo.png");
+const fetch = require('node-fetch');
+const env = JSON.parse(fs.readFileSync(path.join(__dirname, "env.json")));
+const auth = JSON.parse(fs.readFileSync(path.join(__dirname, "auth.json")));
+const prefix = '-mc ';
 
 const client = new Discord.Client();
 
@@ -14,12 +16,18 @@ client.on('ready', () => {
 });
 
 client.on('message', message => {
-    if (message.content === '-mc help') {
+    if (!message.content.startsWith(prefix)) return; // Check if message has bot prefix
+
+    const commandBody = message.content.slice(prefix.length);
+    const args = commandBody.split(' ');
+    const command = args.shift().toLowerCase();
+
+    if (command === 'help') {
+        // Create and send embed
         const helpEmbed = new Discord.MessageEmbed()
             .setColor('#62B36F')
             .setAuthor('Steve', 'https://i.imgur.com/gb5oeQt.png')
-            .setDescription(`Steve is a Discord bot for Minecraft communities!  
-Make it easy to get your server IP and server status.`)
+            .setDescription(`Steve is a Discord bot for Minecraft communities!\nMake it easy to get your server IP and server status.`)
             .addFields(
                 { name: 'Commands', value: '-mc help\n-mc status\n-mc ip\n\u200B', inline: true },
                 { name: '\u200B', value: '\u200B', inline: true },
@@ -30,4 +38,4 @@ Make it easy to get your server IP and server status.`)
     }
 });
 
-client.login(env.token);
+client.login(auth.token);
