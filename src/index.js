@@ -10,7 +10,7 @@ const client = new Discord.Client();
 
 client.on('ready', () => {
     console.log(`Logged in as ${client.user.tag}!`);
-    client.user.setPresence({ activity: { name: '-status | -help', type: 'LISTENING' }, status: 'online' })
+    client.user.setPresence({ activity: { name: `${prefix}status | ${prefix}help`, type: 'LISTENING' }, status: 'online' })
         // .then(console.log)
         .catch(console.error);
 });
@@ -92,33 +92,6 @@ client.on('message', message => {
                 message.channel.send(statusEmbed);
             }
         })();
-
-        // const status = JSON.parse(fs.readFileSync(path.join(__dirname, "fakeserver.json")));
-
-        // var playerList = '';
-        // for (var i = 0; i < status.players.online; i++) {
-        //     if (i % 4 == 0) {
-        //         playerList += `\n`;
-        //     }
-        //     playerList += `${status.players.sample[i].name}, `;
-        // }
-        // playerList = playerList.substring(0, playerList.length - 2);
-
-        // const statusEmbed = new Discord.MessageEmbed()
-        //     .setColor('#2ECC71')
-        //     .setTitle('Server Status')
-        //     .addFields(
-        //         { name: 'Status', value: `Online\n`, inline: true },
-        //         { name: 'Version', value: `${status.version.name}\n`, inline: true },
-        //     )
-        //     .setThumbnail(`https://eu.mc-api.net/v3/server/favicon/${env.url.urn}`)
-        //     .addFields(
-        //         { name: 'Players', value: `${status.players.online}/${status.players.max}\n`, inline: true },
-        //         { name: 'List', value: `${playerList}\n`, inline: true },
-        //     )
-        //     .setFooter(`${env.footer}`)
-        // message.channel.send(statusEmbed);
-
     }
 
     if (command === 'skin') {
@@ -148,6 +121,15 @@ client.on('message', message => {
             message.channel.send(skinEmbed);
 
         })();
+    }
+
+    if (command === 'ip' || command === 'join') { // Get server IP address
+        const joinEmbed = new Discord.MessageEmbed()
+            .setColor('#62B36F')
+            .setThumbnail(`https://eu.mc-api.net/v3/server/favicon/${env.url.urn}`)
+            .setTitle(`Join the Server`)
+            .setDescription(`Join ${env.serverName} at **${env.url.urn}**!`)
+        message.channel.send(joinEmbed);
     }
 
 });
