@@ -54,7 +54,7 @@ client.on('message', message => {
 
                 // Get player list
                 var playerList = 'No current players';
-                if (status.players.online > 0) {
+                if (status.players.online > 0 && status.players.online <= 20) {
                     var playerList = ``;
                     for (var i = 0; i < status.players.online; i++) {
                         if (i % 4 == 0) {
@@ -63,6 +63,8 @@ client.on('message', message => {
                         playerList += `${status.players.sample[i].name}, `;
                     }
                     playerList = playerList.substring(0, playerList.length - 2);
+                } else if (status.players.online > 20) {
+                    var playerList = 'Too many to show!';
                 }
 
                 // Create and send server online embed
