@@ -2,7 +2,6 @@ const Discord = require('discord.js');
 const fs = require('fs');
 const path = require("path");
 const fetch = require('node-fetch');
-const env = JSON.parse(fs.readFileSync(path.join(__dirname, "env.json")));
 const auth = JSON.parse(fs.readFileSync(path.join(__dirname, "auth.json")));
 const prefix = '-mc ';
 
@@ -16,14 +15,19 @@ client.on('ready', () => {
 });
 
 client.on('message', message => {
-    if (!message.content.startsWith(prefix)) return; // Check if message has bot prefix
+    if (!message.content.startsWith(prefix) || message.author.bot) return; // Check if message has bot prefix and message not sent by bot
+
+    const serverID = message.guild.id.toString();
+    const env = JSON.parse(fs.readFileSync(path.join(__dirname, "env.json")));
 
     const commandBody = message.content.slice(prefix.length);
     const args = commandBody.split(' ');
     const command = args.shift().toLowerCase();
 
     if (command === 'help') {
-        // Create and send embed
+        console.log(`Server ${serverID} sent help command`);
+
+        // Create and send help embed
         const helpEmbed = new Discord.MessageEmbed()
             .setColor('#62B36F')
             .setAuthor('Steve', 'https://i.imgur.com/gb5oeQt.png')
@@ -38,9 +42,11 @@ client.on('message', message => {
     }
 
     if (command === 'status') {
+        console.log(`Server ${serverID} sent status command`);
+
         (async () => {
             // Get status from API
-            const response = await fetch(`https://eu.mc-api.net/v3/server/ping/${env.url.urn}`,);
+            const response = await fetch(`https://eu.mc-api.net/v3/server/ping/${env[serverID].url}`,);
             const status = await response.json();
 
             // Check status
@@ -59,7 +65,7 @@ client.on('message', message => {
                     playerList = playerList.substring(0, playerList.length - 2);
                 }
 
-                // Create and send embed
+                // Create and send server online embed
                 const statusEmbed = new Discord.MessageEmbed()
                     .setColor('#2ECC71')
                     .setTitle('Minecraft Server Status')
@@ -67,17 +73,17 @@ client.on('message', message => {
                         { name: 'Status', value: `Online\n`, inline: true },
                         { name: 'Version', value: `${status.version.name}\n`, inline: true },
                     )
-                    .setThumbnail(`https://eu.mc-api.net/v3/server/favicon/${env.url.urn}`)
+                    .setThumbnail(`https://eu.mc-api.net/v3/server/favicon/${env[serverID].url}`)
                     .addFields(
                         { name: 'Players', value: `${status.players.online}/${status.players.max}\n`, inline: true },
                         { name: 'List', value: `${playerList}\n`, inline: true },
                     )
-                    .setFooter(`${env.footer}`)
+                    .setFooter(`${env[serverID].footer}`)
                 message.channel.send(statusEmbed);
 
             } else {
 
-                // Create and send embed
+                // Create and send server offline embed
                 const statusEmbed = new Discord.MessageEmbed()
                     .setColor('#E74C3C')
                     .setTitle('Server Status')
@@ -88,13 +94,15 @@ client.on('message', message => {
                     .addFields(
                         { name: 'Players', value: `None\n`, inline: true },
                     )
-                    .setFooter(`${env.footer}`)
+                    .setFooter(`${env[serverID].footer}`)
                 message.channel.send(statusEmbed);
             }
         })();
     }
 
     if (command === 'skin') {
+        console.log(`Server ${serverID} sent skin command`);
+
         if (args.length == 0) {
             return message.channel.send(`You didn't provide a username, ${message.author}!`);
         } else if (args.length > 1) {
@@ -110,6 +118,7 @@ client.on('message', message => {
                 return message.channel.send(`${args[0]} is not a valid Minecraft username, ${message.author}!`);
             }
 
+            // Create and send skin grab embed
             const skinEmbed = new Discord.MessageEmbed()
                 .setColor('#62B36F')
                 .setTitle(`${playerInfo.data.player.username}'s Minecraft Skin`)
@@ -124,14 +133,17 @@ client.on('message', message => {
     }
 
     if (command === 'ip' || command === 'join') { // Get server IP address
+        console.log(`Server ${serverID} sent ip command`);
+
+        // Create and send join embed
         const joinEmbed = new Discord.MessageEmbed()
             .setColor('#62B36F')
-            .setThumbnail(`https://eu.mc-api.net/v3/server/favicon/${env.url.urn}`)
+            .setThumbnail(`https://eu.mc-api.net/v3/server/favicon/${env[serverID].url}`)
             .setTitle(`Join the Server`)
-            .setDescription(`Join ${env.serverName} at **${env.url.urn}**!`)
+            .setDescription(`Join ${env[serverID].serverName} at **${env[serverID].url}**!`)
         message.channel.send(joinEmbed);
     }
 
 });
 
-client.login(auth.token);
+client.login(auth.token); // Bot authentication token
