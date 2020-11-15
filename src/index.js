@@ -4,7 +4,7 @@ const path = require("path");
 const fetch = require('node-fetch');
 const auth = JSON.parse(fs.readFileSync(path.join(__dirname, "auth.json")));
 const prefix = '-mc ';
-// test
+// test2
 const client = new Discord.Client();
 
 client.on('ready', () => {
