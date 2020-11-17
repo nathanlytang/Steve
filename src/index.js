@@ -28,6 +28,7 @@ client.on("guildCreate", (guild) => {
 
 client.on('message', message => {
     if (!message.content.startsWith(prefix) || message.author.bot) return; // Check if message has bot prefix and message not sent by bot
+    if (message.channel.type == "dm") return; // Ignore direct messages
 
     const serverID = message.guild.id.toString();
     const env = JSON.parse(fs.readFileSync(path.join(__dirname, "env.json")));
@@ -55,6 +56,10 @@ client.on('message', message => {
 
     if (command === 'status') {
         console.log(`Server ${serverID} sent status command`);
+
+        if (env[serverID].url == "") { //Check if URL in env.json
+            return message.channel.send('Your server IP has not been set up!  Please specify using `-mc setup ip <SERVER IP>`.');
+        }
 
         (async () => {
             // Get status from API
@@ -160,7 +165,11 @@ client.on('message', message => {
     if (command === 'setup') {
         console.log(`${serverID} sent setup command`);
 
-        if (args.length == 0) {
+        if (!message.member.hasPermission("ADMINISTRATOR")) { // Check if author is admin
+            return message.channel.send('Only administrators can make changes to Steve!');
+        }
+
+        if (args.length == 0) { // Display setup instructions
             const setupEmbed = new Discord.MessageEmbed()
                 .setColor('#62B36F')
                 .setAuthor('Steve Setup Instructions', 'https://i.imgur.com/gb5oeQt.png')
@@ -173,21 +182,21 @@ client.on('message', message => {
             return message.channel.send(setupEmbed);
         }
 
-        if (args[0] === 'ip') {
+        if (args[0] === 'ip') { // Setup IP address / URL
             try {
                 env[serverID].url = args[1];
                 fs.writeFileSync(path.join(__dirname, "env.json"), JSON.stringify(env));
                 console.log(`Successfully set up IP for server ${serverID}`);
-                return message.channel.send(`Server IP of ${args[1]} successfully set!`);
+                return message.channel.send(`Server IP of \`${args[1]}\` successfully set!`);
             }
-            catch(err) {
+            catch (err) {
                 console.log(`Error setting IP for server ${serverID}:`);
                 console.log(err);
                 return message.channel.send(`Error setting IP!`);
             }
         }
-        
-        if (args[0] === 'name') {
+
+        if (args[0] === 'name') { // Setup server name
             try {
                 var name = ``;
                 for (i = 1; i < args.length; i++) {
@@ -197,16 +206,16 @@ client.on('message', message => {
                 env[serverID].serverName = name;
                 fs.writeFileSync(path.join(__dirname, "env.json"), JSON.stringify(env));
                 console.log(`Successfully set up name for server ${serverID}`);
-                return message.channel.send(`Server name of ${name} successfully set!`);
+                return message.channel.send(`Server name of \`${name}\` successfully set!`);
             }
-            catch(err) {
+            catch (err) {
                 console.log(`Error setting name for server ${serverID}:`);
                 console.log(err);
                 return message.channel.send(`Error setting name!`);
             }
         }
-        
-        if (args[0] === 'footer') {
+
+        if (args[0] === 'footer') { // Setup footer
             try {
                 var footerMessage = ``;
                 for (i = 1; i < args.length; i++) {
@@ -216,9 +225,9 @@ client.on('message', message => {
                 env[serverID].footer = footerMessage;
                 fs.writeFileSync(path.join(__dirname, "env.json"), JSON.stringify(env));
                 console.log(`Successfully set up footer for server ${serverID}`);
-                return message.channel.send(`Server footer of ${footerMessage} successfully set!`);
+                return message.channel.send(`Server footer of \`${footerMessage}\` successfully set!`);
             }
-            catch(err) {
+            catch (err) {
                 console.log(`Error setting footer for server ${serverID}:`);
                 console.log(err);
                 return message.channel.send(`Error setting footer!`);
