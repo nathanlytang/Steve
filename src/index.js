@@ -14,6 +14,18 @@ client.on('ready', () => {
         .catch(console.error);
 });
 
+client.on("guildCreate", (guild) => {
+    // When the bot joins a server
+    console.log(`Joined new guild: ${guild.name}`);
+
+    // Add server ID to env.json
+    const env = JSON.parse(fs.readFileSync(path.join(__dirname, "env.json")));
+    const serverID = guild.id.toString();
+    var newGuild = { prefix: "-mc ", url: "", serverName: "", footer: "" };
+    env[serverID] = newGuild;
+    fs.writeFileSync(path.join(__dirname, "env.json"), JSON.stringify(env));
+});
+
 client.on('message', message => {
     if (!message.content.startsWith(prefix) || message.author.bot) return; // Check if message has bot prefix and message not sent by bot
 
@@ -33,9 +45,9 @@ client.on('message', message => {
             .setAuthor('Steve', 'https://i.imgur.com/gb5oeQt.png')
             .setDescription(`Steve is a Discord bot for Minecraft communities!\nMake it easy to get your server IP and server status.`)
             .addFields(
-                { name: 'Commands', value: `${prefix}help\n${prefix}status\n${prefix}ip\n${prefix}skin <user>\n\u200B`, inline: true },
+                { name: 'Commands', value: `${prefix}help\n${prefix}setup\n${prefix}status\n${prefix}ip\n${prefix}skin <user>\n\u200B`, inline: true },
                 { name: '\u200B', value: '\u200B', inline: true },
-                { name: 'Description', value: 'Display this message\nGet the server status\nGet the server IP address\nGet a username\'s MC skin\n\u200B', inline: true },
+                { name: 'Description', value: 'Display this message\nDisplay setup instructions\nGet the server status\nGet the server IP address\nGet a username\'s MC skin\n\u200B', inline: true },
             )
             .setFooter('Made by Alienics 👾')
         message.channel.send(helpEmbed);
@@ -96,7 +108,6 @@ client.on('message', message => {
                     .addFields(
                         { name: 'Players', value: `None\n`, inline: true },
                     )
-                    .setFooter(`${env[serverID].footer}`)
                 message.channel.send(statusEmbed);
             }
         })();
@@ -144,6 +155,75 @@ client.on('message', message => {
             .setTitle(`Join the Server`)
             .setDescription(`Join ${env[serverID].serverName} at **${env[serverID].url}**!`)
         message.channel.send(joinEmbed);
+    }
+
+    if (command === 'setup') {
+        console.log(`${serverID} sent setup command`);
+
+        if (args.length == 0) {
+            const setupEmbed = new Discord.MessageEmbed()
+                .setColor('#62B36F')
+                .setAuthor('Steve Setup Instructions', 'https://i.imgur.com/gb5oeQt.png')
+                .setDescription(`Follow these commands to set me up for your server!`)
+                .addFields(
+                    { name: 'Commands', value: `${prefix}setup ip <Server IP>\n${prefix}setup name <Server name>\n${prefix}setup footer <Footer message>\n\u200B`, inline: true },
+                    { name: '\u200B', value: '\u200B', inline: true },
+                    { name: 'Description', value: 'Set the server IP (IP or URL accepted)\nSet your server name\nSet a footer message\n\u200B', inline: true },
+                )
+            return message.channel.send(setupEmbed);
+        }
+
+        if (args[0] === 'ip') {
+            try {
+                env[serverID].url = args[1];
+                fs.writeFileSync(path.join(__dirname, "env.json"), JSON.stringify(env));
+                console.log(`Successfully set up IP for server ${serverID}`);
+                return message.channel.send(`Server IP of ${args[1]} successfully set!`);
+            }
+            catch(err) {
+                console.log(`Error setting IP for server ${serverID}:`);
+                console.log(err);
+                return message.channel.send(`Error setting IP!`);
+            }
+        }
+        
+        if (args[0] === 'name') {
+            try {
+                var name = ``;
+                for (i = 1; i < args.length; i++) {
+                    name += `${args[i]} `;
+                }
+                name = name.substring(0, name.length - 1);
+                env[serverID].serverName = name;
+                fs.writeFileSync(path.join(__dirname, "env.json"), JSON.stringify(env));
+                console.log(`Successfully set up name for server ${serverID}`);
+                return message.channel.send(`Server name of ${name} successfully set!`);
+            }
+            catch(err) {
+                console.log(`Error setting name for server ${serverID}:`);
+                console.log(err);
+                return message.channel.send(`Error setting name!`);
+            }
+        }
+        
+        if (args[0] === 'footer') {
+            try {
+                var footerMessage = ``;
+                for (i = 1; i < args.length; i++) {
+                    footerMessage += `${args[i]} `;
+                }
+                footerMessage = footerMessage.substring(0, footerMessage.length - 1);
+                env[serverID].footer = footerMessage;
+                fs.writeFileSync(path.join(__dirname, "env.json"), JSON.stringify(env));
+                console.log(`Successfully set up footer for server ${serverID}`);
+                return message.channel.send(`Server footer of ${footerMessage} successfully set!`);
+            }
+            catch(err) {
+                console.log(`Error setting footer for server ${serverID}:`);
+                console.log(err);
+                return message.channel.send(`Error setting footer!`);
+            }
+        }
     }
 
 });
