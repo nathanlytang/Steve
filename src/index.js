@@ -16,7 +16,7 @@ client.on('ready', () => {
 
 client.on("guildCreate", (guild) => {
     // When the bot joins a server
-    console.log(`Joined new guild: ${guild.name}`);
+    console.log(`Joined new guild: ${guild.id} (${guild.name})`);
 
     // Add server ID to env.json
     const env = JSON.parse(fs.readFileSync(path.join(__dirname, "env.json")));
@@ -38,7 +38,7 @@ client.on('message', message => {
     const command = args.shift().toLowerCase();
 
     if (command === 'help') {
-        console.log(`Server ${serverID} sent help command`);
+        console.log(`Server ${serverID} (${message.guild.name}) sent help command`);
 
         // Create and send help embed
         const helpEmbed = new Discord.MessageEmbed()
@@ -56,7 +56,7 @@ client.on('message', message => {
     }
 
     if (command === 'status') {
-        console.log(`Server ${serverID} sent status command`);
+        console.log(`Server ${serverID} (${message.guild.name}) sent status command`);
 
         if (env[serverID].url == "") { //Check if URL in env.json
             return message.channel.send('Your server IP has not been set up!  Please specify using `-mc setup ip <SERVER IP>`.');
@@ -120,7 +120,7 @@ client.on('message', message => {
     }
 
     if (command === 'skin') {
-        console.log(`Server ${serverID} sent skin command`);
+        console.log(`Server ${serverID} (${message.guild.name}) sent skin command`);
 
         if (args.length == 0) {
             return message.channel.send(`You didn't provide a username, ${message.author}!`);
@@ -152,7 +152,7 @@ client.on('message', message => {
     }
 
     if (command === 'ip' || command === 'join') { // Get server IP address
-        console.log(`Server ${serverID} sent ip command`);
+        console.log(`Server ${serverID} (${message.guild.name}) sent ip command`);
 
         // Create and send join embed
         const joinEmbed = new Discord.MessageEmbed()
@@ -164,7 +164,7 @@ client.on('message', message => {
     }
 
     if (command === 'setup') {
-        console.log(`${serverID} sent setup command`);
+        console.log(`Server ${serverID} (${message.guild.name}) sent setup command`);
 
         if (!message.member.hasPermission("ADMINISTRATOR")) { // Check if author is admin
             return message.channel.send('Only administrators can make changes to Steve!');
@@ -185,13 +185,14 @@ client.on('message', message => {
 
         if (args[0] === 'ip') { // Setup IP address / URL
             try {
+                // Get IP address from argument and send to JSON
                 env[serverID].url = args[1];
                 fs.writeFileSync(path.join(__dirname, "env.json"), JSON.stringify(env));
                 console.log(`Successfully set up IP for server ${serverID}`);
                 return message.channel.send(`Server IP of \`${args[1]}\` successfully set!`);
             }
             catch (err) {
-                console.log(`Error setting IP for server ${serverID}:`);
+                console.log(`\x1b[31m\x1b[1mError setting IP for server ${serverID} (${message.guild.name}):\x1b[0m`);
                 console.log(err);
                 return message.channel.send(`Error setting IP!`);
             }
@@ -199,18 +200,20 @@ client.on('message', message => {
 
         if (args[0] === 'name') { // Setup server name
             try {
+                // Get server name from arguments
                 var name = ``;
                 for (i = 1; i < args.length; i++) {
                     name += `${args[i]} `;
                 }
                 name = name.substring(0, name.length - 1);
+                // Send server name to JSON and return
                 env[serverID].serverName = name;
                 fs.writeFileSync(path.join(__dirname, "env.json"), JSON.stringify(env));
                 console.log(`Successfully set up name for server ${serverID}`);
                 return message.channel.send(`Server name of \`${name}\` successfully set!`);
             }
             catch (err) {
-                console.log(`Error setting name for server ${serverID}:`);
+                console.log(`\x1b[31m\x1b[1mError setting name for server ${serverID} (${message.guild.name}):\x1b[0m`);
                 console.log(err);
                 return message.channel.send(`Error setting name!`);
             }
@@ -218,18 +221,20 @@ client.on('message', message => {
 
         if (args[0] === 'footer') { // Setup footer
             try {
+                // Get footer message from arguments
                 var footerMessage = ``;
                 for (i = 1; i < args.length; i++) {
                     footerMessage += `${args[i]} `;
                 }
                 footerMessage = footerMessage.substring(0, footerMessage.length - 1);
+                // Send footer to JSON and return
                 env[serverID].footer = footerMessage;
                 fs.writeFileSync(path.join(__dirname, "env.json"), JSON.stringify(env));
                 console.log(`Successfully set up footer for server ${serverID}`);
                 return message.channel.send(`Server footer of \`${footerMessage}\` successfully set!`);
             }
             catch (err) {
-                console.log(`Error setting footer for server ${serverID}:`);
+                console.log(`\x1b[31m\x1b[1mError setting footer for server ${serverID} (${message.guild.name}):\x1b[0m`);
                 console.log(err);
                 return message.channel.send(`Error setting footer!`);
             }
