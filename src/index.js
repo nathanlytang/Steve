@@ -46,10 +46,11 @@ client.on('message', message => {
             .setAuthor('Steve', 'https://i.imgur.com/gb5oeQt.png')
             .setDescription(`Steve is a Discord bot for Minecraft communities!\nMake it easy to get your server IP and server status.`)
             .addFields(
-                { name: 'Commands', value: `${prefix}help\n${prefix}setup\n${prefix}status\n${prefix}ip\n${prefix}skin <user>\n\u200B`, inline: true },
+                { name: 'Commands', value: `${prefix}help\n${prefix}setup\n${prefix}status\n${prefix}ip\n${prefix}skin <user>\n`, inline: true },
                 { name: '\u200B', value: '\u200B', inline: true },
-                { name: 'Description', value: 'Display this message\nDisplay setup instructions\nGet the server status\nGet the server IP address\nGet a username\'s MC skin\n\u200B', inline: true },
+                { name: 'Description', value: 'Display this message\nDisplay setup instructions\nGet the server status\nGet the server IP address\nGet a username\'s MC skin\n', inline: true },
             )
+            .addField( 'Invite', `Invite me to your Discord server [here](https://discord.com/api/oauth2/authorize?client_id=773117222380896276&permissions=8&scope=bot).\u200B`)
             .setFooter('Made by Alienics 👾')
         message.channel.send(helpEmbed);
     }
