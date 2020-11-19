@@ -6,6 +6,7 @@ const auth = JSON.parse(fs.readFileSync(path.join(__dirname, "auth.json")));
 const prefix = '-mc ';
 
 const client = new Discord.Client();
+client.login(auth.token); // Bot authentication token
 
 client.on('ready', () => {
     console.log(`Logged in as ${client.user.tag}!`);
@@ -270,5 +271,3 @@ client.on('message', message => {
     }
 
 });
-
-client.login(auth.token); // Bot authentication token
