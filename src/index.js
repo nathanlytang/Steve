@@ -21,7 +21,7 @@ client.on("guildCreate", (guild) => {
     // Add server ID to env.json
     const env = JSON.parse(fs.readFileSync(path.join(__dirname, "env.json")));
     const serverID = guild.id.toString();
-    var newGuild = { prefix: "-mc ", url: "", serverName: "", footer: "" };
+    var newGuild = { prefix: `${prefix}`, url: "", serverName: "", footer: "" };
     env[serverID] = newGuild;
     fs.writeFileSync(path.join(__dirname, "env.json"), JSON.stringify(env));
 });
@@ -46,11 +46,11 @@ client.on('message', message => {
             .setAuthor('Steve', 'https://i.imgur.com/gb5oeQt.png')
             .setDescription(`Steve is a Discord bot for Minecraft communities!\nMake it easy to get your server IP and server status.`)
             .addFields(
-                { name: 'Commands', value: `${prefix}help\n${prefix}setup\n${prefix}status\n${prefix}ip\n${prefix}skin <user>\n`, inline: true },
+                { name: 'Commands', value: `${prefix}help\n${prefix}setup\n${prefix}status\n${prefix}ip\n${prefix}skin <user>\n${prefix}leave\n`, inline: true },
                 { name: '\u200B', value: '\u200B', inline: true },
-                { name: 'Description', value: 'Display this message\nDisplay setup instructions\nGet the server status\nGet the server IP address\nGet a username\'s MC skin\n', inline: true },
+                { name: 'Description', value: 'Display this message\nDisplay setup instructions\nGet the server status\nGet the server IP address\nGet a username\'s MC skin\nSteve will leave the server\n', inline: true },
             )
-            .addField( 'Invite', `Invite me to your Discord server [here](https://discord.com/api/oauth2/authorize?client_id=773117222380896276&permissions=8&scope=bot).\u200B`)
+            .addField('Invite', `Invite me to your Discord server [here](https://discord.com/api/oauth2/authorize?client_id=773117222380896276&permissions=8&scope=bot).\u200B`)
             .setFooter('Made by Alienics 👾')
         message.channel.send(helpEmbed);
     }
@@ -167,7 +167,11 @@ client.on('message', message => {
         console.log(`Server ${serverID} (${message.guild.name}) sent setup command`);
 
         if (!message.member.hasPermission("ADMINISTRATOR")) { // Check if author is admin
-            return message.channel.send('Only administrators can make changes to Steve!');
+            const adminEmbed = new Discord.MessageEmbed()
+                .setColor('#E74C3C')
+                .setAuthor('Steve', 'https://i.imgur.com/gb5oeQt.png')
+                .setDescription(`Only administrators can make changes to Steve!`)
+            return message.channel.send(adminEmbed);
         }
 
         if (args.length == 0) { // Display setup instructions
@@ -239,6 +243,30 @@ client.on('message', message => {
                 return message.channel.send(`Error setting footer!`);
             }
         }
+    }
+
+    if (command === 'leave') {
+        console.log(`Server ${serverID} (${message.guild.name}) sent leave command`);
+        if (!message.member.hasPermission("ADMINISTRATOR")) { // Check if author is admin
+            const adminEmbed = new Discord.MessageEmbed()
+                .setColor('#E74C3C')
+                .setAuthor('Steve', 'https://i.imgur.com/gb5oeQt.png')
+                .setDescription(`Only administrators can make changes to Steve!`)
+            return message.channel.send(adminEmbed);
+        }
+        (async () => {
+            // Send leave embed
+            const leaveEmbed = new Discord.MessageEmbed()
+                .setColor('#62B36F')
+                .setAuthor('Steve', 'https://i.imgur.com/gb5oeQt.png')
+                .setDescription(`Goodbye! Click [here](https://discord.com/api/oauth2/authorize?client_id=773117222380896276&permissions=8&scope=bot) to invite me again.`)
+            await message.channel.send(leaveEmbed);
+            // Delete server properties from JSON and leave guild
+            delete env[serverID];
+            fs.writeFileSync(path.join(__dirname, "env.json"), JSON.stringify(env));
+            console.log(`Left guild: ${message.guild.id} (${message.guild.name})`);
+            message.guild.leave();
+        })();
     }
 
 });
