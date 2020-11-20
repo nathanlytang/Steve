@@ -180,10 +180,11 @@ client.on('message', message => {
                 .setColor('#62B36F')
                 .setAuthor('Steve Setup Instructions', 'https://i.imgur.com/gb5oeQt.png')
                 .setDescription(`Follow these commands to set me up for your server!`)
+                .addField( 'Minecraft Server Properties', 'In your `server.properties` file, set `enable-query` to `true` and restart the server.')
                 .addFields(
-                    { name: 'Commands', value: `${prefix}setup ip <Server IP>\n${prefix}setup name <Server name>\n${prefix}setup footer <Footer message>\n\u200B`, inline: true },
+                    { name: 'Commands', value: `${prefix}setup ip <Server IP>\n${prefix}setup name <Server name>\n${prefix}setup footer <Footer message>\n`, inline: true },
                     { name: '\u200B', value: '\u200B', inline: true },
-                    { name: 'Description', value: 'Set the server IP (IP or URL accepted)\nSet your server name\nSet a footer message\n\u200B', inline: true },
+                    { name: 'Description', value: 'Set the server IP (IP or URL accepted)\nSet your server name\nSet a footer message\n', inline: true },
                 )
             return message.channel.send(setupEmbed);
         }
