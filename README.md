@@ -12,7 +12,7 @@
 Steve is a Discord bot that tracks your Minecraft servers.  Built in the Node.js environment and the [discord.js](https://discord.js.org/#/) library, Steve aims to provide an easily accessible and well displayed status panel for your server.
 
 ### Invite
-Invite Steve to your Discord server [here](https://discord.com/api/oauth2/authorize?client_id=773117222380896276&permissions=8&scope=bot).  Run `-mc setup` and follow the setup instructions.
+Invite Steve to your Discord server [here](https://discord.com/api/oauth2/authorize?client_id=773117222380896276&permissions=18432&scope=bot).  Run `-mc setup` and follow the setup instructions.
 
 1. In your `server.properties` file, set `enable-query` to `true` and restart the server.
 2. `-mc setup ip <SERVER IP>` | Set the server IP (URL also accepted)      

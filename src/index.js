@@ -51,7 +51,7 @@ client.on('message', message => {
                 { name: '\u200B', value: '\u200B', inline: true },
                 { name: 'Description', value: 'Display this message\nDisplay setup instructions\nGet the server status\nGet the server IP address\nGet a username\'s MC skin\nSteve will leave the server\n', inline: true },
             )
-            .addField('Invite', `Invite me to your Discord server [here](https://discord.com/api/oauth2/authorize?client_id=773117222380896276&permissions=8&scope=bot).\u200B`)
+            .addField('Invite', `Invite me to your Discord server [here](https://discord.com/api/oauth2/authorize?client_id=773117222380896276&permissions=18432&scope=bot).\u200B`)
             .setFooter('Made by Alienics 👾')
         message.channel.send(helpEmbed);
     }
