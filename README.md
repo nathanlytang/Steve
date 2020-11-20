@@ -24,7 +24,8 @@ Setup is complete!  Run `-mc status` to display the server status panel.  More c
 ### Self Host
 Alternatively, follow these steps to self host:
 1. Create a new application in the [Discord Developer Portal](https://discord.com/developers/applications).
-2. Clone the repository and `npm install`
+2. Ensure that [node.js](https://nodejs.org/en/) is installed.  Clone the repository and `npm install`.
 3. Create an `env.json` and an `auth.json` file.  
-4. In `auth.json`: copy and paste this `{"token": "EXAMPLE_AUTHENTICATION_KEY"}` and replace with the token from your new application (Application>Bot>Token).
-5. Invite your bot and follow the same Invite instructions above.
+4. In `auth.json`: copy and paste this `{"token": "EXAMPLE_AUTHENTICATION_KEY"}` and replace with the token from your new Discord application (Application>Bot>Token).
+5. `npm start` to start the bot.  It is recommended to set up as a systemd service.
+6. Invite your bot with `Send Message` and `Embed Links` permissions (Application>OAuth2) and follow the same Invite instructions above.
