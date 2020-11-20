@@ -1,4 +1,4 @@
-<img width=100 src="https://i.imgur.com/gb5oeQt.png">
+<p align="center"><img width=100 src="https://i.imgur.com/gb5oeQt.png"></p>
 <h1 align="center">Steve.</h1>
 <p align="center">
     <a href="https://github.com/nathanlytang/Steve" alt="Version"><img src="https://img.shields.io/github/package-json/v/nathanlytang/Steve"/></a>
