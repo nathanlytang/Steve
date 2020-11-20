@@ -6,6 +6,7 @@
     <a href="https://github.com/nathanlytang/Steve" alt="License"><img src="https://img.shields.io/github/license/nathanlytang/Steve"/></a>
     <a href="https://github.com/nathanlytang/Steve" alt="Language"><img src="https://img.shields.io/github/languages/top/nathanlytang/Steve"/></a>   
 </p>
+
 ---
 
 Steve is a Discord bot that tracks your Minecraft servers.  Built in the Node.js environment and the [discord.js](https://discord.js.org/#/) library, Steve aims to provide an easily accessible and well displayed status panel for your server.
