@@ -30,6 +30,15 @@ client.on("guildCreate", (guild) => {
 client.on('message', message => {
     if (!message.content.startsWith(prefix) || message.author.bot) return; // Check if message has bot prefix and message not sent by bot
     if (message.channel.type == "dm") return; // Ignore direct messages
+    if (!message.guild.me.hasPermission("SEND_MESSAGES")) { // Check if send messages enabled
+        console.log(`Server ${message.guild.id.toString()} (${message.guild.name}): No permission to send messages.`);
+        return;
+    }
+    if (!message.guild.me.hasPermission("EMBED_LINKS")) { // Check if embed links enabled
+        console.log(`Server ${message.guild.id.toString()} (${message.guild.name}): No permission to embed links.`);
+        message.channel.send('Please enable the `Embed Links` permission for the Steve role in your Discord server settings!');
+        return;
+    }
 
     const serverID = message.guild.id.toString();
     const env = JSON.parse(fs.readFileSync(path.join(__dirname, "env.json")));
@@ -90,7 +99,6 @@ client.on('message', message => {
                     console.log(`Server ${serverID} (${message.guild.name}): Player number does not match list`)
                     var playerList = 'Unknown';
                 }
-                
 
                 // Create and send server online embed
                 const statusEmbed = new Discord.MessageEmbed()
@@ -186,12 +194,12 @@ client.on('message', message => {
                 .setColor('#62B36F')
                 .setAuthor('Steve Setup Instructions', 'https://i.imgur.com/gb5oeQt.png')
                 .setDescription(`Follow these commands to set me up for your server!`)
-                .addField( 'Minecraft Server Properties', 'In your `server.properties` file, set `enable-query` to `true` and restart the server.')
+                .addField('Minecraft Server Properties', 'In your `server.properties` file, set `enable-query` to `true` and restart the server.')
                 .addFields(
                     { name: 'Commands', value: `${prefix}setup ip <Server IP>\n${prefix}setup name <Server name>\n${prefix}setup footer <Footer message>\n`, inline: true },
                     { name: '\u200B', value: '\u200B', inline: true },
                     { name: 'Description', value: 'Set the server IP (IP or URL accepted)\nSet your server name\nSet a footer message\n', inline: true },
-                    { name: 'Note', value: 'Remove the `<` and the `>` when using the setup commands.'}
+                    { name: 'Note', value: 'Remove the `<` and the `>` when using the setup commands.' }
                 )
             return message.channel.send(setupEmbed);
         }
