@@ -9,7 +9,7 @@ const client = new Discord.Client();
 client.login(auth.token); // Bot authentication token
 
 client.on('ready', () => {
-    console.log(`Logged in as ${client.user.tag}!`);
+    console.log(`Logged in as ${client.user.tag}! Monitoring ${client.guilds.cache.size} servers.`);
     client.user.setPresence({ activity: { name: `${prefix}status | ${prefix}help`, type: 'LISTENING' }, status: 'online' })
         // .then(console.log)
         .catch(console.error);
@@ -191,6 +191,7 @@ client.on('message', message => {
                     { name: 'Commands', value: `${prefix}setup ip <Server IP>\n${prefix}setup name <Server name>\n${prefix}setup footer <Footer message>\n`, inline: true },
                     { name: '\u200B', value: '\u200B', inline: true },
                     { name: 'Description', value: 'Set the server IP (IP or URL accepted)\nSet your server name\nSet a footer message\n', inline: true },
+                    { name: 'Note', value: 'Remove the `<` and the `>` when using the setup commands.'}
                 )
             return message.channel.send(setupEmbed);
         }
