@@ -72,19 +72,25 @@ client.on('message', message => {
             if (status.status && status.online) {
 
                 // Get player list
-                var playerList = 'No current players';
-                if (status.players.online > 0 && status.players.online <= 20) {
-                    var playerList = ``;
-                    for (var i = 0; i < status.players.online; i++) {
-                        if (i % 4 == 0) {
-                            playerList += `\n`;
+                try {
+                    var playerList = 'No current players';
+                    if (status.players.online > 0 && status.players.online <= 20) {
+                        var playerList = ``;
+                        for (var i = 0; i < status.players.online; i++) {
+                            if (i % 4 == 0) {
+                                playerList += `\n`;
+                            }
+                            playerList += `${status.players.sample[i].name}, `;
                         }
-                        playerList += `${status.players.sample[i].name}, `;
+                        playerList = playerList.substring(0, playerList.length - 2);
+                    } else if (status.players.online > 20) {
+                        var playerList = 'Too many to show!';
                     }
-                    playerList = playerList.substring(0, playerList.length - 2);
-                } else if (status.players.online > 20) {
-                    var playerList = 'Too many to show!';
+                } catch {
+                    console.log(`Server ${serverID} (${message.guild.name}): Player number does not match list`)
+                    var playerList = 'Unknown';
                 }
+                
 
                 // Create and send server online embed
                 const statusEmbed = new Discord.MessageEmbed()
