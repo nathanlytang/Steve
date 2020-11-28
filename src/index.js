@@ -27,6 +27,17 @@ client.on("guildCreate", (guild) => {
     fs.writeFileSync(path.join(__dirname, "env.json"), JSON.stringify(env));
 });
 
+client.on("guildDelete", (guild) => {
+    // When the bot is kicked or guild is deleted
+    console.log(`Left guild: ${guild.id} (${guild.name})`);
+
+    // Remove server ID from env.json
+    const env = JSON.parse(fs.readFileSync(path.join(__dirname, "env.json")));
+    const serverID = guild.id.toString();
+    delete env[serverID];
+    fs.writeFileSync(path.join(__dirname, "env.json"), JSON.stringify(env));
+});
+
 client.on('message', message => {
     if (!message.content.startsWith(prefix) || message.author.bot) return; // Check if message has bot prefix and message not sent by bot
     if (message.channel.type == "dm") return; // Ignore direct messages
