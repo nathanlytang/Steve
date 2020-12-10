@@ -6,6 +6,7 @@
     <a href="https://github.com/nathanlytang/Steve" alt="License"><img src="https://img.shields.io/github/license/nathanlytang/Steve"/></a>
     <a href="https://github.com/nathanlytang/Steve" alt="Language"><img src="https://img.shields.io/github/languages/top/nathanlytang/Steve"/></a>   
 </p>
+<p align="center"><img src="assets/preview.png"></p>
 
 ---
 
