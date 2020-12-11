@@ -67,9 +67,9 @@ client.on('message', message => {
             .setAuthor('Steve', 'https://i.imgur.com/gb5oeQt.png')
             .setDescription(`Steve is a Discord bot for Minecraft communities!\nMake it easy to get your server IP and server status.`)
             .addFields(
-                { name: 'Commands', value: `${prefix}help\n${prefix}setup\n${prefix}status\n${prefix}ip\n${prefix}skin <user>\n${prefix}leave\n`, inline: true },
+                { name: 'Commands', value: `${prefix}help\n${prefix}setup\n${prefix}settings\n${prefix}status\n${prefix}ip\n${prefix}skin <user>\n${prefix}leave\n`, inline: true },
                 { name: '\u200B', value: '\u200B', inline: true },
-                { name: 'Description', value: 'Display this message\nDisplay setup instructions\nGet the server status\nGet the server IP address\nGet a username\'s MC skin\nSteve will leave the server\n', inline: true },
+                { name: 'Description', value: 'Display this message\nDisplay setup instructions\nDisplay current settings\nGet the server status\nGet the server IP address\nGet a username\'s MC skin\nSteve will leave the server\n', inline: true },
             )
             .addField('Invite', `Invite me to your Discord server [here](https://discord.com/api/oauth2/authorize?client_id=773117222380896276&permissions=18432&scope=bot).\u200B`)
             .setFooter('Made by Alienics 👾')
@@ -240,7 +240,7 @@ client.on('message', message => {
                 // Get IP address from argument and send to JSON
                 env[serverID].url = args[1];
                 fs.writeFileSync(path.join(__dirname, "env.json"), JSON.stringify(env));
-                console.log(`Successfully set up IP for server ${serverID}`);
+                console.log(`Successfully set up IP for server ${serverID} (${message.guild.name})`);
                 return message.channel.send(`Server IP of \`${args[1]}\` successfully set!`);
             }
             catch (err) {
@@ -261,7 +261,7 @@ client.on('message', message => {
                 // Send server name to JSON and return
                 env[serverID].serverName = name;
                 fs.writeFileSync(path.join(__dirname, "env.json"), JSON.stringify(env));
-                console.log(`Successfully set up name for server ${serverID}`);
+                console.log(`Successfully set up name for server ${serverID} (${message.guild.name})`);
                 return message.channel.send(`Server name of \`${name}\` successfully set!`);
             }
             catch (err) {
@@ -282,7 +282,7 @@ client.on('message', message => {
                 // Send footer to JSON and return
                 env[serverID].footer = footerMessage;
                 fs.writeFileSync(path.join(__dirname, "env.json"), JSON.stringify(env));
-                console.log(`Successfully set up footer for server ${serverID}`);
+                console.log(`Successfully set up footer for server ${serverID} (${message.guild.name})`);
                 return message.channel.send(`Server footer of \`${footerMessage}\` successfully set!`);
             }
             catch (err) {
@@ -315,6 +315,41 @@ client.on('message', message => {
             console.log(`Left guild: ${message.guild.id} (${message.guild.name})`);
             message.guild.leave();
         })();
+    }
+
+    if (command === 'settings') {
+        console.log(`Server ${serverID} (${message.guild.name}) sent settings command`);
+        if (!message.member.hasPermission("ADMINISTRATOR")) { // Check if author is admin
+            const adminEmbed = new Discord.MessageEmbed()
+                .setColor('#E74C3C')
+                .setAuthor('Steve', 'https://i.imgur.com/gb5oeQt.png')
+                .setDescription(`Only administrators can make changes to Steve!`)
+            return message.channel.send(adminEmbed);
+        }
+
+        const serverName = env[serverID].serverName;
+        const serverURL = env[serverID].url;
+        const serverFooter = env[serverID].footer;
+
+        // If guild not set up
+        if ((serverName == "") && (serverURL == "") && (serverFooter == "")) {
+            const noSettingsEmbed = new Discord.MessageEmbed()
+                .setColor('#E74C3C')
+                .setAuthor('Current Settings', 'https://i.imgur.com/gb5oeQt.png')
+                .setDescription('Steve has not been set up on this server yet! Run `-mc setup` continue.')
+            return message.channel.send(noSettingsEmbed);
+        }
+
+        // Else display current settings
+        const settingsEmbed = new Discord.MessageEmbed()
+            .setColor('#62B36F')
+            .setAuthor('Current Settings', 'https://i.imgur.com/gb5oeQt.png')
+            .addFields(
+                { name: 'Server', value: `${serverName}`, inline: true },
+                { name: 'IP address', value: `${serverURL}`, inline: true },
+                { name: 'Footer', value: `${serverFooter}` },
+            )
+        message.channel.send(settingsEmbed);
     }
 
 });
