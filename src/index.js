@@ -216,6 +216,26 @@ client.on('message', message => {
         }
 
         if (args[0] === 'ip') { // Setup IP address / URL
+
+            const privateIPEmbed = new Discord.MessageEmbed()
+                .setColor('#E74C3C')
+                .setTitle('Invalid IP Address')
+                .setDescription('The IP address entered is a private IP address! This means that I cannot reach your server. To continue, please port forward your server query port, and use your public IP address instead.  No changes to your settings have been made.')
+
+            // Check if private IP address
+            if (args[1].startsWith("192.168.") || args[1].startsWith("10.")) {
+                console.log(`\x1b[31m\x1b[1mError setting IP for server ${serverID} (${message.guild.name}):  Private IP address\x1b[0m`);
+                return message.channel.send(privateIPEmbed);
+            }
+            if (args[1].startsWith("172.")) {
+                for (i = 16; i <= 31; i++) {
+                    if (args[1].startsWith(`172.${i}`)) {
+                        console.log(`\x1b[31m\x1b[1mError setting IP for server ${serverID} (${message.guild.name}):  Private IP address\x1b[0m`);
+                        return message.channel.send(privateIPEmbed);
+                    }
+                }
+            }
+
             try {
                 // Get IP address from argument and send to JSON
                 env[serverID].url = args[1];
