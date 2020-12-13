@@ -327,9 +327,9 @@ client.on('message', message => {
             return message.channel.send(adminEmbed);
         }
 
-        const serverName = env[serverID].serverName;
-        const serverURL = env[serverID].url;
-        const serverFooter = env[serverID].footer;
+        let serverName = env[serverID].serverName;
+        let serverURL = env[serverID].url;
+        let serverFooter = env[serverID].footer;
 
         // If guild not set up
         if ((serverName == "") && (serverURL == "") && (serverFooter == "")) {
@@ -341,6 +341,9 @@ client.on('message', message => {
         }
 
         // Else display current settings
+        if (serverName == "") { serverName = "None"; }
+        if (serverURL == "") { serverURL = "None"; }
+        if (serverFooter == "") { serverFooter = "None"; }
         const settingsEmbed = new Discord.MessageEmbed()
             .setColor('#62B36F')
             .setAuthor('Current Settings', 'https://i.imgur.com/gb5oeQt.png')
