@@ -217,6 +217,14 @@ client.on('message', message => {
 
         if (args[0] === 'ip') { // Setup IP address / URL
 
+            if (args[1] == undefined) { // Check if argument included
+                const noArgEmbed = new Discord.MessageEmbed()
+                    .setColor('#E74C3C')
+                    .setTitle(`No IP Specified`)
+                    .setDescription(`No IP was specified!  No changes have been made.`)
+                return message.channel.send(noArgEmbed); 
+            }
+
             const privateIPEmbed = new Discord.MessageEmbed()
                 .setColor('#E74C3C')
                 .setTitle('Invalid IP Address')
@@ -251,6 +259,15 @@ client.on('message', message => {
         }
 
         if (args[0] === 'name') { // Setup server name
+
+            if (args[1] == undefined) { // Check if argument included
+                const noArgEmbed = new Discord.MessageEmbed()
+                    .setColor('#E74C3C')
+                    .setTitle(`No Name Specified`)
+                    .setDescription(`No name was specified!  No changes have been made.`)
+                return message.channel.send(noArgEmbed); 
+            }
+            
             try {
                 // Get server name from arguments
                 var name = ``;
@@ -272,6 +289,15 @@ client.on('message', message => {
         }
 
         if (args[0] === 'footer') { // Setup footer
+
+            if (args[1] == undefined) { // Check if argument included
+                const noArgEmbed = new Discord.MessageEmbed()
+                    .setColor('#E74C3C')
+                    .setTitle(`No Footer Specified`)
+                    .setDescription(`No footer was specified!  No changes have been made.`)
+                return message.channel.send(noArgEmbed); 
+            }
+
             try {
                 // Get footer message from arguments
                 var footerMessage = ``;
