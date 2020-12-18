@@ -52,7 +52,13 @@ client.on('message', message => {
     }
 
     const serverID = message.guild.id.toString();
-    const env = JSON.parse(fs.readFileSync(path.join(__dirname, "env.json")));
+    console.log(`Server ${serverID} (${message.guild.name}) sent command`);
+    try {
+        var env = JSON.parse(fs.readFileSync(path.join(__dirname, "env.json")));
+    } catch (err) {
+        console.log(`Failed to parse env.json: ${err}`);
+        return;
+    }
 
     const commandBody = message.content.slice(prefix.length);
     const args = commandBody.split(' ');
@@ -86,7 +92,17 @@ client.on('message', message => {
         (async () => {
             // Get status from API
             const response = await fetch(`https://eu.mc-api.net/v3/server/ping/${env[serverID].url}`,);
-            const status = await response.json();
+            try {
+                var status = await response.json();
+            } catch (err) {
+                console.log(`Failed to fetch server info: ${err}`);
+                const fetchFailEmbed = new Discord.MessageEmbed()
+                    .setColor('#E74C3C')
+                    .setTitle('Failed to get server information')
+                    .setDescription('Failed to get server information.  Please try again in a few minutes.')
+                message.channel.send(fetchFailEmbed);
+                return;
+            }
 
             // Check status
             if (status.status && status.online) {
@@ -157,7 +173,17 @@ client.on('message', message => {
         (async () => {
             // Get UUID from API
             const response = await fetch(`https://playerdb.co/api/player/minecraft/${args[0]}`,);
-            const playerInfo = await response.json();
+            try {
+                var playerInfo = await response.json();
+            } catch (err) {
+                console.log(`Failed to fetch player skin: ${err}`);
+                const fetchFailEmbed = new Discord.MessageEmbed()
+                    .setColor('#E74C3C')
+                    .setTitle('Failed to get player skin')
+                    .setDescription('Failed to get player skin.  Please try again in a few minutes.')
+                message.channel.send(fetchFailEmbed);
+                return;
+            }
 
             if (playerInfo.code === 'minecraft.api_failure') {
                 return message.channel.send(`${args[0]} is not a valid Minecraft username, ${message.author}!`);
@@ -222,7 +248,7 @@ client.on('message', message => {
                     .setColor('#E74C3C')
                     .setTitle(`No IP Specified`)
                     .setDescription(`No IP was specified!  No changes have been made.`)
-                return message.channel.send(noArgEmbed); 
+                return message.channel.send(noArgEmbed);
             }
 
             const privateIPEmbed = new Discord.MessageEmbed()
@@ -265,9 +291,9 @@ client.on('message', message => {
                     .setColor('#E74C3C')
                     .setTitle(`No Name Specified`)
                     .setDescription(`No name was specified!  No changes have been made.`)
-                return message.channel.send(noArgEmbed); 
+                return message.channel.send(noArgEmbed);
             }
-            
+
             try {
                 // Get server name from arguments
                 var name = ``;
@@ -295,7 +321,7 @@ client.on('message', message => {
                     .setColor('#E74C3C')
                     .setTitle(`No Footer Specified`)
                     .setDescription(`No footer was specified!  No changes have been made.`)
-                return message.channel.send(noArgEmbed); 
+                return message.channel.send(noArgEmbed);
             }
 
             try {
