@@ -18,6 +18,8 @@
   "homepage": "https://github.com/nathanlytang/Steve#readme",
   "dependencies": {
     "discord.js": "^12.4.1",
+    "mcping-js": "^1.5.0",
+    "mcquery": "^1.0.2",
     "node-fetch": "^2.6.1"
   }
 }
