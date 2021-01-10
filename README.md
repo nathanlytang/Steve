@@ -17,8 +17,9 @@ Invite Steve to your Discord server [here](https://discord.com/api/oauth2/author
 
 1. In your `server.properties` file, set `enable-query` to `true` and restart the server.
 2. `-mc setup ip <SERVER IP>` | Set the server IP (URL also accepted)      
-3. `-mc setup name <SERVER NAME>` | Give your server a name          
-4. `-mc setup footer <FOOTER MESSAGE>` | Set a footer message for your status panel
+3. `-mc setup port <SERVER PORT>` | Set the server port (Default 25565)
+4. `-mc setup name <SERVER NAME>` | Give your server a name          
+5. `-mc setup footer <FOOTER MESSAGE>` | Set a footer message for your status panel
 
 Setup is complete!  Run `-mc status` to display the server status panel.  More commands can be found by typing `-mc help` in your Discord server.
 
