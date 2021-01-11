@@ -79,7 +79,7 @@ client.on('message', message => {
                 { name: '\u200B', value: '\u200B', inline: true },
                 { name: 'Description', value: 'Display this message\nDisplay setup instructions\nDisplay current settings\nGet the server status\nGet the server IP address\nGet a username\'s MC skin\nSteve will leave the server\n', inline: true },
             )
-            .addField('Invite', `Invite me to your Discord server [here](https://discord.com/api/oauth2/authorize?client_id=773117222380896276&permissions=18432&scope=bot).\u200B`)
+            .addField('Invite', `Invite me to your Discord server [here](${auth.invite}).\u200B`)
             .setFooter('Made by Alienics 👾')
         message.channel.send(helpEmbed);
     }
@@ -87,113 +87,163 @@ client.on('message', message => {
     if (command === 'status') {
         console.log(`Server ${serverID} (${message.guild.name}) sent status command`);
 
-        if (env[serverID].url == "") { //Check if URL in env.json
-            return message.channel.send('Your server IP has not been set up!  Please specify using `-mc setup ip <SERVER IP>`.');
+        if (env[serverID].url == "") { // Check if URL in env.json
+            return message.channel.send(`Your server IP has not been set up!  Please specify using \`${prefix}setup ip <SERVER IP>\`.`);
         }
 
-        // Create a new query using the server IP/port
-        var query = new Query(env[serverID].url, env[serverID].port);
+        if (env[serverID].query) { // Grab server information using query if querying enabled
+            // Create a new query using the server IP/port
+            var query = new Query(env[serverID].url, env[serverID].port);
 
-        // Sends a query request to the server IP/port
-        query.connect()
-            .then(() => {
-                query.full_stat((err, stat) => {
-                    if (err) {
-                        console.log(`Failed to fetch server info: ${err}`);
-                        const fetchFailEmbed = new Discord.MessageEmbed()
-                            .setColor('#E74C3C')
-                            .setTitle('Failed to get server information')
-                            .setDescription('Failed to get server information.  Please try again in a few minutes.')
-                        message.channel.send(fetchFailEmbed);
-                        return;
-                    }
+            // Sends a query request to the server IP/port
+            query.connect()
+                .then(() => {
+                    query.full_stat((err, stat) => {
+                        if (err) {
+                            statusCheckFail(message, err);
+                        }
 
-                    try {
-                        // Send a ping request to the server IP/port to grab server icon
-                        const ping = new mcping.MinecraftServer(env[serverID].url, env[serverID].port);
-                        ping.ping(4000, -1, (pingErr, res) => {
+                        try {
+                            // Send a ping request to the server IP/port to grab server icon
+                            const ping = new mcping.MinecraftServer(env[serverID].url, env[serverID].port);
+                            ping.ping(4000, -1, (pingErr, res) => {
 
-                            // Convert base64 favion to buffer and include as attachment if server icon exists
-                            if (pingErr || !res.favicon) {
-                                var imgAttach = '../assets/favicon.png';
-                            } else {
-                                var image = Buffer.from(res.favicon.split(",")[1], 'base64');
-                                var imgAttach = new Discord.MessageAttachment(image, "favicon.png");
-                            }
-
-                            // Get player list
-                            try {
-                                var playerList = 'No current players';
-                                if (stat.numplayers > 0 && stat.numplayers <= 20) {
-                                    var playerList = ``;
-                                    for (var i = 0; i < stat.numplayers; i++) {
-                                        if (i % 4 == 0) {
-                                            playerList += `\n`;
-                                        }
-                                        playerList += `${stat.player_[i]}, `;
-                                    }
-                                    playerList = playerList.substring(0, playerList.length - 2);
-                                } else if (stat.numplayers > 20) {
-                                    var playerList = 'Too many to show!';
-                                }
-                            } catch {
-                                console.log(`Server ${serverID} (${message.guild.name}): Player number does not match list`)
-                                if (stat.numplayers > 20) {
-                                    var playerList = 'Too many to show!';
+                                // Convert base64 favion to buffer and include as attachment if server icon exists
+                                if (pingErr || !res.favicon) {
+                                    var imgAttach = '../assets/favicon.png';
                                 } else {
-                                    var playerList = 'Unknown';
+                                    var image = Buffer.from(res.favicon.split(",")[1], 'base64');
+                                    var imgAttach = new Discord.MessageAttachment(image, "favicon.png");
                                 }
-                            }
 
-                            // Create and send server online embed
-                            const statusEmbed = new Discord.MessageEmbed()
-                                .setColor('#2ECC71')
-                                .setTitle('Minecraft Server Status')
-                                .attachFiles([imgAttach])
-                                .addFields(
-                                    { name: 'Status', value: `Online\n`, inline: true },
-                                    { name: 'Version', value: `${stat.version}\n`, inline: true },
-                                )
-                                .setThumbnail('attachment://favicon.png')
-                                .addFields(
-                                    { name: 'Players', value: `${stat.numplayers}/${stat.maxplayers}\n`, inline: true },
-                                    { name: 'List', value: `${playerList}\n`, inline: true },
-                                )
-                                .setFooter(`${env[serverID].footer}`)
-                            message.channel.send(statusEmbed);
-                        })
+                                // Get player list
+                                try {
+                                    var playerList = 'No current players';
+                                    if (stat.numplayers > 0 && stat.numplayers <= 20) {
+                                        var playerList = ``;
+                                        for (var i = 0; i < stat.numplayers; i++) {
+                                            if (i % 4 == 0) {
+                                                playerList += `\n`;
+                                            }
+                                            playerList += `${stat.player_[i]}, `;
+                                        }
+                                        playerList = playerList.substring(0, playerList.length - 2);
+                                    } else if (stat.numplayers > 20) {
+                                        var playerList = 'Too many to show!';
+                                    }
+                                } catch {
+                                    console.log(`Server ${serverID} (${message.guild.name}): Player number does not match list`)
+                                    if (stat.numplayers > 20) {
+                                        var playerList = 'Too many to show!';
+                                    } else {
+                                        var playerList = 'Unknown';
+                                    }
+                                }
 
-                    } catch (err) {
-                        console.log(`Failed to fetch server info: ${err}`);
-                        const fetchFailEmbed = new Discord.MessageEmbed()
-                            .setColor('#E74C3C')
-                            .setTitle('Failed to get server information')
-                            .setDescription('Failed to get server information.  Please try again in a few minutes.')
-                        message.channel.send(fetchFailEmbed);
+                                // Create and send server online embed
+                                const statusEmbed = new Discord.MessageEmbed()
+                                    .setColor('#2ECC71')
+                                    .setTitle('Minecraft Server Status')
+                                    .attachFiles([imgAttach])
+                                    .addFields(
+                                        { name: 'Status', value: `Online\n`, inline: true },
+                                        { name: 'Version', value: `${stat.version}\n`, inline: true },
+                                    )
+                                    .setThumbnail('attachment://favicon.png')
+                                    .addFields(
+                                        { name: 'Players', value: `${stat.numplayers}/${stat.maxplayers}\n`, inline: true },
+                                        { name: 'List', value: `${playerList}\n`, inline: true },
+                                    )
+                                    .setFooter(`${env[serverID].footer}`)
+                                message.channel.send(statusEmbed);
+                            })
+
+                        } catch (err) {
+                            statusCheckFail(message, err);
+                        }
+                        // Close query request when complete
+                        if (query.outstandingRequests === 0) {
+                            query.close()
+                        }
+                    });
+                    return;
+                })
+                .catch(err => {
+                    // Create and send server offline embed
+                    offlineEmbed(message);
+                    return;
+                })
+        } else { // Grab server information using ping if querying disabled
+            try {
+                // Send a ping request to the server IP/port to grab server icon
+                const ping = new mcping.MinecraftServer(env[serverID].url, env[serverID].port);
+                ping.ping(4000, -1, (pingErr, res) => {
+
+                    // Send offline embed if ping error
+                    if (pingErr) {
+                        // Create and send server offline embed
+                        offlineEmbed(message);
                         return;
                     }
-                    // Close query request when complete
-                    if (query.outstandingRequests === 0) {
-                        query.close()
+
+                    // Convert base64 favion to buffer and include as attachment if server icon exists
+                    if (!res.favicon) {
+                        var imgAttach = '../assets/favicon.png';
+                    } else {
+                        var image = Buffer.from(res.favicon.split(",")[1], 'base64');
+                        var imgAttach = new Discord.MessageAttachment(image, "favicon.png");
                     }
-                });
-                return;
-            })
-            .catch(err => {
-                // Create and send server offline embed
-                const statusEmbed = new Discord.MessageEmbed()
+
+                    // Get player list
+                    try {
+                        var playerList = 'No current players';
+                        if (res.players.online > 20) {
+                            var playerList = 'Too many to show!';
+                        } else if (res.players.online > 0 && res.players.online <= 20) {
+                            var playerList = ``;
+                            for (var i = 0; i < res.players.online; i++) {
+                                if (i % 4 == 0) {
+                                    playerList += `\n`;
+                                }
+                                playerList += `${res.players.sample[i].name}, `;
+                            }
+                            playerList = playerList.substring(0, playerList.length - 2);
+                        }
+                    } catch {
+                        console.log(`Server ${serverID} (${message.guild.name}): Player number does not match list`)
+                        var playerList = 'Unknown';
+                    }
+
+                    // Create and send server online embed
+                    const statusEmbed = new Discord.MessageEmbed()
+                        .setColor('#2ECC71')
+                        .setTitle('Minecraft Server Status')
+                        .attachFiles([imgAttach])
+                        .addFields(
+                            { name: 'Status', value: `Online\n`, inline: true },
+                            { name: 'Version', value: `${res.version.name}\n`, inline: true },
+                        )
+                        .setThumbnail('attachment://favicon.png')
+                        .addFields(
+                            { name: 'Players', value: `${res.players.online}/${res.players.max}\n`, inline: true },
+                            { name: 'List', value: `${playerList}\n`, inline: true },
+                        )
+                        .setFooter(`${env[serverID].footer}`)
+                    message.channel.send(statusEmbed);
+                    return;
+                })
+
+            } catch (err) {
+                console.log(`Failed to fetch server info: ${err}`);
+                const fetchFailEmbed = new Discord.MessageEmbed()
                     .setColor('#E74C3C')
-                    .setTitle('Server Status')
-                    .addFields(
-                        { name: 'Status', value: `Offline\n`, inline: true },
-                        { name: 'Version', value: `Unkown\n`, inline: true },
-                    )
-                    .addFields(
-                        { name: 'Players', value: `None\n`, inline: true },
-                    )
-                message.channel.send(statusEmbed);
+                    .setTitle('Failed to get server information')
+                    .setDescription('Failed to get server information.  Please try again in a few minutes.')
+                message.channel.send(fetchFailEmbed);
                 return;
-            })
+            }
+        }
+
     }
 
     if (command === 'skin') {
@@ -265,16 +315,40 @@ client.on('message', message => {
             const setupEmbed = new Discord.MessageEmbed()
                 .setColor('#62B36F')
                 .setAuthor('Steve Setup Instructions', 'https://i.imgur.com/gb5oeQt.png')
-                .setDescription(`Follow these commands to set me up for your server!`)
+                .setDescription(`Follow these commands to set Steve up for your server!`)
                 .addField('Vanilla', '- In your `server.properties` file, set `enable-query` to `true`.\n- In `server.properties`, ensure `query.port` is the same as `server.port`.\n- Ensure the query port is port forwarded if not using server port.\n- Save and restart the server.')
                 .addField('Bungeecord', '- In `config.yml`, set `query_enabled` to `true`.\n- In `config.yml`, ensure `query_port` is the same as server port (`host` port)\n- Ensure the query port is port forwarded if not using server port.\n- Save and restart the proxy.')
                 .addFields(
                     { name: 'Commands', value: `${prefix}setup ip <Server IP>\n${prefix}setup port <Query Port>\n${prefix}setup name <Server name>\n${prefix}setup footer <Footer message>\n`, inline: true },
-                    { name: '\u200B', value: '\u200B', inline: true },
                     { name: 'Description', value: 'Set the server IP (IP or URL accepted)\nSet the server port (Default 25565)\nSet your server name\nSet a footer message\n', inline: true },
+                    { name: 'Unable to use Query', value: `If you cannot enable query on your server, run \`${prefix}setup query <enable|disable>\` to enable or disable querying.  When query is disabled, Steve will instead use server pinging.  Note that this may break some functionality (Player list will not be shown on Bungeecord servers).` },
                     { name: 'Note', value: 'Remove the `<` and the `>` when using the setup commands.' }
                 )
             return message.channel.send(setupEmbed);
+        }
+
+        if (args[0] === 'query') { // Enable or disable query
+            try {
+                if (args[1] === 'enable') {
+                    env[serverID].query = true;
+                    fs.writeFileSync(path.join(__dirname, "env.json"), JSON.stringify(env));
+                    console.log(`Successfully enabled query for server ${serverID} (${message.guild.name})`);
+                    return message.channel.send(`Server querying enabled!  Query will be used instead of ping.`);
+                } else if (args[1] === 'disable') {
+                    env[serverID].query = false;
+                    fs.writeFileSync(path.join(__dirname, "env.json"), JSON.stringify(env));
+                    console.log(`Successfully disabled query for server ${serverID} (${message.guild.name})`);
+                    return message.channel.send(`Server querying disabled!  Server pinging will be used instead.`);
+                } else {
+                    console.log(`\x1b[31m\x1b[1mError setting query to ${args[1]} for server ${serverID} (${message.guild.name}):\x1b[0m`);
+                    return message.channel.send(`Error changing query!`);
+                }
+            }
+            catch (err) {
+                console.log(`\x1b[31m\x1b[1mError setting query to ${args[1]} for server ${serverID} (${message.guild.name}):\x1b[0m`);
+                console.log(err);
+                return message.channel.send(`Error changing query!`);
+            }
         }
 
         if (args[0] === 'ip') { // Setup IP address / URL
@@ -419,7 +493,7 @@ client.on('message', message => {
             const leaveEmbed = new Discord.MessageEmbed()
                 .setColor('#62B36F')
                 .setAuthor('Steve', 'https://i.imgur.com/gb5oeQt.png')
-                .setDescription(`Goodbye! Click [here](https://discord.com/oauth2/authorize?client_id=773117222380896276&permissions=18432&scope=bot) to invite me again.`)
+                .setDescription(`Goodbye! Click [here](${auth.invite}) to invite me again.`)
             await message.channel.send(leaveEmbed);
             // Delete server properties from JSON and leave guild
             delete env[serverID];
@@ -449,7 +523,7 @@ client.on('message', message => {
             const noSettingsEmbed = new Discord.MessageEmbed()
                 .setColor('#E74C3C')
                 .setAuthor('Current Settings', 'https://i.imgur.com/gb5oeQt.png')
-                .setDescription('Steve has not been set up on this server yet! Run `-mc setup` continue.')
+                .setDescription(`Steve has not been set up on this server yet! Run \`${prefix}setup\` continue.`)
             return message.channel.send(noSettingsEmbed);
         }
 
@@ -469,3 +543,29 @@ client.on('message', message => {
     }
 
 });
+
+function statusCheckFail(message, err) {
+    console.log(`Failed to fetch server info: ${err}`);
+    const fetchFailEmbed = new Discord.MessageEmbed()
+        .setColor('#E74C3C')
+        .setTitle('Failed to get server information')
+        .setDescription('Failed to get server information.  Please try again in a few minutes.')
+    message.channel.send(fetchFailEmbed);
+    return;
+}
+
+function offlineEmbed(message) {
+    // Create and send server offline embed
+    const statusEmbed = new Discord.MessageEmbed()
+        .setColor('#E74C3C')
+        .setTitle('Server Status')
+        .addFields(
+            { name: 'Status', value: `Offline\n`, inline: true },
+            { name: 'Version', value: `Unkown\n`, inline: true },
+        )
+        .addFields(
+            { name: 'Players', value: `None\n`, inline: true },
+        )
+    message.channel.send(statusEmbed);
+    return;
+}
