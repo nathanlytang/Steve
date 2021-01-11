@@ -82,6 +82,7 @@ client.on('message', message => {
             .addField('Invite', `Invite me to your Discord server [here](${auth.invite}).\u200B`)
             .setFooter('Made by Alienics 👾')
         message.channel.send(helpEmbed);
+        return;
     }
 
     if (command === 'status') {
@@ -286,18 +287,26 @@ client.on('message', message => {
             message.channel.send(skinEmbed);
 
         })();
+        return;
     }
 
     if (command === 'ip' || command === 'join') { // Get server IP address
         console.log(`Server ${serverID} (${message.guild.name}) sent ip command`);
+
+        // Display the port if not default
+        let serverIP = `${env[serverID].url}:${env[serverID].port}`;
+        if (env[serverID].port == "25565") {
+            serverIP = `${env[serverID].url}`;
+        }
 
         // Create and send join embed
         const joinEmbed = new Discord.MessageEmbed()
             .setColor('#62B36F')
             .setThumbnail(`https://eu.mc-api.net/v3/server/favicon/${env[serverID].url}`)
             .setTitle(`Join the Server`)
-            .setDescription(`Join ${env[serverID].serverName} at **${env[serverID].url}**!`)
+            .setDescription(`Join ${env[serverID].serverName} at **${serverIP}**!`)
         message.channel.send(joinEmbed);
+        return;
     }
 
     if (command === 'setup') {
@@ -501,6 +510,7 @@ client.on('message', message => {
             console.log(`Left guild: ${message.guild.id} (${message.guild.name})`);
             message.guild.leave();
         })();
+        return;
     }
 
     if (command === 'settings') {
@@ -515,8 +525,15 @@ client.on('message', message => {
 
         let serverName = env[serverID].serverName;
         let serverPort = env[serverID].port;
+        let serverQuery = env[serverID].query;
         let serverURL = env[serverID].url;
         let serverFooter = env[serverID].footer;
+
+        if (serverQuery) {
+            serverQuery = "Enabled";
+        } else if (!serverQuery) {
+            serverQuery = "Disabled";
+        }
 
         // If guild not set up
         if ((serverName == "") && (serverURL == "") && (serverFooter == "")) {
@@ -536,10 +553,13 @@ client.on('message', message => {
             .setAuthor('Current Settings', 'https://i.imgur.com/gb5oeQt.png')
             .addFields(
                 { name: 'Server', value: `${serverName}`, inline: true },
-                { name: 'IP address', value: `${serverURL}:${serverPort}`, inline: true },
+                { name: 'IP address', value: `${serverURL}`, inline: true },
+                { name: 'Port', value: `${serverPort}`, inline: true },
+                { name: 'Query', value: `${serverQuery}`, inline: true },
                 { name: 'Footer', value: `${serverFooter}`, inline: true },
             )
         message.channel.send(settingsEmbed);
+        return;
     }
 
 });
