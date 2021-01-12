@@ -5,7 +5,9 @@ const fetch = require('node-fetch');
 const Query = require('mcquery/lib');
 const mcping = require('mcping-js');
 const auth = JSON.parse(fs.readFileSync(path.join(__dirname, "auth.json")));
+const data = "env.json";
 const prefix = '-mc ';
+const invite = `https://discord.com/oauth2/authorize?client_id=${auth.clientid}&permissions=18432&scope=bot`
 
 const client = new Discord.Client();
 client.login(auth.token); // Bot authentication token
@@ -20,13 +22,8 @@ client.on('ready', () => {
 client.on("guildCreate", (guild) => {
     // When the bot joins a server
     console.log(`Joined new guild: ${guild.id} (${guild.name})`);
-
-    // Add server ID to env.json
-    const env = JSON.parse(fs.readFileSync(path.join(__dirname, "env.json")));
-    const serverID = guild.id.toString();
-    var newGuild = { prefix: `${prefix}`, query: true, url: "", port: "25565", serverName: "", footer: "" };
-    env[serverID] = newGuild;
-    fs.writeFileSync(path.join(__dirname, "env.json"), JSON.stringify(env));
+    addGuildToData(guild);
+    return;
 });
 
 client.on("guildDelete", (guild) => {
@@ -34,10 +31,11 @@ client.on("guildDelete", (guild) => {
     console.log(`Left guild: ${guild.id} (${guild.name})`);
 
     // Remove server ID from env.json
-    const env = JSON.parse(fs.readFileSync(path.join(__dirname, "env.json")));
+    const env = JSON.parse(fs.readFileSync(path.join(__dirname, data)));
     const serverID = guild.id.toString();
     delete env[serverID];
-    fs.writeFileSync(path.join(__dirname, "env.json"), JSON.stringify(env));
+    fs.writeFileSync(path.join(__dirname, data), JSON.stringify(env));
+    return;
 });
 
 client.on('message', message => {
@@ -56,11 +54,12 @@ client.on('message', message => {
     const serverID = message.guild.id.toString();
     console.log(`Server ${serverID} (${message.guild.name}) sent command`);
     try {
-        var env = JSON.parse(fs.readFileSync(path.join(__dirname, "env.json")));
+        var env = JSON.parse(fs.readFileSync(path.join(__dirname, data)));
     } catch (err) {
         console.log(`Failed to parse env.json: ${err}`);
         return;
     }
+    if (!env[serverID]) addGuildToEnv(message.guild); // If guild ID not added to data file
 
     const commandBody = message.content.slice(prefix.length);
     const args = commandBody.split(' ');
@@ -79,7 +78,7 @@ client.on('message', message => {
                 { name: '\u200B', value: '\u200B', inline: true },
                 { name: 'Description', value: 'Display this message\nDisplay setup instructions\nDisplay current settings\nGet the server status\nGet the server IP address\nGet a username\'s MC skin\nSteve will leave the server\n', inline: true },
             )
-            .addField('Invite', `Invite me to your Discord server [here](${auth.invite}).\u200B`)
+            .addField('Invite', `Invite me to your Discord server [here](${invite}).\u200B`)
             .setFooter('Made by Alienics 👾')
         message.channel.send(helpEmbed);
         return;
@@ -111,7 +110,7 @@ client.on('message', message => {
 
                                 // Convert base64 favion to buffer and include as attachment if server icon exists
                                 if (pingErr || !res.favicon) {
-                                    var imgAttach = '../assets/favicon.png';
+                                    var imgAttach = 'assets/favicon.png';
                                 } else {
                                     var image = Buffer.from(res.favicon.split(",")[1], 'base64');
                                     var imgAttach = new Discord.MessageAttachment(image, "favicon.png");
@@ -189,7 +188,7 @@ client.on('message', message => {
 
                     // Convert base64 favion to buffer and include as attachment if server icon exists
                     if (!res.favicon) {
-                        var imgAttach = '../assets/favicon.png';
+                        var imgAttach = 'assets/favicon.png';
                     } else {
                         var image = Buffer.from(res.favicon.split(",")[1], 'base64');
                         var imgAttach = new Discord.MessageAttachment(image, "favicon.png");
@@ -340,23 +339,23 @@ client.on('message', message => {
             try {
                 if (args[1] === 'enable') {
                     env[serverID].query = true;
-                    fs.writeFileSync(path.join(__dirname, "env.json"), JSON.stringify(env));
+                    fs.writeFileSync(path.join(__dirname, data), JSON.stringify(env));
                     console.log(`Successfully enabled query for server ${serverID} (${message.guild.name})`);
                     return message.channel.send(`Server querying enabled!  Query will be used instead of ping.`);
                 } else if (args[1] === 'disable') {
                     env[serverID].query = false;
-                    fs.writeFileSync(path.join(__dirname, "env.json"), JSON.stringify(env));
+                    fs.writeFileSync(path.join(__dirname, data), JSON.stringify(env));
                     console.log(`Successfully disabled query for server ${serverID} (${message.guild.name})`);
                     return message.channel.send(`Server querying disabled!  Server pinging will be used instead.`);
                 } else {
                     console.log(`\x1b[31m\x1b[1mError setting query to ${args[1]} for server ${serverID} (${message.guild.name}):\x1b[0m`);
-                    return message.channel.send(`Error changing query!`);
+                    return message.channel.send(`Error changing query!  Ensure you are using \`-mc setup query enable\` or \`-mc setup query disable\`.`);
                 }
             }
             catch (err) {
                 console.log(`\x1b[31m\x1b[1mError setting query to ${args[1]} for server ${serverID} (${message.guild.name}):\x1b[0m`);
                 console.log(err);
-                return message.channel.send(`Error changing query!`);
+                return message.channel.send(`Error changing query!  Ensure you are using \`-mc setup query enable\` or \`-mc setup query disable\`.`);
             }
         }
 
@@ -392,7 +391,7 @@ client.on('message', message => {
             try {
                 // Get IP address from argument and send to JSON
                 env[serverID].url = args[1];
-                fs.writeFileSync(path.join(__dirname, "env.json"), JSON.stringify(env));
+                fs.writeFileSync(path.join(__dirname, data), JSON.stringify(env));
                 console.log(`Successfully set up IP for server ${serverID} (${message.guild.name})`);
                 return message.channel.send(`Server IP of \`${args[1]}\` successfully set!`);
             }
@@ -416,7 +415,7 @@ client.on('message', message => {
             try {
                 // Get IP address from argument and send to JSON
                 env[serverID].port = args[1];
-                fs.writeFileSync(path.join(__dirname, "env.json"), JSON.stringify(env));
+                fs.writeFileSync(path.join(__dirname, data), JSON.stringify(env));
                 console.log(`Successfully set up port for server ${serverID} (${message.guild.name})`);
                 return message.channel.send(`Server port of \`${args[1]}\` successfully set!`);
             }
@@ -446,7 +445,7 @@ client.on('message', message => {
                 name = name.substring(0, name.length - 1);
                 // Send server name to JSON and return
                 env[serverID].serverName = name;
-                fs.writeFileSync(path.join(__dirname, "env.json"), JSON.stringify(env));
+                fs.writeFileSync(path.join(__dirname, data), JSON.stringify(env));
                 console.log(`Successfully set up name for server ${serverID} (${message.guild.name})`);
                 return message.channel.send(`Server name of \`${name}\` successfully set!`);
             }
@@ -476,7 +475,7 @@ client.on('message', message => {
                 footerMessage = footerMessage.substring(0, footerMessage.length - 1);
                 // Send footer to JSON and return
                 env[serverID].footer = footerMessage;
-                fs.writeFileSync(path.join(__dirname, "env.json"), JSON.stringify(env));
+                fs.writeFileSync(path.join(__dirname, data), JSON.stringify(env));
                 console.log(`Successfully set up footer for server ${serverID} (${message.guild.name})`);
                 return message.channel.send(`Server footer of \`${footerMessage}\` successfully set!`);
             }
@@ -502,11 +501,11 @@ client.on('message', message => {
             const leaveEmbed = new Discord.MessageEmbed()
                 .setColor('#62B36F')
                 .setAuthor('Steve', 'https://i.imgur.com/gb5oeQt.png')
-                .setDescription(`Goodbye! Click [here](${auth.invite}) to invite me again.`)
+                .setDescription(`Goodbye! Click [here](${invite}) to invite me again.`)
             await message.channel.send(leaveEmbed);
             // Delete server properties from JSON and leave guild
             delete env[serverID];
-            fs.writeFileSync(path.join(__dirname, "env.json"), JSON.stringify(env));
+            fs.writeFileSync(path.join(__dirname, data), JSON.stringify(env));
             console.log(`Left guild: ${message.guild.id} (${message.guild.name})`);
             message.guild.leave();
         })();
@@ -587,5 +586,15 @@ function offlineEmbed(message) {
             { name: 'Players', value: `None\n`, inline: true },
         )
     message.channel.send(statusEmbed);
+    return;
+}
+
+function addGuildToData(guild) {
+    // Add server ID to data file
+    const env = JSON.parse(fs.readFileSync(path.join(__dirname, data)));
+    const serverID = guild.id.toString();
+    var newGuild = { prefix: `${prefix}`, query: true, url: "", port: "25565", serverName: "", footer: "" };
+    env[serverID] = newGuild;
+    fs.writeFileSync(path.join(__dirname, data), JSON.stringify(env));
     return;
 }
