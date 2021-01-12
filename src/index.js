@@ -6,11 +6,11 @@ const Query = require('mcquery/lib');
 const mcping = require('mcping-js');
 const auth = JSON.parse(fs.readFileSync(path.join(__dirname, "auth.json")));
 const data = "env.json";
-const prefix = '-mct ';
+const prefix = '-mc ';
 const invite = `https://discord.com/oauth2/authorize?client_id=${auth.clientid}&permissions=18432&scope=bot`
 
 const client = new Discord.Client();
-client.login(auth.nightly); // Bot authentication token
+client.login(auth.token); // Bot authentication token
 
 client.on('ready', () => {
     console.log(`Logged in as ${client.user.tag}! Monitoring ${client.guilds.cache.size} servers.`);
