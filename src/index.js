@@ -6,11 +6,11 @@ const Query = require('mcquery/lib');
 const mcping = require('mcping-js');
 const auth = JSON.parse(fs.readFileSync(path.join(__dirname, "auth.json")));
 const data = "env.json";
-const prefix = '-mc ';
+const prefix = '-mct ';
 const invite = `https://discord.com/oauth2/authorize?client_id=${auth.clientid}&permissions=18432&scope=bot`
 
 const client = new Discord.Client();
-client.login(auth.token); // Bot authentication token
+client.login(auth.nightly); // Bot authentication token
 
 client.on('ready', () => {
     console.log(`Logged in as ${client.user.tag}! Monitoring ${client.guilds.cache.size} servers.`);
@@ -110,7 +110,7 @@ client.on('message', message => {
 
                                 // Convert base64 favion to buffer and include as attachment if server icon exists
                                 if (pingErr || !res.favicon) {
-                                    var imgAttach = 'assets/favicon.png';
+                                    var imgAttach = path.join(__dirname, "../assets/favicon.png");
                                 } else {
                                     var image = Buffer.from(res.favicon.split(",")[1], 'base64');
                                     var imgAttach = new Discord.MessageAttachment(image, "favicon.png");
@@ -188,7 +188,7 @@ client.on('message', message => {
 
                     // Convert base64 favion to buffer and include as attachment if server icon exists
                     if (!res.favicon) {
-                        var imgAttach = 'assets/favicon.png';
+                        var imgAttach = path.join(__dirname, "../assets/favicon.png");
                     } else {
                         var image = Buffer.from(res.favicon.split(",")[1], 'base64');
                         var imgAttach = new Discord.MessageAttachment(image, "favicon.png");
