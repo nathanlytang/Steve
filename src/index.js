@@ -5,7 +5,7 @@ const path = require("path");
 const auth = JSON.parse(fs.readFileSync(path.join(__dirname, "auth.json")));
 const data = "env.json";
 client.commands = new Discord.Collection();
-const commandFiles = fs.readdirSync(path.join('src', 'lib')).filter(file => file.endsWith('.js'));
+const commandFiles = fs.readdirSync(path.join(__dirname, 'lib')).filter(file => file.endsWith('.js'));
 var invite;
 const prefix = '-mc ';
 
