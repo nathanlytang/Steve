@@ -44,7 +44,16 @@ client.on("guildDelete", (guild) => {
 });
 
 client.on('message', message => {
-    if (!message.content.startsWith(prefix) || message.author.bot) return; // Check if message has bot prefix and message not sent by bot
+
+    // Check if message has bot prefix / mentions bot
+    if (message.content.startsWith(prefix)) {
+        var sliceLen = prefix.length;
+    } else if (message.mentions.has(client.user.id)) {
+        var sliceLen = 23;
+    } else {
+        return;
+    }
+
     if (message.channel.type == "dm") return; // Ignore direct messages
 
     // Check if bot has permissions
@@ -58,6 +67,7 @@ client.on('message', message => {
         return;
     }
 
+    // Parse data file and get guild ID
     const serverID = message.guild.id.toString();
     console.log(`Server ${serverID} (${message.guild.name}) sent command`);
     try {
@@ -66,10 +76,10 @@ client.on('message', message => {
         console.log(`Failed to parse env.json: ${err}`);
         return;
     }
-    if (!env[serverID]) addGuildToEnv(message.guild); // If guild ID not added to data file
+    if (!env[serverID]) addGuildToData(message.guild); // If guild ID not added to data file
 
     // Separate command and arguments
-    const commandBody = message.content.slice(prefix.length);
+    const commandBody = message.content.slice(sliceLen);
     const args = commandBody.split(' ');
     const commandName = args.shift().toLowerCase();
 
