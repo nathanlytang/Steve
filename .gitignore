@@ -1,4 +1,7 @@
+# Dependency directories
 node_modules
+
+# Environment variables
 env.json
 auth.json
-fakeserver.json
+.env
