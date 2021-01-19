@@ -69,7 +69,7 @@ client.on('message', message => {
 
     // Parse data file and get guild ID
     const serverID = message.guild.id.toString();
-    console.log(`Server ${serverID} (${message.guild.name}) sent command`);
+    console.log(`Server ${serverID} (${message.guild.name}) sent command: ${message.content}`);
     try {
         var env = JSON.parse(fs.readFileSync(path.join(__dirname, data)));
     } catch (err) {
@@ -101,10 +101,10 @@ client.on('message', message => {
 
     // Command handler
     try {
-        command.execute(Discord, env, serverID, message, args, invite)
+        command.execute(Discord, env, serverID, message, args, invite);
     } catch (error) {
         console.error(error);
-        message.reply('There was an error trying to execute that command!');
+        return message.channel.send('There was an error trying to execute that command!');
     }
 
 });
