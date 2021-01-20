@@ -25,7 +25,32 @@ module.exports = {
             return message.channel.send(setupEmbed);
         }
 
+        // Remove comparison symbols on single argument setups
+        if (args[1] && (args[0] === 'query' || args[0] === 'ip' || args[0] === 'port')) {
+            if (args[1].startsWith('<')) {
+                args[1] = args[1].substring(1);
+            }
+            if (args[1].endsWith('>')) {
+                args[1] = args[1].slice(0, -1);
+            }
+        }
+
         if (args[0] === 'query') { // Enable or disable query
+
+            if (args.length == 1) { // Check if not enough arguments
+                const noArgEmbed = new Discord.MessageEmbed()
+                    .setColor('#E74C3C')
+                    .setTitle(`Query enable or disable not specified`)
+                    .setDescription(`Please set \`enable\` or \`disable\`!  No changes have been made.`)
+                return message.channel.send(noArgEmbed);
+            } else if (args.length > 2) { // Check if too many arguments
+                const noArgEmbed = new Discord.MessageEmbed()
+                    .setColor('#E74C3C')
+                    .setTitle(`Too Many Arguments`)
+                    .setDescription(`Please input only \`enable\` or \`disable\`!  No changes have been made.`)
+                return message.channel.send(noArgEmbed);
+            }
+
             try {
                 if (args[1] === 'enable') {
                     env[serverID].query = true;
@@ -51,12 +76,18 @@ module.exports = {
 
         if (args[0] === 'ip') { // Setup IP address / URL
 
-            if (args[1] == undefined) { // Check if argument included
+            if (args[1] == undefined) { // Check if not enough arguments
                 const noArgEmbed = new Discord.MessageEmbed()
                     .setColor('#E74C3C')
                     .setTitle(`No IP Specified`)
                     .setDescription(`No IP was specified!  No changes have been made.`)
                 return message.channel.send(noArgEmbed);
+            } else if (args.length > 2) { // Check if too many arguments
+                const tooManyArgEmbed = new Discord.MessageEmbed()
+                    .setColor('#E74C3C')
+                    .setTitle(`Too Many Arguments`)
+                    .setDescription(`Too many arguments!  Please enter only one IP Address or URL.  No changes have been made.`)
+                return message.channel.send(tooManyArgEmbed);
             }
 
             const privateIPEmbed = new Discord.MessageEmbed()
@@ -94,12 +125,18 @@ module.exports = {
 
         if (args[0] === 'port') { // Setup server port
 
-            if (args[1] == undefined) { // Check if argument included
+            if (args[1] == undefined) { // Check if not enough arguments
                 const noArgEmbed = new Discord.MessageEmbed()
                     .setColor('#E74C3C')
                     .setTitle(`No Port Specified`)
                     .setDescription(`No port was specified!  No changes have been made.`)
                 return message.channel.send(noArgEmbed);
+            } else if (args.length > 2) { // Check if too many arguments
+                const tooManyArgEmbed = new Discord.MessageEmbed()
+                    .setColor('#E74C3C')
+                    .setTitle(`Too Many Arguments`)
+                    .setDescription(`Too many arguments!  Please enter only one server port.  No changes have been made.`)
+                return message.channel.send(tooManyArgEmbed);
             }
 
             try {
