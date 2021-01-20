@@ -103,7 +103,15 @@ module.exports = {
             }
 
             try {
-                // Get IP address from argument and send to JSON
+                let port = Number(args[1]);
+                if (port === NaN || !Number.isInteger(port) || port < 1 || port > 65535) { // Ensure valid port
+                    const badPortEmbed = new Discord.MessageEmbed()
+                        .setColor('#E74C3C')
+                        .setTitle(`Port Not Allowed`)
+                        .setDescription(`Please ensure your port is a number between 1 and 65535!  No changes have been made.`)
+                    return message.channel.send(badPortEmbed);
+                }
+                // Get server port from argument and send to JSON
                 env[serverID].port = args[1];
                 fs.writeFileSync(path.join(__dirname, data), JSON.stringify(env));
                 console.log(`Successfully set up port for server ${serverID} (${message.guild.name})`);
