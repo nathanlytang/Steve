@@ -39,7 +39,7 @@ module.exports = {
         console.log(`Server ${serverID} (${message.guild.name}) sent status command`);
 
         if (env[serverID].url == "") { // Check if URL in env.json
-            return message.channel.send(`Your server IP has not been set up!  Please specify using \`${prefix}setup ip <SERVER IP>\`.`);
+            return message.channel.send(`Your server IP has not been set up!  Please use \`${env[serverID].prefix}setup\` to get the setup information.`);
         }
 
         if (env[serverID].query) { // Grab server information using query if querying enabled

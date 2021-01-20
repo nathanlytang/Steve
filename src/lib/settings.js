@@ -22,7 +22,7 @@ module.exports = {
             const noSettingsEmbed = new Discord.MessageEmbed()
                 .setColor('#E74C3C')
                 .setAuthor('Current Settings', 'https://i.imgur.com/gb5oeQt.png')
-                .setDescription(`Steve has not been set up on this server yet! Run \`${prefix}setup\` continue.`)
+                .setDescription(`Steve has not been set up on this server yet! Run \`${env[serverID].prefix}setup\` continue.`)
             return message.channel.send(noSettingsEmbed);
         }
 
