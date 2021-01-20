@@ -27,7 +27,13 @@ client.on('ready', () => {
 client.on("guildCreate", (guild) => {
     // When the bot joins a server
     console.log(`Joined new guild: ${guild.id} (${guild.name})`);
-    addGuildToData(guild);
+    let { env, serverID } = addGuildToData(guild);
+    const welcomeEmbed = new Discord.MessageEmbed()
+        .setColor('#62B36F')
+        .setAuthor('Steve', 'https://i.imgur.com/gb5oeQt.png')
+        .setDescription(`Hello! I'm Steve, a bot designed to get and display your Minecraft server status!  Thanks for adding me to your server.  To view all my available commands, use \`${env[serverID].prefix} help\`.`)
+        .setFooter('Made by Alienics 👾')
+    guild.systemChannel.send(welcomeEmbed);
     return;
 });
 
@@ -68,7 +74,7 @@ client.on('message', message => {
     }
 
     // Parse data file and get guild ID
-    const serverID = message.guild.id.toString();
+    var serverID = message.guild.id.toString();
     console.log(`Server ${serverID} (${message.guild.name}) sent command: ${message.content}`);
     try {
         var env = JSON.parse(fs.readFileSync(path.join(__dirname, data)));
@@ -76,7 +82,10 @@ client.on('message', message => {
         console.log(`Failed to parse env.json: ${err}`);
         return;
     }
-    if (!env[serverID]) addGuildToData(message.guild); // If guild ID not added to data file
+
+    if (!env[serverID]) {
+        var { env, serverID } = addGuildToData(message.guild); // If guild ID not added to data file
+    }
 
     // Separate command and arguments
     const commandBody = message.content.slice(sliceLen);
@@ -116,5 +125,5 @@ function addGuildToData(guild) {
     var newGuild = { prefix: `${prefix}`, query: true, url: "", port: "25565", serverName: "", footer: "" };
     env[serverID] = newGuild;
     fs.writeFileSync(path.join(__dirname, data), JSON.stringify(env));
-    return;
+    return { env, serverID };
 }
