@@ -48,7 +48,7 @@ client.on('message', message => {
     // Check if message has bot prefix / mentions bot
     if (message.content.startsWith(prefix)) {
         var sliceLen = prefix.length;
-    } else if (message.mentions.has(client.user.id)) {
+    } else if (message.mentions.has(client.user.id) && !message.mentions.everyone) {
         var sliceLen = 23;
     } else {
         return;
