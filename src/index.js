@@ -1,5 +1,6 @@
 const Discord = require('discord.js');
 require('dotenv').config();
+const version = process.env.NODE_ENV;
 const client = new Discord.Client();
 const fs = require('fs');
 const path = require("path");
@@ -15,7 +16,11 @@ for (const file of commandFiles) {
     client.commands.set(command.name, command);
 }
 
-client.login(); // Bot authentication token
+if (version === 'production') {
+    client.login(); // Production build
+} else {
+    client.login(process.env.NIGHTLY); // Nightly build
+}
 
 client.on('ready', () => {
     console.log(`Logged in as ${client.user.tag}! Monitoring ${client.guilds.cache.size} servers.`);
