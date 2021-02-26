@@ -4,7 +4,9 @@
   "description": "A Discord bot for Minecraft players",
   "main": "src/index.js",
   "scripts": {
-    "start": "node ."
+    "start": "node .",
+    "production": "NODE_ENV=production&&npm start",
+    "development": "NODE_ENV=development&&npm start"
   },
   "repository": {
     "type": "git",
