@@ -37,7 +37,7 @@ client.on("guildCreate", (guild) => {
         .setColor('#62B36F')
         .setAuthor('Steve', 'https://i.imgur.com/gb5oeQt.png')
         .setDescription(`Hello! I'm Steve, a bot designed to get and display your Minecraft server status!  Thanks for adding me to your server.  To view all my available commands, use \`${env[serverID].prefix} help\`.`)
-        .setFooter('Made by Alienics 👾')
+        .setFooter('Made by Alienics#5796 👾')
     guild.systemChannel.send(welcomeEmbed);
     return;
 });
