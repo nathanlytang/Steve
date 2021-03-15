@@ -2,10 +2,8 @@ module.exports = {
     name: 'setup',
     permissions: 'ADMINISTRATOR',
     description: 'Get server setup',
-    execute(Discord, env, serverID, message, args, invite) {
-        const fs = require('fs');
-        const path = require("path");
-        const data = "../env.json";
+    execute(Discord, pool, serverID, message, args, invite, prefix) {
+        const SQL_Query = require('../../db/query');
 
         console.log(`Server ${serverID} (${message.guild.name}) sent setup command`);
 
@@ -17,9 +15,9 @@ module.exports = {
                 .addField('Vanilla', '- In your `server.properties` file, set `enable-query` to `true`.\n- In `server.properties`, ensure `query.port` is the same as `server.port`.\n- Ensure the query port is port forwarded if not using server port.\n- Save and restart the server.')
                 .addField('Bungeecord', '- In `config.yml`, set `query_enabled` to `true`.\n- In `config.yml`, ensure `query_port` is the same as server port (`host` port)\n- Ensure the query port is port forwarded if not using server port.\n- Save and restart the proxy.')
                 .addFields(
-                    { name: 'Commands', value: `${env[serverID].prefix}setup ip <Server IP>\n${env[serverID].prefix}setup port <Query Port>\n${env[serverID].prefix}setup name <Server name>\n${env[serverID].prefix}setup footer <Footer message>\n`, inline: true },
+                    { name: 'Commands', value: `${prefix}setup ip <Server IP>\n${prefix}setup port <Query Port>\n${prefix}setup name <Server name>\n${prefix}setup footer <Footer message>\n`, inline: true },
                     { name: 'Description', value: 'Set the server IP (IP or URL accepted)\nSet the server port (Default 25565)\nSet your server name\nSet a footer message\n', inline: true },
-                    { name: 'Unable to use Query', value: `If you cannot enable query on your server, run \`${env[serverID].prefix}setup query <enable|disable>\` to enable or disable querying.  When query is disabled, Steve will instead use server pinging.  Note that this may break some functionality (Player list will not be shown on Bungeecord servers).` },
+                    { name: 'Unable to use Query', value: `If you cannot enable query on your server, run \`${prefix}setup query <enable|disable>\` to enable or disable querying.  When query is disabled, Steve will instead use server pinging.  Note that this may break some functionality (Player list will not be shown on Bungeecord servers).` },
                     { name: 'Note', value: 'Remove the `<` and the `>` when using the setup commands.' }
                 )
             return message.channel.send(setupEmbed);
@@ -52,16 +50,34 @@ module.exports = {
             }
 
             try {
-                if (args[1] === 'enable') {
-                    env[serverID].query = true;
-                    fs.writeFileSync(path.join(__dirname, data), JSON.stringify(env));
-                    console.log(`Successfully enabled query for server ${serverID} (${message.guild.name})`);
-                    return message.channel.send(`Server querying enabled!  Query will be used instead of ping.`);
-                } else if (args[1] === 'disable') {
-                    env[serverID].query = false;
-                    fs.writeFileSync(path.join(__dirname, data), JSON.stringify(env));
-                    console.log(`Successfully disabled query for server ${serverID} (${message.guild.name})`);
-                    return message.channel.send(`Server querying disabled!  Server pinging will be used instead.`);
+                if (args[1] === 'enable') { // Use query instead of ping
+                    let sql = "UPDATE guild_data SET query = ? WHERE guild_id = ?;";
+                    let vars = [1, serverID];
+                    let setup_query = new SQL_Query(pool, sql, vars);
+                    setup_query.query()
+                        .then(() => {
+                            console.log(`Successfully enabled query for server ${serverID} (${message.guild.name})`);
+                            return message.channel.send(`Server querying enabled!  Query will be used instead of ping.`);
+                        })
+                        .catch(() => {
+                            console.log(`\x1b[31m\x1b[1mError setting query to ${args[1]} for server ${serverID} (${message.guild.name}):\x1b[0m`);
+                            return message.channel.send(`Error changing query!  Ensure you are using \`-mc setup query enable\` or \`-mc setup query disable\`.`);
+                        })
+
+                } else if (args[1] === 'disable') { // Use ping instead of query
+                    let sql = "UPDATE guild_data SET query = ? WHERE guild_id = ?;";
+                    let vars = [0, serverID];
+                    let setup_query = new SQL_Query(pool, sql, vars);
+                    setup_query.query()
+                        .then(() => {
+                            console.log(`Successfully disabled query for server ${serverID} (${message.guild.name})`);
+                            return message.channel.send(`Server querying disabled!  Server pinging will be used instead.`);
+                        })
+                        .catch(() => {
+                            console.log(`\x1b[31m\x1b[1mError setting query to ${args[1]} for server ${serverID} (${message.guild.name}):\x1b[0m`);
+                            return message.channel.send(`Error changing query!  Ensure you are using \`-mc setup query enable\` or \`-mc setup query disable\`.`);
+                        })
+
                 } else {
                     console.log(`\x1b[31m\x1b[1mError setting query to ${args[1]} for server ${serverID} (${message.guild.name}):\x1b[0m`);
                     return message.channel.send(`Error changing query!  Ensure you are using \`-mc setup query enable\` or \`-mc setup query disable\`.`);
@@ -110,11 +126,20 @@ module.exports = {
             }
 
             try {
-                // Get IP address from argument and send to JSON
-                env[serverID].url = args[1];
-                fs.writeFileSync(path.join(__dirname, data), JSON.stringify(env));
-                console.log(`Successfully set up IP for server ${serverID} (${message.guild.name})`);
-                return message.channel.send(`Server IP of \`${args[1]}\` successfully set!`);
+                // Update URL in database
+                let sql = "UPDATE guild_data SET url = ? WHERE guild_id = ?;";
+                let vars = [args[1], serverID];
+                let setup_query = new SQL_Query(pool, sql, vars);
+                setup_query.query()
+                    .then(() => {
+                        console.log(`Successfully set up IP for server ${serverID} (${message.guild.name})`);
+                        return message.channel.send(`Server IP of \`${args[1]}\` successfully set!`);
+                    })
+                    .catch(() => {
+                        console.log(`\x1b[31m\x1b[1mError setting IP for server ${serverID} (${message.guild.name}):\x1b[0m`);
+                        console.log(err);
+                        return message.channel.send(`Error setting IP!`);
+                    })
             }
             catch (err) {
                 console.log(`\x1b[31m\x1b[1mError setting IP for server ${serverID} (${message.guild.name}):\x1b[0m`);
@@ -148,11 +173,21 @@ module.exports = {
                         .setDescription(`Please ensure your port is a number between 1 and 65535!  No changes have been made.`)
                     return message.channel.send(badPortEmbed);
                 }
-                // Get server port from argument and send to JSON
-                env[serverID].port = args[1];
-                fs.writeFileSync(path.join(__dirname, data), JSON.stringify(env));
-                console.log(`Successfully set up port for server ${serverID} (${message.guild.name})`);
-                return message.channel.send(`Server port of \`${args[1]}\` successfully set!`);
+
+                // Update port in database
+                let sql = "UPDATE guild_data SET port = ? WHERE guild_id = ?;";
+                let vars = [args[1], serverID];
+                let setup_query = new SQL_Query(pool, sql, vars);
+                setup_query.query()
+                    .then(() => {
+                        console.log(`Successfully set up port for server ${serverID} (${message.guild.name})`);
+                        return message.channel.send(`Server port of \`${args[1]}\` successfully set!`);
+                    })
+                    .catch(() => {
+                        console.log(`\x1b[31m\x1b[1mError setting port for server ${serverID} (${message.guild.name}):\x1b[0m`);
+                        console.log(err);
+                        return message.channel.send(`Error setting port!`);
+                    })
             }
             catch (err) {
                 console.log(`\x1b[31m\x1b[1mError setting port for server ${serverID} (${message.guild.name}):\x1b[0m`);
@@ -178,11 +213,21 @@ module.exports = {
                     name += `${args[i]} `;
                 }
                 name = name.substring(0, name.length - 1);
-                // Send server name to JSON and return
-                env[serverID].serverName = name;
-                fs.writeFileSync(path.join(__dirname, data), JSON.stringify(env));
-                console.log(`Successfully set up name for server ${serverID} (${message.guild.name})`);
-                return message.channel.send(`Server name of \`${name}\` successfully set!`);
+
+                // Update name in database
+                let sql = "UPDATE guild_data SET name = ? WHERE guild_id = ?;";
+                let vars = [name, serverID];
+                let setup_query = new SQL_Query(pool, sql, vars);
+                setup_query.query()
+                    .then(() => {
+                        console.log(`Successfully set up name for server ${serverID} (${message.guild.name})`);
+                        return message.channel.send(`Server name of \`${name}\` successfully set!`);
+                    })
+                    .catch(() => {
+                        console.log(`\x1b[31m\x1b[1mError setting name for server ${serverID} (${message.guild.name}):\x1b[0m`);
+                        console.log(err);
+                        return message.channel.send(`Error setting name!`);
+                    })
             }
             catch (err) {
                 console.log(`\x1b[31m\x1b[1mError setting name for server ${serverID} (${message.guild.name}):\x1b[0m`);
@@ -208,11 +253,22 @@ module.exports = {
                     footerMessage += `${args[i]} `;
                 }
                 footerMessage = footerMessage.substring(0, footerMessage.length - 1);
-                // Send footer to JSON and return
-                env[serverID].footer = footerMessage;
-                fs.writeFileSync(path.join(__dirname, data), JSON.stringify(env));
-                console.log(`Successfully set up footer for server ${serverID} (${message.guild.name})`);
-                return message.channel.send(`Server footer of \`${footerMessage}\` successfully set!`);
+
+                // Update footer message in database
+                let sql = "UPDATE guild_data SET footer = ? WHERE guild_id = ?;";
+                let vars = [footerMessage, serverID];
+                let setup_query = new SQL_Query(pool, sql, vars);
+                setup_query.query()
+                    .then(() => {
+                        console.log(`Successfully set up footer for server ${serverID} (${message.guild.name})`);
+                        return message.channel.send(`Server footer of \`${footerMessage}\` successfully set!`);
+                    })
+                    .catch(() => {
+                        console.log(`\x1b[31m\x1b[1mError setting footer for server ${serverID} (${message.guild.name}):\x1b[0m`);
+                        console.log(err);
+                        return message.channel.send(`Error setting footer!`);
+                    })
+
             }
             catch (err) {
                 console.log(`\x1b[31m\x1b[1mError setting footer for server ${serverID} (${message.guild.name}):\x1b[0m`);
