@@ -1,7 +1,7 @@
 module.exports = {
 	name: 'skin',
 	description: 'Get player skin',
-	execute(Discord, env, serverID, message, args, invite) {
+	execute(Discord, pool, serverID, message, args, invite, prefix) {
         const fetch = require('node-fetch');
         
         console.log(`Server ${serverID} (${message.guild.name}) sent skin command`);

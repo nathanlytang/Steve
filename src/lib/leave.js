@@ -2,11 +2,7 @@ module.exports = {
 	name: 'leave',
     permissions: 'ADMINISTRATOR',
 	description: 'Leave the server',
-	execute(Discord, env, serverID, message, args, invite) {
-        const fs = require('fs');
-        const path = require("path");
-        const data = "../env.json";
-
+	execute(Discord, pool, serverID, message, args, invite, prefix) {
         console.log(`Server ${serverID} (${message.guild.name}) sent leave command`);
         
         (async () => {
