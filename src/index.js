@@ -9,7 +9,7 @@ const SQL_Query = require('../db/query');
 client.commands = new Discord.Collection();
 const commandFiles = fs.readdirSync(path.join(__dirname, 'lib')).filter(file => file.endsWith('.js'));
 var invite;
-const prefix = '-mct ';
+const prefix = '-mc ';
 
 // Put commands in collection
 for (const file of commandFiles) {
