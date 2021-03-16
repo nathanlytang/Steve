@@ -1,5 +1,4 @@
 const Discord = require('discord.js');
-const { create } = require('domain');
 require('dotenv').config();
 const version = process.env.NODE_ENV;
 const client = new Discord.Client();
@@ -25,6 +24,23 @@ if (version === 'production') {
 }
 
 client.on('ready', () => {
+    // Create database table if not exists
+    let sql = " SHOW TABLES LIKE ? "
+    let vars = ['guild_data'];
+    let table_exists = new SQL_Query(pool, sql, vars);
+    table_exists.query()
+        .then((rows) => {
+            if (rows.length === 1) {
+                console.log('Database table detected. Using existing table.')
+            } else if (rows.length === 0) {
+                createtable();
+            }
+        })
+        .catch((err) => {
+            console.log("Error while checking if table exists.");
+            console.log(err);
+        })
+
     console.log(`Logged in as ${client.user.tag}! Monitoring ${client.guilds.cache.size} servers.`);
     client.user.setPresence({ activity: { name: `${prefix}status | ${prefix}help`, type: 'LISTENING' }, status: 'online' })
         .catch(console.error);
@@ -83,8 +99,22 @@ client.on('message', message => {
         return;
     }
 
-    // Get guild ID
+    // Get guild ID and check if guild in database
     var serverID = message.guild.id.toString();
+    let sql = ' SELECT * FROM guild_data WHERE guild_id = ? ';
+    let vars = [serverID];
+    let guild_exists = new SQL_Query(pool, sql, vars);
+    guild_exists.query()
+        .then((rows) => {
+            if (rows.length === 0) {
+                console.log(`Server ${serverID} (${message.guild.name}): Guild not found in database.  Adding to database.`);
+                addGuildToData(message.guild);
+            }
+        })
+        .catch((err) => {
+            console.log("Error while checking if guild exists:")
+            console.log(err);
+        })
 
     // Separate command and arguments
     const commandBody = message.content.slice(sliceLen);
@@ -125,9 +155,29 @@ function addGuildToData(guild) {
     const add_guild = new SQL_Query(pool, sql, vars);
     add_guild.query()
         .catch((err) => {
-            console.log(`\x1b[31m\x1b[1mError adding guild to database for guild ${serverID} (${message.guild.name}):\x1b[0m`);
+            console.log(`\x1b[31m\x1b[1mError adding guild to database for guild ${serverID} (${guild.name}):\x1b[0m`);
             console.log(err);
             return;
         })
     return;
+}
+
+function createtable() {
+    // Create new table if not already existing in database
+    let sql = `CREATE TABLE IF NOT EXISTS guild_data (
+        guild_id VARCHAR(18) NOT NULL,   
+        query BOOLEAN NOT NULL DEFAULT 1,          
+        port VARCHAR(5) NOT NULL DEFAULT '25565',   
+        url VARCHAR(2048) DEFAULT '',   
+        name VARCHAR(50) DEFAULT '',   
+        footer VARCHAR(50) DEFAULT '',   
+        prefix VARCHAR(10) NOT NULL DEFAULT '-mc ',   
+        PRIMARY KEY ( guild_id )) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;`;
+    let create_table = new SQL_Query(pool, sql);
+    create_table.query()
+        .then(console.log(`Created new table.`))
+        .catch((err) => {
+            console.log("Failed to create new table");
+            console.log(err);
+        })
 }
