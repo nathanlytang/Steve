@@ -57,18 +57,18 @@ DB_PASSWORD=<DATABASE_PASSWORD_HERE>
 >Skip this section if you are hosting the bot on Linux.  If you are hosting the bot on Windows, a slight modification to the `package.json` file is required.  Below is the section you will modify:
 >```json
 >"scripts": {
-    "start": "node .",
-    "production": "NODE_ENV=production&&npm start",
-    "development": "NODE_ENV=development&&npm start"
-},
+>    "start": "node .",
+>    "production": "NODE_ENV=production&&npm start",
+>    "development": "NODE_ENV=development&&npm start"
+>},
 >```
 >Open the `package.json` file in a text editor and change the line
 >```json
-"production": "NODE_ENV=production&&npm start",
+>"production": "NODE_ENV=production&&npm start",
 >```
 >to 
 >```json
-"production": "set NODE_ENV=production&&npm start",
+>"production": "set NODE_ENV=production&&npm start",
 >```
 >then save and close the file.
 
