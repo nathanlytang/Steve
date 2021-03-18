@@ -108,7 +108,7 @@ WantedBy=multi-user.target
 Replace <YOUR USERNAME> and <YOUR GROUP> with your Linux username and group.
 
 ### Backups
-It is recommended to back up your database every so often, as to not lose any data in the event of a potential hardware failure.  To make backups easy, all you need to do is run the [backup script](../../scripts/backup.sh) to create a timedate backup file of the database.
+It is recommended to back up your database every so often, as to not lose any data in the event of a potential hardware or data failure.  To make backups easy, all you need to do is run the [backup script](../../scripts/backup.sh) to create a timedate backup file of the database.
 
 To automate this process, we will use cron.
 
