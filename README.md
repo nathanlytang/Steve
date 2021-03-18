@@ -30,9 +30,12 @@ Invite Steve to your Discord server [here](https://discord.com/api/oauth2/author
 If you cannot enable query on your server, run `-mc setup query <enable|disable` to enable or disable querying. When query is disabled, Steve will instead use server pinging. Note that this may break some functionality (Player list will not be shown on Bungeecord servers).
 
 ### Use the Setup commands
-`-mc setup ip <SERVER IP>` | Set the server IP (URL also accepted)      
+`-mc setup ip <SERVER IP>` | Set the server IP (URL also accepted)
+
 `-mc setup port <SERVER PORT>` | Set the server port (Default 25565)
-`-mc setup name <SERVER NAME>` | Give your server a name          
+
+`-mc setup name <SERVER NAME>` | Give your server a name
+
 `-mc setup footer <FOOTER MESSAGE>` | Set a footer message for your status panel
 
 
