@@ -1,6 +1,9 @@
 # Dependency directories
 node_modules
 
+# Other directories
+backups
+
 # Environment variables
 env.json
 auth.json
