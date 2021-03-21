@@ -2,8 +2,19 @@
 
 The following document is a tutorial on how to host the bot yourself.  Click [here](https://discord.com/oauth2/authorize?client_id=773117222380896276&permissions=18432&scope=bot) to invite the bot if you do not wish to self host.
 
+## Install Script
+A script is available [here](https://raw.githubusercontent.com/nathanlytang/Steve/master/scripts/setup.sh) for Linux installations.  If you are using Windows or do not wish to use this script, skip to the next section.
+
+To use this script, run this command with **root access**:
+```bash
+wget -q https://raw.githubusercontent.com/nathanlytang/Steve/master/scripts/setup.sh && sudo ./setup.sh
+```
+**NOTE**: The Discord application still must be created manually on the [Discord Developer Portal](https://discord.com/developers/applications). The guide on setting up a Discord application can be found [here](#discord-developer-portal).
+
+This script is also a configuration script, and can be run to change your environment configuration.  Note that database names cannot be changed in MySQL after they have been created. 
+
 ## Dependencies
-* Node.js `v12` or higher.
+* Node.js `v12` or higher with npm
 * MySQL `8` or higher **or** MariaDB `v10.5` or higher
 * A Windows or Linux (Ubuntu and Debian tested) environment to run the bot
 
