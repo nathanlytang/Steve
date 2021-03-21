@@ -39,6 +39,6 @@ then
     rm $BACKUP/$FILE
     exit 1
 else
-    echo "Backup sucessful.  Backup stored in $BACKUP/$FILE."
+    echo "Backup successful.  Backup stored in $BACKUP/$FILE."
     exit 0
 fi
