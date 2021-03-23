@@ -181,3 +181,9 @@ function createtable() {
             console.log(err);
         })
 }
+
+
+process.on('SIGTERM', () => {
+    console.log('SIGTERM signal received.');
+    process.exit(0);
+});
