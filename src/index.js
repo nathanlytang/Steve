@@ -41,6 +41,8 @@ client.on('ready', () => {
             console.log(err);
         })
 
+    // guild_list = client.guilds.cache.map(guild => guild.id);
+    
     console.log(`Logged in as ${client.user.tag}! Monitoring ${client.guilds.cache.size} servers.`);
     client.user.setPresence({ activity: { name: `${prefix}status | ${prefix}help`, type: 'LISTENING' }, status: 'online' })
         .catch(console.error);
@@ -182,8 +184,12 @@ function createtable() {
         })
 }
 
-
-process.on('SIGTERM', () => {
+// Node.js signal event listeners
+process.on('SIGTERM', () => { // kill process
     console.log('SIGTERM signal received.');
     process.exit(0);
 });
+process.on('SIGINT', () => { // Ctrl+C
+    console.log('SIGINT signal recieved');
+    process.exit(0);
+})
