@@ -8,7 +8,7 @@ module.exports = {
 
         // Execute SQL
         let sql = "SELECT url, port, name FROM guild_data WHERE guild_id = ?;";
-        vars = [serverID];
+        let vars = [serverID];
         var join = new SQL_Query(pool, sql, vars);
         join.query()
             // If rows successfully returned
@@ -24,7 +24,7 @@ module.exports = {
 
                 // Display the port if not default
                 let serverIP = `${rows[0].url}:${rows[0].port}`;
-                if (rows[0].port = "25565") {
+                if (rows[0].port === "25565") {
                     serverIP = `${rows[0].url}`;
                 }
 

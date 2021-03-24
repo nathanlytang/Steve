@@ -1,5 +1,6 @@
 const Discord = require('discord.js');
 require('dotenv').config();
+const process = require('process');
 const version = process.env.NODE_ENV;
 const client = new Discord.Client();
 const fs = require('fs');
@@ -42,7 +43,7 @@ client.on('ready', () => {
         })
 
     // guild_list = client.guilds.cache.map(guild => guild.id);
-    
+
     console.log(`Logged in as ${client.user.tag}! Monitoring ${client.guilds.cache.size} servers.`);
     client.user.setPresence({ activity: { name: `${prefix}status | ${prefix}help`, type: 'LISTENING' }, status: 'online' })
         .catch(console.error);
@@ -80,10 +81,11 @@ client.on("guildDelete", (guild) => {
 client.on('message', message => {
 
     // Check if message has bot prefix / mentions bot
+    let sliceLen;
     if (message.content.startsWith(prefix)) {
-        var sliceLen = prefix.length;
+        sliceLen = prefix.length;
     } else if (message.mentions.has(client.user.id) && !message.mentions.everyone) {
-        var sliceLen = 23;
+        sliceLen = 23;
     } else {
         return;
     }
@@ -185,11 +187,11 @@ function createtable() {
 }
 
 // Node.js signal event listeners
-process.on('SIGTERM', () => { // kill process
+process.on('SIGTERM', () => { // Kill process
     console.log('SIGTERM signal received.');
     process.exit(0);
 });
 process.on('SIGINT', () => { // Ctrl+C
-    console.log('SIGINT signal recieved');
+    console.log('SIGINT signal recieved.');
     process.exit(0);
 })
