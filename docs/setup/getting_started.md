@@ -86,11 +86,16 @@ DB_PASSWORD=<DATABASE_PASSWORD_HERE>
 ## Database Setup
 Steve stores all its information in a database. To set one up, follow [this short guide](db_setup.md).  Once the database has been setup, return here to continue.
 
+Next, we will edit the `.env` file again.  This time, take the password you just created during database setup and edit this line with your new password:
+```ini
+DB_PASSWORD=<DATABASE_PASSWORD_HERE>
+```
+
 ## Running the bot
 The formal set up is complete!  All you need to do to start the bot is run the following command in the terminal:
 ```
 npm run production
 ```
 
-### Additional Configuration
+## Additional Configuration
 Refer [here](additional_configuration.md) for additional configuration, including backups, and setting up background processes/autostart.
