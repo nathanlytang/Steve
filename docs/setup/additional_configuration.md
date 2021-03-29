@@ -7,7 +7,7 @@ You can use systemd on Linux to run your bot as a system process.  This allows y
 ```
 [Unit]
 Description=Steve Discord Bot
-After=syslog.target network.target
+After=syslog.target network.target mysql.service
 
 [Service]
 User=YOUR_USERNAME
@@ -18,7 +18,7 @@ Type=simple
 WorkingDirectory=/opt/Steve
 ExecStart=npm run production
 TimeoutStopSec=20
-KillMode=process
+KillMode=mixed
 Restart=on-failure
 
 [Install]
@@ -29,7 +29,7 @@ Replace YOUR_USERNAME and YOUR_GROUP with your Linux username and group.
 ## Backups
 It is recommended to back up your database every so often, as to not lose any data in the event of a potential hardware or data failure.  To make backups easy, all you need to do is run the [backup script](https://github.com/nathanlytang/Steve/blob/master/scripts/backup.sh) to create a timedate backup file of the database.
 
-#### Setup
+### Setup
 The backup script should already be installed if you downloaded the zip file or cloned the repository.  In the script, you will find a section that looks like this:
 ```bash
 # Variables
@@ -44,7 +44,7 @@ Change the `DATABASE` and `BACKUP` variables to match your configuration.  To ru
 ```
 **NOTE**: Change the user and password to match the user and password you set up in the database.  Change the path to match the path to your backup script as well.
 
-#### Automate
+### Automate
 To automate this process, we will use cron.
 ```bash
 # Open crontab editor
