@@ -3,6 +3,7 @@ node_modules
 
 # Other directories
 backups
+.vscode
 
 # Environment variables
 env.json
