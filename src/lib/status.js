@@ -66,18 +66,19 @@ module.exports = {
                                     ping.ping(4000, -1, (pingErr, res) => {
 
                                         // Convert base64 favion to buffer and include as attachment if server icon exists
+                                        let imgAttach;
                                         if (pingErr || !res.favicon) {
-                                            var imgAttach = path.join(__dirname, defaultFavicon);
+                                            imgAttach = path.join(__dirname, defaultFavicon);
                                         } else {
                                             var image = Buffer.from(res.favicon.split(",")[1], 'base64');
-                                            var imgAttach = new Discord.MessageAttachment(image, "favicon.png");
+                                            imgAttach = new Discord.MessageAttachment(image, "favicon.png");
                                         }
 
                                         // Get player list
                                         try {
                                             var playerList = 'No current players';
                                             if (stat.numplayers > 0 && stat.numplayers <= 20) {
-                                                var playerList = ``;
+                                                playerList = ``;
                                                 for (var i = 0; i < stat.numplayers; i++) {
                                                     if (i % 4 == 0) {
                                                         playerList += `\n`;
@@ -86,14 +87,14 @@ module.exports = {
                                                 }
                                                 playerList = playerList.substring(0, playerList.length - 2);
                                             } else if (stat.numplayers > 20) {
-                                                var playerList = 'Too many to show!';
+                                                playerList = 'Too many to show!';
                                             }
                                         } catch {
                                             console.log(`Server ${serverID} (${message.guild.name}): Player number does not match list`)
                                             if (stat.numplayers > 20) {
-                                                var playerList = 'Too many to show!';
+                                                playerList = 'Too many to show!';
                                             } else {
-                                                var playerList = 'Unknown';
+                                                playerList = 'Unknown';
                                             }
                                         }
 
@@ -144,20 +145,21 @@ module.exports = {
                             }
 
                             // Convert base64 favion to buffer and include as attachment if server icon exists
+                            let imgAttach;
                             if (!res.favicon) {
-                                var imgAttach = path.join(__dirname, defaultFavicon);
+                                imgAttach = path.join(__dirname, defaultFavicon);
                             } else {
                                 var image = Buffer.from(res.favicon.split(",")[1], 'base64');
-                                var imgAttach = new Discord.MessageAttachment(image, "favicon.png");
+                                imgAttach = new Discord.MessageAttachment(image, "favicon.png");
                             }
 
                             // Get player list
                             try {
                                 var playerList = 'No current players';
                                 if (res.players.online > 20) {
-                                    var playerList = 'Too many to show!';
+                                    playerList = 'Too many to show!';
                                 } else if (res.players.online > 0 && res.players.online <= 20) {
-                                    var playerList = ``;
+                                    playerList = ``;
                                     for (var i = 0; i < res.players.online; i++) {
                                         if (i % 4 == 0) {
                                             playerList += `\n`;
@@ -168,7 +170,7 @@ module.exports = {
                                 }
                             } catch {
                                 console.log(`Server ${serverID} (${message.guild.name}): Player number does not match list`)
-                                var playerList = 'Unknown';
+                                playerList = 'Unknown';
                             }
 
                             // Create and send server online embed

@@ -14,7 +14,7 @@ module.exports = {
 
         // Execute SQL
         let sql = "SELECT * FROM guild_data WHERE guild_id = ?;";
-        vars = [serverID];
+        let vars = [serverID];
         var settings = new SQL_Query(pool, sql, vars)
         settings.query()
             .then((rows) => {
@@ -57,7 +57,7 @@ module.exports = {
                 message.channel.send(settingsEmbed);
                 return;
             })
-            .catch(() => {
+            .catch((err) => {
                 // If failed to get server information from database
                 console.log(`Failed to fetch server info: ${err}`);
                 const fetchFailEmbed = new Discord.MessageEmbed()

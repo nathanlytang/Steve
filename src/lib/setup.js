@@ -117,7 +117,7 @@ module.exports = {
                 return message.channel.send(privateIPEmbed);
             }
             if (args[1].startsWith("172.")) {
-                for (i = 16; i <= 31; i++) {
+                for (let i = 16; i <= 31; i++) {
                     if (args[1].startsWith(`172.${i}`)) {
                         console.log(`\x1b[31m\x1b[1mError setting IP for server ${serverID} (${message.guild.name}):  Private IP address\x1b[0m`);
                         return message.channel.send(privateIPEmbed);
@@ -135,7 +135,7 @@ module.exports = {
                         console.log(`Successfully set up IP for server ${serverID} (${message.guild.name})`);
                         return message.channel.send(`Server IP of \`${args[1]}\` successfully set!`);
                     })
-                    .catch(() => {
+                    .catch((err) => {
                         console.log(`\x1b[31m\x1b[1mError setting IP for server ${serverID} (${message.guild.name}):\x1b[0m`);
                         console.log(err);
                         return message.channel.send(`Error setting IP!`);
@@ -166,7 +166,7 @@ module.exports = {
 
             try {
                 let port = Number(args[1]);
-                if (port === NaN || !Number.isInteger(port) || port < 1 || port > 65535) { // Ensure valid port
+                if (!Number.isInteger(port) || port < 1 || port > 65535) { // Ensure valid port
                     const badPortEmbed = new Discord.MessageEmbed()
                         .setColor('#E74C3C')
                         .setTitle(`Port Not Allowed`)
@@ -183,7 +183,7 @@ module.exports = {
                         console.log(`Successfully set up port for server ${serverID} (${message.guild.name})`);
                         return message.channel.send(`Server port of \`${args[1]}\` successfully set!`);
                     })
-                    .catch(() => {
+                    .catch((err) => {
                         console.log(`\x1b[31m\x1b[1mError setting port for server ${serverID} (${message.guild.name}):\x1b[0m`);
                         console.log(err);
                         return message.channel.send(`Error setting port!`);
@@ -209,7 +209,7 @@ module.exports = {
             try {
                 // Get server name from arguments
                 var name = ``;
-                for (i = 1; i < args.length; i++) {
+                for (let i = 1; i < args.length; i++) {
                     name += `${args[i]} `;
                 }
                 name = name.substring(0, name.length - 1);
@@ -223,7 +223,7 @@ module.exports = {
                         console.log(`Successfully set up name for server ${serverID} (${message.guild.name})`);
                         return message.channel.send(`Server name of \`${name}\` successfully set!`);
                     })
-                    .catch(() => {
+                    .catch((err) => {
                         console.log(`\x1b[31m\x1b[1mError setting name for server ${serverID} (${message.guild.name}):\x1b[0m`);
                         console.log(err);
                         return message.channel.send(`Error setting name!`);
@@ -249,7 +249,7 @@ module.exports = {
             try {
                 // Get footer message from arguments
                 var footerMessage = ``;
-                for (i = 1; i < args.length; i++) {
+                for (let i = 1; i < args.length; i++) {
                     footerMessage += `${args[i]} `;
                 }
                 footerMessage = footerMessage.substring(0, footerMessage.length - 1);
@@ -263,7 +263,7 @@ module.exports = {
                         console.log(`Successfully set up footer for server ${serverID} (${message.guild.name})`);
                         return message.channel.send(`Server footer of \`${footerMessage}\` successfully set!`);
                     })
-                    .catch(() => {
+                    .catch((err) => {
                         console.log(`\x1b[31m\x1b[1mError setting footer for server ${serverID} (${message.guild.name}):\x1b[0m`);
                         console.log(err);
                         return message.channel.send(`Error setting footer!`);
