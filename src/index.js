@@ -198,4 +198,9 @@ process.on('SIGTERM', () => { // Kill process
 process.on('SIGINT', () => { // Ctrl+C
     console.log('SIGINT signal recieved.');
     process.exit(0);
-})
+});
+
+process.on('warning', (e) => {
+    console.log('Warn:')
+    console.warn(e.stack)
+});

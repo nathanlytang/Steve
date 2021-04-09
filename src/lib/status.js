@@ -2,7 +2,6 @@ module.exports = {
     name: 'status',
     description: 'Get server status',
     execute(Discord, pool, serverID, message, args, invite, prefix) {
-        const fs = require('fs');
         const path = require("path");
         const Query = require('mcquery/lib');
         const mcping = require('mcping-js');
