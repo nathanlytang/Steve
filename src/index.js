@@ -55,13 +55,17 @@ client.on("guildCreate", (guild) => {
     console.log(`Joined new guild: ${guild.id} (${guild.name})`);
     addGuildToData(guild);
 
-    // Send welcome embed message
-    const welcomeEmbed = new Discord.MessageEmbed()
-        .setColor('#62B36F')
-        .setAuthor('Steve', 'https://i.imgur.com/gb5oeQt.png')
-        .setDescription(`Hello! I'm Steve, a bot designed to get and display your Minecraft server status!  Thanks for adding me to your server.  To view all my available commands, use \`${prefix} help\`.`)
-        .setFooter('Made by Alienics#5796 👾')
-    guild.systemChannel.send(welcomeEmbed);
+    try {
+        // Send welcome embed message
+        const welcomeEmbed = new Discord.MessageEmbed()
+            .setColor('#62B36F')
+            .setAuthor('Steve', 'https://i.imgur.com/gb5oeQt.png')
+            .setDescription(`Hello! I'm Steve, a bot designed to get and display your Minecraft server status!  Thanks for adding me to your server.  To view all my available commands, use \`${prefix} help\`.`)
+            .setFooter('Made by Alienics#5796 👾')
+        guild.systemChannel.send(welcomeEmbed);
+    } catch {
+        // System channel not enabled
+    }
     return;
 });
 
