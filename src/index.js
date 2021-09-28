@@ -55,6 +55,8 @@ client.on("guildCreate", (guild) => {
     console.log(`Joined new guild: ${guild.id} (${guild.name})`);
     addGuildToData(guild);
 
+    if (!checkPermissions(guild)) return; // Check if bot has permissions
+
     try {
         // Send welcome embed message
         const welcomeEmbed = new Discord.MessageEmbed()
@@ -65,6 +67,7 @@ client.on("guildCreate", (guild) => {
         guild.systemChannel.send(welcomeEmbed);
     } catch {
         // System channel not enabled
+        console.log(`Server ${guild.id.toString()} (${guild.name}): System channel not enabled.  No permission to send messages.`);
     }
     return;
 });
@@ -96,16 +99,7 @@ client.on('message', message => {
 
     if (message.channel.type == "dm") return; // Ignore direct messages
 
-    // Check if bot has permissions
-    if (!message.guild.me.hasPermission("SEND_MESSAGES")) {
-        console.log(`Server ${message.guild.id.toString()} (${message.guild.name}): No permission to send messages.`);
-        return;
-    }
-    if (!message.guild.me.hasPermission("EMBED_LINKS")) {
-        console.log(`Server ${message.guild.id.toString()} (${message.guild.name}): No permission to embed links.`);
-        message.channel.send('Please enable the `Embed Links` permission for the Steve role in your Discord server settings!');
-        return;
-    }
+    if (!checkPermissions(message.guild)) return; // Check if bot has permissions
 
     // Get guild ID and check if guild in database
     var serverID = message.guild.id.toString();
@@ -188,6 +182,19 @@ function createtable() {
             console.log("Failed to create new table");
             console.log(err);
         })
+}
+
+function checkPermissions(guild) {
+    // Check if bot has permissions
+    if (!guild.me.hasPermission("SEND_MESSAGES")) {
+        console.log(`Server ${guild.id.toString()} (${guild.name}): No permission to send messages.`);
+        return false;
+    }
+    if (!guild.me.hasPermission("EMBED_LINKS")) {
+        console.log(`Server ${guild.id.toString()} (${guild.name}): No permission to embed links.`);
+        guild.systemChannel.send('Please enable the `Embed Links` permission for the Steve role in your Discord server settings!');
+        return false;
+    }
 }
 
 // Node.js signal event listeners
