@@ -34,7 +34,7 @@ client.on('ready', () => {
             if (rows.length === 1) {
                 console.log('Database table detected. Using existing table.')
             } else if (rows.length === 0) {
-                createtable();
+                createTable();
             }
         })
         .catch((err) => {
@@ -164,7 +164,7 @@ function addGuildToData(guild) {
     return;
 }
 
-function createtable() {
+function createTable() {
     // Create new table if not already existing in database
     let sql = `CREATE TABLE IF NOT EXISTS guild_data (
         guild_id VARCHAR(18) NOT NULL,   
@@ -195,6 +195,7 @@ function checkPermissions(guild) {
         guild.systemChannel.send('Please enable the `Embed Links` permission for the Steve role in your Discord server settings!');
         return false;
     }
+    return true;
 }
 
 // Node.js signal event listeners
