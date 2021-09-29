@@ -254,6 +254,11 @@ module.exports = {
                 }
                 footerMessage = footerMessage.substring(0, footerMessage.length - 1);
 
+                // Delete footer message 
+                if (footerMessage === "remove" || footerMessage === "delete") {
+                    footerMessage = ``;
+                }
+
                 // Update footer message in database
                 let sql = "UPDATE guild_data SET footer = ? WHERE guild_id = ?;";
                 let vars = [footerMessage, serverID];
@@ -261,6 +266,9 @@ module.exports = {
                 setup_query.query()
                     .then(() => {
                         console.log(`Successfully set up footer for server ${serverID} (${message.guild.name})`);
+                        if (footerMessage.length === 0) {
+                            return message.channel.send(`Server footer successfully removed!`);
+                        }
                         return message.channel.send(`Server footer of \`${footerMessage}\` successfully set!`);
                     })
                     .catch((err) => {
