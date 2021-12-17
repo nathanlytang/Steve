@@ -198,6 +198,12 @@ function checkPermissions(guild) {
     return true;
 }
 
+// Refresh client presence every hour
+setInterval(() => {
+    client.user.setPresence({ activity: { name: `${prefix}status | ${prefix}help`, type: 'LISTENING' }, status: 'online' })
+        .catch(console.error);
+}, 3600000);
+
 // Node.js signal event listeners
 process.on('SIGTERM', () => { // Kill process
     console.log('SIGTERM signal received.');
