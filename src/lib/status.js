@@ -14,7 +14,7 @@ module.exports = {
             const fetchFailEmbed = new Discord.MessageEmbed()
                 .setColor('#E74C3C')
                 .setTitle('Failed to get server information')
-                .setDescription('Failed to get server information.  Please try again in a few minutes.')
+                .setDescription('Failed to get server information.  Please try again in a few minutes.');
             message.channel.send(fetchFailEmbed);
             return;
         }
@@ -30,7 +30,7 @@ module.exports = {
                 )
                 .addFields(
                     { name: 'Players', value: `None\n`, inline: true },
-                )
+                );
             message.channel.send(statusEmbed);
             return;
         }
@@ -89,7 +89,7 @@ module.exports = {
                                                 playerList = 'Too many to show!';
                                             }
                                         } catch {
-                                            console.log(`Server ${serverID} (${message.guild.name}): Player number does not match list`)
+                                            console.log(`Server ${serverID} (${message.guild.name}): Player number does not match list`);
                                             if (stat.numplayers > 20) {
                                                 playerList = 'Too many to show!';
                                             } else {
@@ -111,16 +111,16 @@ module.exports = {
                                                 { name: 'Players', value: `${stat.numplayers}/${stat.maxplayers}\n`, inline: true },
                                                 { name: 'List', value: `${playerList}\n`, inline: true },
                                             )
-                                            .setFooter(`${rows[0].footer}`)
+                                            .setFooter(`${rows[0].footer}`);
                                         message.channel.send(statusEmbed);
-                                    })
+                                    });
 
                                 } catch (err) {
                                     statusCheckFail(message, err);
                                 }
                                 // Close query request when complete
                                 if (query.outstandingRequests === 0) {
-                                    query.close()
+                                    query.close();
                                 }
                             });
                             return;
@@ -129,7 +129,7 @@ module.exports = {
                             // Create and send server offline embed
                             offlineEmbed(message);
                             return;
-                        })
+                        });
                 } else { // Grab server information using ping if querying disabled
                     try {
                         // Send a ping request to the server IP/port to grab server icon
@@ -168,7 +168,7 @@ module.exports = {
                                     playerList = playerList.substring(0, playerList.length - 2);
                                 }
                             } catch {
-                                console.log(`Server ${serverID} (${message.guild.name}): Player number does not match list`)
+                                console.log(`Server ${serverID} (${message.guild.name}): Player number does not match list`);
                                 playerList = 'Unknown';
                             }
 
@@ -186,10 +186,10 @@ module.exports = {
                                     { name: 'Players', value: `${res.players.online}/${res.players.max}\n`, inline: true },
                                     { name: 'List', value: `${playerList}\n`, inline: true },
                                 )
-                                .setFooter(`${rows[0].footer}`)
+                                .setFooter(`${rows[0].footer}`);
                             message.channel.send(statusEmbed);
                             return;
-                        })
+                        });
 
                     } catch (err) {
                         statusCheckFail(message, err);
@@ -200,6 +200,6 @@ module.exports = {
                 console.log(`Database error:`);
                 statusCheckFail(message, err);
                 return;
-            })
+            });
     },
 };

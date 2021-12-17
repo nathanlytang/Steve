@@ -3,7 +3,7 @@ module.exports = {
     aliases: ['join'],
     description: 'Get the server join IP',
     execute(Discord, pool, serverID, message, args, invite, prefix) {
-        const SQL_Query = require('../../db/query')
+        const SQL_Query = require('../../db/query');
         console.log(`Server ${serverID} (${message.guild.name}) sent ip command`);
 
         // Execute SQL
@@ -18,7 +18,7 @@ module.exports = {
                     const noSettingsEmbed = new Discord.MessageEmbed()
                         .setColor('#E74C3C')
                         .setAuthor('Current Settings', 'https://i.imgur.com/gb5oeQt.png')
-                        .setDescription(`Steve has not been set up on this server yet! Run \`${prefix}setup\` to continue.`)
+                        .setDescription(`Steve has not been set up on this server yet! Run \`${prefix}setup\` to continue.`);
                     return message.channel.send(noSettingsEmbed);
                 }
 
@@ -33,7 +33,7 @@ module.exports = {
                     .setColor('#62B36F')
                     .setThumbnail(`https://eu.mc-api.net/v3/server/favicon/${rows[0].url}`)
                     .setTitle(`Join the Server`)
-                    .setDescription(`Join ${rows[0].name} at **${serverIP}**!`)
+                    .setDescription(`Join ${rows[0].name} at **${serverIP}**!`);
                 message.channel.send(joinEmbed);
             })
             .catch((err) => {
@@ -42,7 +42,7 @@ module.exports = {
                 const fetchFailEmbed = new Discord.MessageEmbed()
                     .setColor('#E74C3C')
                     .setTitle('Failed to get server information')
-                    .setDescription('Failed to get server information.  Please try again in a few minutes.')
+                    .setDescription('Failed to get server information.  Please try again in a few minutes.');
                 message.channel.send(fetchFailEmbed);
             });
 

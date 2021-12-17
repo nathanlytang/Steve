@@ -26,13 +26,13 @@ if (version === 'production') {
 
 client.on('ready', () => {
     // Create database table if not exists
-    let sql = " SHOW TABLES LIKE ? "
+    let sql = " SHOW TABLES LIKE ? ";
     let vars = ['guild_data'];
     let table_exists = new SQL_Query(pool, sql, vars);
     table_exists.query()
         .then((rows) => {
             if (rows.length === 1) {
-                console.log('Database table detected. Using existing table.')
+                console.log('Database table detected. Using existing table.');
             } else if (rows.length === 0) {
                 createTable();
             }
@@ -40,7 +40,7 @@ client.on('ready', () => {
         .catch((err) => {
             console.log("Error while checking if table exists.");
             console.log(err);
-        })
+        });
 
     // guild_list = client.guilds.cache.map(guild => guild.id);
 
@@ -63,7 +63,7 @@ client.on("guildCreate", (guild) => {
             .setColor('#62B36F')
             .setAuthor('Steve', 'https://i.imgur.com/gb5oeQt.png')
             .setDescription(`Hello! I'm Steve, a bot designed to get and display your Minecraft server status!  Thanks for adding me to your server.  To view all my available commands, use \`${prefix} help\`.`)
-            .setFooter('Made by Alienics#5796 👾')
+            .setFooter('Made by Alienics#5796 👾');
         guild.systemChannel.send(welcomeEmbed);
     } catch {
         // System channel not enabled
@@ -114,9 +114,9 @@ client.on('message', message => {
             }
         })
         .catch((err) => {
-            console.log("Error while checking if guild exists:")
+            console.log("Error while checking if guild exists:");
             console.log(err);
-        })
+        });
 
     // Separate command and arguments
     const commandBody = message.content.slice(sliceLen);
@@ -134,7 +134,7 @@ client.on('message', message => {
             const adminEmbed = new Discord.MessageEmbed()
                 .setColor('#E74C3C')
                 .setAuthor('Steve', 'https://i.imgur.com/gb5oeQt.png')
-                .setDescription(`Only administrators can make changes to Steve!`)
+                .setDescription(`Only administrators can make changes to Steve!`);
             return message.channel.send(adminEmbed);
         }
     }
@@ -160,7 +160,7 @@ function addGuildToData(guild) {
             console.log(`\x1b[31m\x1b[1mError adding guild to database for guild ${serverID} (${guild.name}):\x1b[0m`);
             console.log(err);
             return;
-        })
+        });
     return;
 }
 
@@ -181,7 +181,7 @@ function createTable() {
         .catch((err) => {
             console.log("Failed to create new table");
             console.log(err);
-        })
+        });
 }
 
 function checkPermissions(guild) {
@@ -209,12 +209,13 @@ process.on('SIGTERM', () => { // Kill process
     console.log('SIGTERM signal received.');
     process.exit(0);
 });
+
 process.on('SIGINT', () => { // Ctrl+C
     console.log('SIGINT signal recieved.');
     process.exit(0);
 });
 
 process.on('warning', (e) => {
-    console.log('Warn:')
-    console.warn(e.stack)
+    console.log('Warn:');
+    console.warn(e.stack);
 });

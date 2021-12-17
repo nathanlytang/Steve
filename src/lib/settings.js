@@ -15,7 +15,7 @@ module.exports = {
         // Execute SQL
         let sql = "SELECT * FROM guild_data WHERE guild_id = ?;";
         let vars = [serverID];
-        var settings = new SQL_Query(pool, sql, vars)
+        var settings = new SQL_Query(pool, sql, vars);
         settings.query()
             .then((rows) => {
                 serverName = rows[0].name;
@@ -36,7 +36,7 @@ module.exports = {
                     const noSettingsEmbed = new Discord.MessageEmbed()
                         .setColor('#E74C3C')
                         .setAuthor('Current Settings', 'https://i.imgur.com/gb5oeQt.png')
-                        .setDescription(`Steve has not been set up on this server yet! Run \`${prefix}setup\` to continue.`)
+                        .setDescription(`Steve has not been set up on this server yet! Run \`${prefix}setup\` to continue.`);
                     return message.channel.send(noSettingsEmbed);
                 }
 
@@ -53,7 +53,7 @@ module.exports = {
                         { name: 'Port', value: `${serverPort}`, inline: true },
                         { name: 'Query', value: `${serverQuery}`, inline: true },
                         { name: 'Footer', value: `${serverFooter}`, inline: true },
-                    )
+                    );
                 message.channel.send(settingsEmbed);
                 return;
             })
@@ -63,10 +63,10 @@ module.exports = {
                 const fetchFailEmbed = new Discord.MessageEmbed()
                     .setColor('#E74C3C')
                     .setTitle('Failed to get server information')
-                    .setDescription('Failed to get server information.  Please try again in a few minutes.')
+                    .setDescription('Failed to get server information.  Please try again in a few minutes.');
                 message.channel.send(fetchFailEmbed);
                 return;
-            })
+            });
 
     },
 };

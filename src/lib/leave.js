@@ -10,7 +10,7 @@ module.exports = {
             const leaveEmbed = new Discord.MessageEmbed()
                 .setColor('#62B36F')
                 .setAuthor('Steve', 'https://i.imgur.com/gb5oeQt.png')
-                .setDescription(`Goodbye! Click [here](${invite} "Invite Steve") to invite me again.`)
+                .setDescription(`Goodbye! Click [here](${invite} "Invite Steve") to invite me again.`);
             await message.channel.send(leaveEmbed);
             message.guild.leave();
         })();

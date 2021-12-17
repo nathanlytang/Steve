@@ -22,7 +22,7 @@ module.exports = {
                 const fetchFailEmbed = new Discord.MessageEmbed()
                     .setColor('#E74C3C')
                     .setTitle('Failed to get player skin')
-                    .setDescription('Failed to get player skin.  Please try again in a few minutes.')
+                    .setDescription('Failed to get player skin.  Please try again in a few minutes.');
                 message.channel.send(fetchFailEmbed);
                 return;
             }
@@ -39,7 +39,7 @@ module.exports = {
                 .setImage(`https://crafatar.com/skins/${playerInfo.data.player.id}`)
                 .addFields(
                     { name: 'Download', value: `To download this skin, click [here](https://minecraft.tools/download-skin/${playerInfo.data.player.username} "${playerInfo.data.player.username}'s skin").\n`, inline: true },
-                )
+                );
             message.channel.send(skinEmbed);
 
         })();
