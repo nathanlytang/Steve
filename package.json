@@ -3,6 +3,7 @@
   "version": "4.0.0",
   "description": "A Discord bot for Minecraft players",
   "main": "src/index.js",
+  "type": "module",
   "scripts": {
     "start": "node .",
     "production": "NODE_ENV=production&&npm start",

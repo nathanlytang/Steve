@@ -1,4 +1,4 @@
-class Query {
+export class Query {
     constructor(pool, sql, vars) {
         this.pool = pool;
         this.sql = sql;
@@ -32,4 +32,4 @@ class Query {
 
 }
 
-module.exports = Query;
+export default Query;
