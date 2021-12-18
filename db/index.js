@@ -1,21 +1,20 @@
-var mariadb = require('mariadb');
-require('dotenv').config();
+import mariadb from 'mariadb';
+import dotenv from "dotenv";
+dotenv.config();
 
-const pool = mariadb.createPool({
+export const pool = mariadb.createPool({
     host: process.env.DB_HOST,
     user: process.env.DB_USERNAME,
     password: process.env.DB_PASSWORD,
     database: process.env.DB_DATABASE
-})
+});
 
-module.exports = {
-    getConnection: function () {
-        return new Promise(function (resolve, reject) {
-            pool.getConnection().then(function (connection) {
-                resolve(connection);
-            }).catch(function (error) {
-                reject(error);
-            });
+export function getConnection() {
+    return new Promise((resolve, reject) => {
+        pool.getConnection().then((connection) => {
+            resolve(connection);
+        }).catch((error) => {
+            reject(error);
         });
-    }
+    });
 }

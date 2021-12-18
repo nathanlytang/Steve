@@ -1,22 +1,28 @@
-const Discord = require('discord.js');
-require('dotenv').config();
-const process = require('process');
+import Discord from 'discord.js';
+import dotenv from "dotenv";
+dotenv.config();
+import process from 'process';
+import path from "path";
 const version = process.env.NODE_ENV;
 const client = new Discord.Client();
-const fs = require('fs');
-const path = require("path");
-const pool = require('../db/index');
-const SQL_Query = require('../db/query');
+import fs from 'fs';
+import { pool } from '../db/index.js';
+import SQL_Query from '../db/query.js';
 client.commands = new Discord.Collection();
+import url from 'url';
+const __filename = url.fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 const commandFiles = fs.readdirSync(path.join(__dirname, 'lib')).filter(file => file.endsWith('.js'));
 var invite;
-const prefix = '-mc ';
+const prefix = '-mct ';
 
 // Put commands in collection
-for (const file of commandFiles) {
-    const command = require(path.join(__dirname, 'lib', file));
-    client.commands.set(command.name, command);
-}
+(async () => {
+    for (const file of commandFiles) {
+        const command = await import(`./lib/${file}`);
+        client.commands.set(command.name, command);
+    }
+})();
 
 if (version === 'production') {
     client.login(); // Production build
