@@ -1,8 +1,13 @@
+import { SlashCommandBuilder } from "@discordjs/builders";
+import SQL_Query from '../../db/query.js';
+
 export const name = 'settings';
 export const permissions = 'ADMINISTRATOR';
 export const description = 'Get server settings';
+export const data = new SlashCommandBuilder()
+    .setName('settings')
+    .setDescription('Display the current server settings');
 export async function execute(Discord, pool, serverID, message, args, invite, prefix) {
-    const SQL_Query = (await import(`../../db/query.js`)).Query;
     console.log(`Server ${serverID} (${message.guild.name}) sent settings command`);
 
     let serverName;
@@ -36,7 +41,7 @@ export async function execute(Discord, pool, serverID, message, args, invite, pr
                     .setColor('#E74C3C')
                     .setAuthor('Current Settings', 'https://i.imgur.com/gb5oeQt.png')
                     .setDescription(`Steve has not been set up on this server yet! Run \`${prefix}setup\` to continue.`);
-                return message.channel.send(noSettingsEmbed);
+                return message.channel.send({ embeds: [noSettingsEmbed] });
             }
 
             // Else display current settings
@@ -53,7 +58,7 @@ export async function execute(Discord, pool, serverID, message, args, invite, pr
                     { name: 'Query', value: `${serverQuery}`, inline: true },
                     { name: 'Footer', value: `${serverFooter}`, inline: true }
                 );
-            message.channel.send(settingsEmbed);
+            message.channel.send({ embeds: [settingsEmbed] });
             return;
         })
         .catch((err) => {
@@ -63,7 +68,7 @@ export async function execute(Discord, pool, serverID, message, args, invite, pr
                 .setColor('#E74C3C')
                 .setTitle('Failed to get server information')
                 .setDescription('Failed to get server information.  Please try again in a few minutes.');
-            message.channel.send(fetchFailEmbed);
+            message.channel.send({ embeds: [fetchFailEmbed] });
             return;
         });
 

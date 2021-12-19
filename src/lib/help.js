@@ -1,6 +1,11 @@
+import { SlashCommandBuilder } from "@discordjs/builders";
+
 export const name = 'help';
 export const aliases = ['commands'];
 export const description = 'Steve Help Command';
+export const data = new SlashCommandBuilder()
+    .setName('help')
+    .setDescription('Get command information for Steve');
 export function execute(Discord, pool, serverID, message, args, invite, prefix) {
     console.log(`Server ${serverID} (${message.guild.name}) sent help command`);
 
@@ -16,6 +21,6 @@ export function execute(Discord, pool, serverID, message, args, invite, prefix) 
         )
         .addField('Invite', `Invite me to your Discord server [here](${invite} "Invite Steve").\u200B`)
         .setFooter('Made by Alienics#5796 👾');
-    message.channel.send(helpEmbed);
+    message.channel.send({ embeds: [helpEmbed] });
     return;
 }

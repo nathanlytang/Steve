@@ -1,10 +1,18 @@
+import { SlashCommandBuilder } from "@discordjs/builders";
+import path from "path";
+import url from 'url';
+const __filename = url.fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+import Query from 'mcquery/lib/index.js';
+import mcping from 'mcping-js';
+import SQL_Query from '../../db/query.js';
+
 export const name = 'status';
 export const description = 'Get server status';
+export const data = new SlashCommandBuilder()
+    .setName('status')
+    .setDescription('Get current Minecraft server status');
 export async function execute(Discord, pool, serverID, message, args, invite, prefix) {
-    const path = import("path");
-    const Query = (await import('mcquery/lib/index.js')).default;
-    const mcping = await import('mcping-js');
-    const SQL_Query = (await import(`../../db/query.js`)).Query;
     const defaultFavicon = "../../assets/favicon.png";
 
     // Functions
@@ -14,7 +22,7 @@ export async function execute(Discord, pool, serverID, message, args, invite, pr
             .setColor('#E74C3C')
             .setTitle('Failed to get server information')
             .setDescription('Failed to get server information.  Please try again in a few minutes.');
-        message.channel.send(fetchFailEmbed);
+        message.channel.send({ embeds: [fetchFailEmbed] });
         return;
     }
 
@@ -30,7 +38,7 @@ export async function execute(Discord, pool, serverID, message, args, invite, pr
             .addFields(
                 { name: 'Players', value: `None\n`, inline: true }
             );
-        message.channel.send(statusEmbed);
+        message.channel.send({ embeds: [statusEmbed] });
         return;
     }
 
@@ -43,7 +51,7 @@ export async function execute(Discord, pool, serverID, message, args, invite, pr
     status_query.query()
         .then((rows) => {
             if (rows[0].url == "") { // Check if URL set up
-                return message.channel.send(`Your server IP has not been set up!  Please use \`${prefix}setup\` to get the setup information.`);
+                return message.channel.send({ content: `Your server IP has not been set up!  Please use \`${prefix}setup\` to get the setup information.` });
             }
 
             if (rows[0].query === 1) { // Grab server information using query if querying enabled
@@ -100,7 +108,6 @@ export async function execute(Discord, pool, serverID, message, args, invite, pr
                                     const statusEmbed = new Discord.MessageEmbed()
                                         .setColor('#2ECC71')
                                         .setTitle('Minecraft Server Status')
-                                        .attachFiles([imgAttach])
                                         .addFields(
                                             { name: 'Status', value: `Online\n`, inline: true },
                                             { name: 'Version', value: `${stat.version}\n`, inline: true }
@@ -111,7 +118,7 @@ export async function execute(Discord, pool, serverID, message, args, invite, pr
                                             { name: 'List', value: `${playerList}\n`, inline: true }
                                         )
                                         .setFooter(`${rows[0].footer}`);
-                                    message.channel.send(statusEmbed);
+                                    message.channel.send({ embeds: [statusEmbed], files: [imgAttach] });
                                 });
 
                             } catch (err) {
@@ -175,7 +182,6 @@ export async function execute(Discord, pool, serverID, message, args, invite, pr
                         const statusEmbed = new Discord.MessageEmbed()
                             .setColor('#2ECC71')
                             .setTitle('Minecraft Server Status')
-                            .attachFiles([imgAttach])
                             .addFields(
                                 { name: 'Status', value: `Online\n`, inline: true },
                                 { name: 'Version', value: `${res.version.name}\n`, inline: true }
@@ -186,7 +192,7 @@ export async function execute(Discord, pool, serverID, message, args, invite, pr
                                 { name: 'List', value: `${playerList}\n`, inline: true }
                             )
                             .setFooter(`${rows[0].footer}`);
-                        message.channel.send(statusEmbed);
+                            message.channel.send({ embeds: [statusEmbed], files: [imgAttach] });
                         return;
                     });
 

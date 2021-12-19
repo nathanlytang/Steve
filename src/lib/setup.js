@@ -1,9 +1,13 @@
+import { SlashCommandBuilder } from "@discordjs/builders";
+import SQL_Query from '../../db/query.js';
+
 export const name = 'setup';
 export const permissions = 'ADMINISTRATOR';
 export const description = 'Get server setup';
+export const data = new SlashCommandBuilder()
+    .setName('setup')
+    .setDescription('Get setup information for Steve');
 export async function execute(Discord, pool, serverID, message, args, invite, prefix) {
-    const SQL_Query = (await import(`../../db/query.js`)).Query;
-
     console.log(`Server ${serverID} (${message.guild.name}) sent setup command`);
 
     if (args.length == 0) { // Display setup instructions
@@ -19,7 +23,7 @@ export async function execute(Discord, pool, serverID, message, args, invite, pr
                 { name: 'Unable to use Query', value: `If you cannot enable query on your server, run \`${prefix}setup query <enable|disable>\` to enable or disable querying.  When query is disabled, Steve will instead use server pinging.  Note that this may break some functionality (Player list will not be shown on Bungeecord servers).` },
                 { name: 'Note', value: 'Remove the `<` and the `>` when using the setup commands.' }
             );
-        return message.channel.send(setupEmbed);
+        return message.channel.send({ embeds: [setupEmbed] });
     }
 
     // Remove comparison symbols on single argument setups
@@ -39,13 +43,13 @@ export async function execute(Discord, pool, serverID, message, args, invite, pr
                 .setColor('#E74C3C')
                 .setTitle(`Query enable or disable not specified`)
                 .setDescription(`Please set \`enable\` or \`disable\`!  No changes have been made.`);
-            return message.channel.send(noArgEmbed);
+            return message.channel.send({ embeds: [noArgEmbed] });
         } else if (args.length > 2) { // Check if too many arguments
             const noArgEmbed = new Discord.MessageEmbed()
                 .setColor('#E74C3C')
                 .setTitle(`Too Many Arguments`)
                 .setDescription(`Please input only \`enable\` or \`disable\`!  No changes have been made.`);
-            return message.channel.send(noArgEmbed);
+            return message.channel.send({ embeds: [noArgEmbed] });
         }
 
         try {
@@ -56,11 +60,11 @@ export async function execute(Discord, pool, serverID, message, args, invite, pr
                 setup_query.query()
                     .then(() => {
                         console.log(`Successfully enabled query for server ${serverID} (${message.guild.name})`);
-                        return message.channel.send(`Server querying enabled!  Query will be used instead of ping.`);
+                        return message.channel.send({ content: `Server querying enabled!  Query will be used instead of ping.` });
                     })
                     .catch(() => {
                         console.log(`\x1b[31m\x1b[1mError setting query to ${args[1]} for server ${serverID} (${message.guild.name}):\x1b[0m`);
-                        return message.channel.send(`Error changing query!  Ensure you are using \`-mc setup query enable\` or \`-mc setup query disable\`.`);
+                        return message.channel.send({ content: `Error changing query!  Ensure you are using \`-mc setup query enable\` or \`-mc setup query disable\`.` });
                     });
 
             } else if (args[1] === 'disable') { // Use ping instead of query
@@ -70,22 +74,22 @@ export async function execute(Discord, pool, serverID, message, args, invite, pr
                 setup_query.query()
                     .then(() => {
                         console.log(`Successfully disabled query for server ${serverID} (${message.guild.name})`);
-                        return message.channel.send(`Server querying disabled!  Server pinging will be used instead.`);
+                        return message.channel.send({ content: `Server querying disabled!  Server pinging will be used instead.` });
                     })
                     .catch(() => {
                         console.log(`\x1b[31m\x1b[1mError setting query to ${args[1]} for server ${serverID} (${message.guild.name}):\x1b[0m`);
-                        return message.channel.send(`Error changing query!  Ensure you are using \`-mc setup query enable\` or \`-mc setup query disable\`.`);
+                        return message.channel.send({ content: `Error changing query!  Ensure you are using \`-mc setup query enable\` or \`-mc setup query disable\`.` });
                     });
 
             } else {
                 console.log(`\x1b[31m\x1b[1mError setting query to ${args[1]} for server ${serverID} (${message.guild.name}):\x1b[0m`);
-                return message.channel.send(`Error changing query!  Ensure you are using \`-mc setup query enable\` or \`-mc setup query disable\`.`);
+                return message.channel.send({ content: `Error changing query!  Ensure you are using \`-mc setup query enable\` or \`-mc setup query disable\`.` });
             }
         }
         catch (err) {
             console.log(`\x1b[31m\x1b[1mError setting query to ${args[1]} for server ${serverID} (${message.guild.name}):\x1b[0m`);
             console.log(err);
-            return message.channel.send(`Error changing query!  Ensure you are using \`-mc setup query enable\` or \`-mc setup query disable\`.`);
+            return message.channel.send({ content: `Error changing query!  Ensure you are using \`-mc setup query enable\` or \`-mc setup query disable\`.` });
         }
     }
 
@@ -96,13 +100,13 @@ export async function execute(Discord, pool, serverID, message, args, invite, pr
                 .setColor('#E74C3C')
                 .setTitle(`No IP Specified`)
                 .setDescription(`No IP was specified!  No changes have been made.`);
-            return message.channel.send(noArgEmbed);
+            return message.channel.send({ embeds: [noArgEmbed] });
         } else if (args.length > 2) { // Check if too many arguments
             const tooManyArgEmbed = new Discord.MessageEmbed()
                 .setColor('#E74C3C')
                 .setTitle(`Too Many Arguments`)
                 .setDescription(`Too many arguments!  Please enter only one IP Address or URL.  No changes have been made.`);
-            return message.channel.send(tooManyArgEmbed);
+            return message.channel.send({ embeds: [tooManyArgEmbed] });
         }
 
         const privateIPEmbed = new Discord.MessageEmbed()
@@ -113,13 +117,13 @@ export async function execute(Discord, pool, serverID, message, args, invite, pr
         // Check if private IP address
         if (args[1].startsWith("192.168.") || args[1].startsWith("10.")) {
             console.log(`\x1b[31m\x1b[1mError setting IP for server ${serverID} (${message.guild.name}):  Private IP address\x1b[0m`);
-            return message.channel.send(privateIPEmbed);
+            return message.channel.send({ embeds: [privateIPEmbed] });
         }
         if (args[1].startsWith("172.")) {
             for (let i = 16; i <= 31; i++) {
                 if (args[1].startsWith(`172.${i}`)) {
                     console.log(`\x1b[31m\x1b[1mError setting IP for server ${serverID} (${message.guild.name}):  Private IP address\x1b[0m`);
-                    return message.channel.send(privateIPEmbed);
+                    return message.channel.send({ embeds: [privateIPEmbed] });
                 }
             }
         }
@@ -132,18 +136,18 @@ export async function execute(Discord, pool, serverID, message, args, invite, pr
             setup_query.query()
                 .then(() => {
                     console.log(`Successfully set up IP for server ${serverID} (${message.guild.name})`);
-                    return message.channel.send(`Server IP of \`${args[1]}\` successfully set!`);
+                    return message.channel.send({ content: `Server IP of \`${args[1]}\` successfully set!` });
                 })
                 .catch((err) => {
                     console.log(`\x1b[31m\x1b[1mError setting IP for server ${serverID} (${message.guild.name}):\x1b[0m`);
                     console.log(err);
-                    return message.channel.send(`Error setting IP!`);
+                    return message.channel.send({ content: `Error setting IP!` });
                 });
         }
         catch (err) {
             console.log(`\x1b[31m\x1b[1mError setting IP for server ${serverID} (${message.guild.name}):\x1b[0m`);
             console.log(err);
-            return message.channel.send(`Error setting IP!`);
+            return message.channel.send({ content: `Error setting IP!` });
         }
     }
 
@@ -154,13 +158,13 @@ export async function execute(Discord, pool, serverID, message, args, invite, pr
                 .setColor('#E74C3C')
                 .setTitle(`No Port Specified`)
                 .setDescription(`No port was specified!  No changes have been made.`);
-            return message.channel.send(noArgEmbed);
+            return message.channel.send({ embeds: [noArgEmbed] });
         } else if (args.length > 2) { // Check if too many arguments
             const tooManyArgEmbed = new Discord.MessageEmbed()
                 .setColor('#E74C3C')
                 .setTitle(`Too Many Arguments`)
                 .setDescription(`Too many arguments!  Please enter only one server port.  No changes have been made.`);
-            return message.channel.send(tooManyArgEmbed);
+            return message.channel.send({ embeds: [tooManyArgEmbed] });
         }
 
         try {
@@ -170,7 +174,7 @@ export async function execute(Discord, pool, serverID, message, args, invite, pr
                     .setColor('#E74C3C')
                     .setTitle(`Port Not Allowed`)
                     .setDescription(`Please ensure your port is a number between 1 and 65535!  No changes have been made.`);
-                return message.channel.send(badPortEmbed);
+                return message.channel.send({ embeds: [badPortEmbed] });
             }
 
             // Update port in database
@@ -180,18 +184,18 @@ export async function execute(Discord, pool, serverID, message, args, invite, pr
             setup_query.query()
                 .then(() => {
                     console.log(`Successfully set up port for server ${serverID} (${message.guild.name})`);
-                    return message.channel.send(`Server port of \`${args[1]}\` successfully set!`);
+                    return message.channel.send({ content: `Server port of \`${args[1]}\` successfully set!` });
                 })
                 .catch((err) => {
                     console.log(`\x1b[31m\x1b[1mError setting port for server ${serverID} (${message.guild.name}):\x1b[0m`);
                     console.log(err);
-                    return message.channel.send(`Error setting port!`);
+                    return message.channel.send({ content: `Error setting port!` });
                 });
         }
         catch (err) {
             console.log(`\x1b[31m\x1b[1mError setting port for server ${serverID} (${message.guild.name}):\x1b[0m`);
             console.log(err);
-            return message.channel.send(`Error setting port!`);
+            return message.channel.send({ content: `Error setting port!` });
         }
     }
 
@@ -202,7 +206,7 @@ export async function execute(Discord, pool, serverID, message, args, invite, pr
                 .setColor('#E74C3C')
                 .setTitle(`No Name Specified`)
                 .setDescription(`No name was specified!  No changes have been made.`);
-            return message.channel.send(noArgEmbed);
+            return message.channel.send({ embeds: [noArgEmbed] });
         }
 
         try {
@@ -220,18 +224,18 @@ export async function execute(Discord, pool, serverID, message, args, invite, pr
             setup_query.query()
                 .then(() => {
                     console.log(`Successfully set up name for server ${serverID} (${message.guild.name})`);
-                    return message.channel.send(`Server name of \`${name}\` successfully set!`);
+                    return message.channel.send({ content: `Server name of \`${name}\` successfully set!` });
                 })
                 .catch((err) => {
                     console.log(`\x1b[31m\x1b[1mError setting name for server ${serverID} (${message.guild.name}):\x1b[0m`);
                     console.log(err);
-                    return message.channel.send(`Error setting name!`);
+                    return message.channel.send({ content: `Error setting name!` });
                 });
         }
         catch (err) {
             console.log(`\x1b[31m\x1b[1mError setting name for server ${serverID} (${message.guild.name}):\x1b[0m`);
             console.log(err);
-            return message.channel.send(`Error setting name!`);
+            return message.channel.send({ content: `Error setting name!` });
         }
     }
 
@@ -242,7 +246,7 @@ export async function execute(Discord, pool, serverID, message, args, invite, pr
                 .setColor('#E74C3C')
                 .setTitle(`No Footer Specified`)
                 .setDescription(`No footer was specified!  No changes have been made.`);
-            return message.channel.send(noArgEmbed);
+            return message.channel.send({ embeds: [noArgEmbed] });
         }
 
         try {
@@ -266,21 +270,21 @@ export async function execute(Discord, pool, serverID, message, args, invite, pr
                 .then(() => {
                     console.log(`Successfully set up footer for server ${serverID} (${message.guild.name})`);
                     if (footerMessage.length === 0) {
-                        return message.channel.send(`Server footer successfully removed!`);
+                        return message.channel.send({ content: `Server footer successfully removed!` });
                     }
-                    return message.channel.send(`Server footer of \`${footerMessage}\` successfully set!`);
+                    return message.channel.send({ content: `Server footer of \`${footerMessage}\` successfully set!` });
                 })
                 .catch((err) => {
                     console.log(`\x1b[31m\x1b[1mError setting footer for server ${serverID} (${message.guild.name}):\x1b[0m`);
                     console.log(err);
-                    return message.channel.send(`Error setting footer!`);
+                    return message.channel.send({ content: `Error setting footer!` });
                 });
 
         }
         catch (err) {
             console.log(`\x1b[31m\x1b[1mError setting footer for server ${serverID} (${message.guild.name}):\x1b[0m`);
             console.log(err);
-            return message.channel.send(`Error setting footer!`);
+            return message.channel.send({ content: `Error setting footer!` });
         }
     }
 }
