@@ -15,6 +15,10 @@ const __dirname = path.dirname(__filename);
 const commandFiles = fs.readdirSync(path.join(__dirname, 'lib')).filter(file => file.endsWith('.js'));
 var invite;
 const prefix = '-mct ';
+const clientId = null;
+const guildId = null;
+import { REST } from '@discordjs/rest';
+import { Routes } from 'discord-api-types/v9';
 const commands = [];
 
 // Put commands in collection
@@ -58,17 +62,17 @@ client.on("ready", () => {
     invite = `https://discord.com/oauth2/authorize?client_id=${client.user.id}&permissions=2147502080&scope=applications.commands%20bot`;
 
 
-    // const rest = new REST({ version: '9' }).setToken(process.env.NIGHTLY);
-    // (async () => {
-    //     try {
-    //         if (guildId) {
-    //             await rest.put(Routes.applicationGuildCommands(clientId, guildId), { body: commands });
-    //         }
-    //     } catch (err) {
-    //         console.log("failed");
-    //         console.error(err);
-    //     }
-    // })();
+    const rest = new REST({ version: '9' }).setToken(process.env.NIGHTLY);
+    (async () => {
+        try {
+            if (guildId) {
+                await rest.put(Routes.applicationGuildCommands(clientId, guildId), { body: commands });
+            }
+        } catch (err) {
+            console.log("failed");
+            console.error(err);
+        }
+    })();
 
 });
 
