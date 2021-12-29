@@ -14,7 +14,7 @@ const __filename = url.fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const commandFiles = fs.readdirSync(path.join(__dirname, 'lib')).filter(file => file.endsWith('.js'));
 var invite;
-const prefix = '-mct ';
+const prefix = '-mc ';
 const clientId = null;
 const guildId = null;
 import { REST } from '@discordjs/rest';
@@ -81,7 +81,7 @@ client.on("guildCreate", (guild) => {
     console.log(`Joined new guild: ${guild.id} (${guild.name})`);
     addGuildToData(guild);
 
-    if (!checkPermissions(guild)) return; // Check if bot has permissions
+    if (!checkBotHasPermissions(guild)) return; // Check if bot has permissions
 
     try {
         // Send welcome embed message
@@ -111,7 +111,35 @@ client.on("guildDelete", (guild) => {
     return;
 });
 
-client.on("messageCreate", message => {
+// TODO: Check if command is coming from interaction or message in lib, and use interaction reply or message.channel.send accordingly
+
+client.on('interactionCreate', async interaction => {
+    if (!interaction.isCommand()) return;
+    const command = client.commands.get(interaction.commandName) || client.commands.find(cmd => cmd.aliases && cmd.aliases.includes(interaction.commandName));
+    if (!command) return; // Check if command in commands folder
+
+    // Check if author has permission to execute commands
+    if (!checkUserHasPermissions("interaction", command.permissions, interaction)) return;
+
+    await interaction.reply(`${interaction.commandName} command was logged`);
+    // // Command handler
+    // try {
+    //     const args = {
+    //         "discord": Discord,
+    //         "pool": pool,
+    //         "serverID": interaction.guildId,
+    //         "interaction": interaction,
+    //         "invite": invite,
+    //         "prefix": prefix
+    //     };
+    //     command.execute(pool, serverID, message, args, invite, prefix);
+    // } catch (error) {
+    //     console.error(error);
+    //     return interaction.reply({ content: 'There was an error trying to execute that command!' });
+    // }
+});
+
+client.on("messageCreate", async message => {
 
     // Check if message has bot prefix / mentions bot
     let sliceLen;
@@ -125,7 +153,7 @@ client.on("messageCreate", message => {
 
     if (message.channel.type == "dm") return; // Ignore direct messages
 
-    if (!checkPermissions(message.guild)) return; // Check if bot has permissions
+    if (!checkBotHasPermissions(message.guild)) return; // Check if bot has permissions
 
     // Get guild ID and check if guild in database
     var serverID = message.guild.id.toString();
@@ -154,16 +182,7 @@ client.on("messageCreate", message => {
     if (!command) return; // Check if command in commands folder
 
     // Check if author has permission to execute commands
-    if (command.permissions) {
-        const perms = message.channel.permissionsFor(message.author);
-        if (!perms || !perms.has(command.permissions)) {
-            const adminEmbed = new Discord.MessageEmbed()
-                .setColor('#E74C3C')
-                .setAuthor('Steve', 'https://i.imgur.com/gb5oeQt.png')
-                .setDescription(`Only administrators can make changes to Steve!`);
-            return message.channel.send({ embeds: [adminEmbed] });
-        }
-    }
+    if (!checkUserHasPermissions("message", command.permissions, message)) return;
 
     // Command handler
     try {
@@ -210,7 +229,8 @@ function createTable() {
         });
 }
 
-function checkPermissions(guild) {
+function checkBotHasPermissions(guild) {
+    console.log(guild.me.permissions.serialize());
     // Check if bot has permissions
     if (!guild.me.permissions.has(Permissions.FLAGS.SEND_MESSAGES)) {
         console.log(`Server ${guild.id.toString()} (${guild.name}): No permission to send messages.`);
@@ -220,6 +240,30 @@ function checkPermissions(guild) {
         console.log(`Server ${guild.id.toString()} (${guild.name}): No permission to embed links.`);
         guild.systemChannel.send('Please enable the `Embed Links` permission for the Steve role in your Discord server settings!');
         return false;
+    }
+    return true;
+}
+
+function checkUserHasPermissions(type, permissions, messageType) {
+    const adminEmbed = new Discord.MessageEmbed()
+        .setColor('#E74C3C')
+        .setAuthor('Steve', 'https://i.imgur.com/gb5oeQt.png')
+        .setDescription(`Only administrators can make changes to Steve!`);
+
+    if (type === 'interaction') {
+        if (permissions && !messageType.memberPermissions.has(permissions)) {
+            messageType.reply({ embeds: [adminEmbed] });
+            return false;
+        }
+
+    } else if (type === 'message') {
+        if (permissions) {
+            const perms = messageType.channel.permissionsFor(messageType.author);
+            if (!perms || !perms.has(permissions)) {
+                messageType.channel.send({ embeds: [adminEmbed] });
+                return false;
+            }
+        }
     }
     return true;
 }
