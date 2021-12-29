@@ -1,7 +1,8 @@
-import { SlashCommandBuilder } from "@discordjs/builders";
+import { SlashCommandBuilder } from '@discordjs/builders';
+import { Permissions } from 'discord.js';
 
 export const name = 'leave';
-export const permissions = 'ADMINISTRATOR';
+export const permissions = new Permissions([Permissions.FLAGS.ADMINISTRATOR]);
 export const description = 'Leave the server';
 export const data = new SlashCommandBuilder()
     .setName('leave')

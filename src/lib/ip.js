@@ -1,4 +1,4 @@
-import { SlashCommandBuilder } from "@discordjs/builders";
+import { SlashCommandBuilder } from '@discordjs/builders';
 import SQL_Query from '../../db/query.js';
 
 export const name = 'ip';

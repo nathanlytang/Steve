@@ -1,8 +1,9 @@
-import { SlashCommandBuilder } from "@discordjs/builders";
+import { SlashCommandBuilder } from '@discordjs/builders';
+import { Permissions } from 'discord.js';
 import SQL_Query from '../../db/query.js';
 
 export const name = 'settings';
-export const permissions = 'ADMINISTRATOR';
+export const permissions = new Permissions([Permissions.FLAGS.ADMINISTRATOR]);
 export const description = 'Get server settings';
 export const data = new SlashCommandBuilder()
     .setName('settings')

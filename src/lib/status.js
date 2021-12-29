@@ -1,4 +1,4 @@
-import { SlashCommandBuilder } from "@discordjs/builders";
+import { SlashCommandBuilder } from '@discordjs/builders';
 import path from "path";
 import url from 'url';
 const __filename = url.fileURLToPath(import.meta.url);
