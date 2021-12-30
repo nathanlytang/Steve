@@ -1,3 +1,4 @@
+import Discord from 'discord.js';
 import { SlashCommandBuilder } from '@discordjs/builders';
 import SQL_Query from '../../db/query.js';
 
@@ -7,14 +8,15 @@ export const description = 'Get the server join IP';
 export const data = new SlashCommandBuilder()
     .setName('ip')
     .setDescription('Get the Minecraft server address');
-export async function execute(Discord, pool, serverID, message, args, invite, prefix) {
-    console.log(`Server ${serverID} (${message.guild.name}) sent ip command`);
+
+export async function execute(pool, serverID, interaction, invite) {
+    console.log(`Server ${serverID} (${interaction.guild.name}) sent ip command`);
 
     // Execute SQL
     let sql = "SELECT url, port, name FROM guild_data WHERE guild_id = ?;";
     let vars = [serverID];
     var join = new SQL_Query(pool, sql, vars);
-    join.query()
+    return join.query()
         // If rows successfully returned
         .then((rows) => {
             // Check if URL exists
@@ -22,15 +24,12 @@ export async function execute(Discord, pool, serverID, message, args, invite, pr
                 const noSettingsEmbed = new Discord.MessageEmbed()
                     .setColor('#E74C3C')
                     .setAuthor('Current Settings', 'https://i.imgur.com/gb5oeQt.png')
-                    .setDescription(`Steve has not been set up on this server yet! Run \`${prefix}setup\` to continue.`);
-                return message.channel.send({ embeds: [noSettingsEmbed] });
+                    .setDescription(`Steve has not been set up on this server yet! Run \`/setup\` to continue.`);
+                return interaction.reply({ embeds: [noSettingsEmbed] });
             }
 
             // Display the port if not default
-            let serverIP = `${rows[0].url}:${rows[0].port}`;
-            if (rows[0].port === "25565") {
-                serverIP = `${rows[0].url}`;
-            }
+            let serverIP = rows[0].port === "25565" ? `${rows[0].url}` : `${rows[0].url}:${rows[0].port}`;
 
             // Create and send join embed
             const joinEmbed = new Discord.MessageEmbed()
@@ -38,7 +37,7 @@ export async function execute(Discord, pool, serverID, message, args, invite, pr
                 .setThumbnail(`https://eu.mc-api.net/v3/server/favicon/${rows[0].url}`)
                 .setTitle(`Join the Server`)
                 .setDescription(`Join ${rows[0].name} at **${serverIP}**!`);
-            message.channel.send({ embeds: [joinEmbed] });
+            return interaction.reply({ embeds: [joinEmbed] });
         })
         .catch((err) => {
             // If failed to get server information from database
@@ -47,8 +46,6 @@ export async function execute(Discord, pool, serverID, message, args, invite, pr
                 .setColor('#E74C3C')
                 .setTitle('Failed to get server information')
                 .setDescription('Failed to get server information.  Please try again in a few minutes.');
-            message.channel.send({ embeds: [fetchFailEmbed] });
+            return interaction.reply({ embeds: [fetchFailEmbed] });
         });
-
-    return;
 }
