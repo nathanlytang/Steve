@@ -1,3 +1,4 @@
+import Discord from 'discord.js';
 import { SlashCommandBuilder } from '@discordjs/builders';
 import { Permissions } from 'discord.js';
 
@@ -7,8 +8,9 @@ export const description = 'Leave the server';
 export const data = new SlashCommandBuilder()
     .setName('leave')
     .setDescription('Trigger Steve to leave this Discord server');
-export function execute(Discord, pool, serverID, message, args, invite, prefix) {
-    console.log(`Server ${serverID} (${message.guild.name}) sent leave command`);
+
+export function execute(pool, serverID, interaction, invite) {
+    console.log(`Server ${serverID} (${interaction.guild.name}) sent leave command`);
 
     (async () => {
         // Send leave embed
@@ -16,8 +18,8 @@ export function execute(Discord, pool, serverID, message, args, invite, prefix) 
             .setColor('#62B36F')
             .setAuthor('Steve', 'https://i.imgur.com/gb5oeQt.png')
             .setDescription(`Goodbye! Click [here](${invite} "Invite Steve") to invite me again.`);
-        await message.channel.send({ embeds: [leaveEmbed] });
-        message.guild.leave();
+        await interaction.reply({ embeds: [leaveEmbed] });
+        interaction.guild.leave();
     })();
     return;
 }
