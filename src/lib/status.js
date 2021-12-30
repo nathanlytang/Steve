@@ -1,3 +1,4 @@
+import Discord from 'discord.js';
 import { SlashCommandBuilder } from '@discordjs/builders';
 import path from "path";
 import url from 'url';
@@ -12,21 +13,22 @@ export const description = 'Get server status';
 export const data = new SlashCommandBuilder()
     .setName('status')
     .setDescription('Get current Minecraft server status');
-export async function execute(Discord, pool, serverID, message, args, invite, prefix) {
+
+export async function execute(pool, serverID, interaction, invite) {
     const defaultFavicon = "../../assets/favicon.png";
 
     // Functions
-    function statusCheckFail(message, err) {
+    function statusCheckFail(err) {
         console.log(`Failed to fetch server info: ${err}`);
         const fetchFailEmbed = new Discord.MessageEmbed()
             .setColor('#E74C3C')
             .setTitle('Failed to get server information')
             .setDescription('Failed to get server information.  Please try again in a few minutes.');
-        message.channel.send({ embeds: [fetchFailEmbed] });
+        interaction.editReply({ embeds: [fetchFailEmbed] });
         return;
     }
 
-    function offlineEmbed(message) {
+    function offlineEmbed() {
         // Create and send server offline embed
         const statusEmbed = new Discord.MessageEmbed()
             .setColor('#E74C3C')
@@ -38,12 +40,14 @@ export async function execute(Discord, pool, serverID, message, args, invite, pr
             .addFields(
                 { name: 'Players', value: `None\n`, inline: true }
             );
-        message.channel.send({ embeds: [statusEmbed] });
+        interaction.editReply({ embeds: [statusEmbed] });
         return;
     }
 
     // Start of command
-    console.log(`Server ${serverID} (${message.guild.name}) sent status command`);
+    console.log(`Server ${serverID} (${interaction.guild.name}) sent status command`);
+
+    await interaction.deferReply();
 
     let sql = "SELECT url, port, query, footer FROM guild_data WHERE guild_id = ?";
     let vars = [serverID];
@@ -51,7 +55,7 @@ export async function execute(Discord, pool, serverID, message, args, invite, pr
     status_query.query()
         .then((rows) => {
             if (rows[0].url == "") { // Check if URL set up
-                return message.channel.send({ content: `Your server IP has not been set up!  Please use \`${prefix}setup\` to get the setup information.` });
+                return interaction.editReply({ content: `Your server IP has not been set up!  Please use \`/setup\` to get the setup information.` });
             }
 
             if (rows[0].query === 1) { // Grab server information using query if querying enabled
@@ -63,7 +67,7 @@ export async function execute(Discord, pool, serverID, message, args, invite, pr
                     .then(() => {
                         query.full_stat((err, stat) => {
                             if (err) {
-                                statusCheckFail(message, err);
+                                statusCheckFail(err);
                             }
 
                             try {
@@ -96,7 +100,7 @@ export async function execute(Discord, pool, serverID, message, args, invite, pr
                                             playerList = 'Too many to show!';
                                         }
                                     } catch {
-                                        console.log(`Server ${serverID} (${message.guild.name}): Player number does not match list`);
+                                        console.log(`Server ${serverID} (${interaction.guild.name}): Player number does not match list`);
                                         if (stat.numplayers > 20) {
                                             playerList = 'Too many to show!';
                                         } else {
@@ -118,11 +122,11 @@ export async function execute(Discord, pool, serverID, message, args, invite, pr
                                             { name: 'List', value: `${playerList}\n`, inline: true }
                                         )
                                         .setFooter(`${rows[0].footer}`);
-                                    message.channel.send({ embeds: [statusEmbed], files: [imgAttach] });
+                                    interaction.editReply({ embeds: [statusEmbed], files: [imgAttach] });
                                 });
 
                             } catch (err) {
-                                statusCheckFail(message, err);
+                                statusCheckFail(err);
                             }
                             // Close query request when complete
                             if (query.outstandingRequests === 0) {
@@ -133,7 +137,7 @@ export async function execute(Discord, pool, serverID, message, args, invite, pr
                     })
                     .catch(err => {
                         // Create and send server offline embed
-                        offlineEmbed(message);
+                        offlineEmbed();
                         return;
                     });
             } else { // Grab server information using ping if querying disabled
@@ -145,7 +149,7 @@ export async function execute(Discord, pool, serverID, message, args, invite, pr
                         // Send offline embed if ping error
                         if (pingErr) {
                             // Create and send server offline embed
-                            offlineEmbed(message);
+                            offlineEmbed();
                             return;
                         }
 
@@ -174,7 +178,7 @@ export async function execute(Discord, pool, serverID, message, args, invite, pr
                                 playerList = playerList.substring(0, playerList.length - 2);
                             }
                         } catch {
-                            console.log(`Server ${serverID} (${message.guild.name}): Player number does not match list`);
+                            console.log(`Server ${serverID} (${interaction.guild.name}): Player number does not match list`);
                             playerList = 'Unknown';
                         }
 
@@ -192,18 +196,18 @@ export async function execute(Discord, pool, serverID, message, args, invite, pr
                                 { name: 'List', value: `${playerList}\n`, inline: true }
                             )
                             .setFooter(`${rows[0].footer}`);
-                            message.channel.send({ embeds: [statusEmbed], files: [imgAttach] });
+                            interaction.editReply({ embeds: [statusEmbed], files: [imgAttach] });
                         return;
                     });
 
                 } catch (err) {
-                    statusCheckFail(message, err);
+                    statusCheckFail(err);
                 }
             }
         })
         .catch((err) => {
             console.log(`Database error:`);
-            statusCheckFail(message, err);
+            statusCheckFail(err);
             return;
         });
 }
