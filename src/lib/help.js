@@ -14,7 +14,7 @@ export function execute(pool, serverID, interaction, invite) {
     // Create and send help embed
     const helpEmbed = new Discord.MessageEmbed()
         .setColor('#62B36F')
-        .setAuthor('Steve', 'https://i.imgur.com/gb5oeQt.png')
+        .setAuthor({ name: 'Steve', iconURL: 'https://i.imgur.com/gb5oeQt.png' })
         .setDescription(`Steve is a Discord bot for Minecraft communities! Make it easy \nto get your server address and server status all in one panel.`)
         .addFields(
             { name: 'Commands', value: `/help\n/setup\n/settings\n/status\n/ip\n/skin <user>\n/leave\n`, inline: true },

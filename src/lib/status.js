@@ -121,7 +121,7 @@ export async function execute(pool, serverID, interaction, invite) {
                                             { name: 'Players', value: `${stat.numplayers}/${stat.maxplayers}\n`, inline: true },
                                             { name: 'List', value: `${playerList}\n`, inline: true }
                                         )
-                                        .setFooter(`${rows[0].footer}`);
+                                        .setFooter({ text: `${rows[0].footer}` });
                                     interaction.editReply({ embeds: [statusEmbed], files: [imgAttach] });
                                 });
 
@@ -195,8 +195,8 @@ export async function execute(pool, serverID, interaction, invite) {
                                 { name: 'Players', value: `${res.players.online}/${res.players.max}\n`, inline: true },
                                 { name: 'List', value: `${playerList}\n`, inline: true }
                             )
-                            .setFooter(`${rows[0].footer}`);
-                            interaction.editReply({ embeds: [statusEmbed], files: [imgAttach] });
+                            .setFooter({ text: `${rows[0].footer}` });
+                        interaction.editReply({ embeds: [statusEmbed], files: [imgAttach] });
                         return;
                     });
 

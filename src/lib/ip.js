@@ -23,7 +23,7 @@ export async function execute(pool, serverID, interaction, invite) {
             if (rows[0].url === '') {
                 const noSettingsEmbed = new Discord.MessageEmbed()
                     .setColor('#E74C3C')
-                    .setAuthor('Current Settings', 'https://i.imgur.com/gb5oeQt.png')
+                    .setAuthor({ name: 'Current Settings', iconURL: 'https://i.imgur.com/gb5oeQt.png' })
                     .setDescription(`Steve has not been set up on this server yet! Run \`/setup\` to continue.`);
                 return interaction.reply({ embeds: [noSettingsEmbed] });
             }

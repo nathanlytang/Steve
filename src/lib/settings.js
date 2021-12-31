@@ -42,7 +42,7 @@ export async function execute(pool, serverID, interaction, invite) {
             if ((serverName == "") && (serverURL == "") && (serverFooter == "")) {
                 const noSettingsEmbed = new Discord.MessageEmbed()
                     .setColor('#E74C3C')
-                    .setAuthor('Current Settings', 'https://i.imgur.com/gb5oeQt.png')
+                    .setAuthor({ name: 'Current Settings', iconURL: 'https://i.imgur.com/gb5oeQt.png' })
                     .setDescription(`Steve has not been set up on this server yet! Run \`/setup\` to continue.`);
                 return interaction.reply({ embeds: [noSettingsEmbed] });
             }
@@ -53,7 +53,7 @@ export async function execute(pool, serverID, interaction, invite) {
             if (serverFooter == "") { serverFooter = "None"; }
             const settingsEmbed = new Discord.MessageEmbed()
                 .setColor('#62B36F')
-                .setAuthor('Current Settings', 'https://i.imgur.com/gb5oeQt.png')
+                .setAuthor({ name: 'Current Settings', iconURL: 'https://i.imgur.com/gb5oeQt.png' })
                 .addFields(
                     { name: 'Server', value: `${serverName}`, inline: true },
                     { name: 'IP address', value: `${serverURL}`, inline: true },
