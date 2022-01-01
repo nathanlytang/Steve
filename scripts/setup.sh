@@ -243,11 +243,17 @@ message_option "Discord token" "$DISCORD_TOKEN"
 read -p "> " NEW_DISCORD_TOKEN && echo
 NEW_DISCORD_TOKEN=${NEW_DISCORD_TOKEN:="$DISCORD_TOKEN"}
 
+# Get Discord Token
+message_option "Discord bot client ID" "$CLIENT_ID"
+read -p "> " NEW_CLIENT_ID && echo
+NEW_CLIENT_ID=${NEW_CLIENT_ID:="$CLIENT_ID"}
+
 # Write variables to .env
 echo -e "Updating environment variables configuration..."
 
 # Empty existing file and rewrite contents
 true >$config_file
+echo "CLIENT_ID=$NEW_CLIENT_ID" >>$config_file
 echo "DISCORD_TOKEN=$NEW_DISCORD_TOKEN" >>$config_file
 echo "DB_HOST=$NEW_DB_HOST" >>$config_file
 echo "DB_PORT=$NEW_DB_PORT" >>$config_file
