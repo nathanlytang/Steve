@@ -1,17 +1,25 @@
+import Discord from 'discord.js';
+import { SlashCommandBuilder } from '@discordjs/builders';
+import { Permissions } from 'discord.js';
+
 export const name = 'leave';
-export const permissions = 'ADMINISTRATOR';
+export const permissions = new Permissions([Permissions.FLAGS.ADMINISTRATOR]);
 export const description = 'Leave the server';
-export function execute(Discord, pool, serverID, message, args, invite, prefix) {
-    console.log(`Server ${serverID} (${message.guild.name}) sent leave command`);
+export const data = new SlashCommandBuilder()
+    .setName('leave')
+    .setDescription('Trigger Steve to leave this Discord server');
+
+export function execute(pool, serverID, interaction, invite) {
+    console.log(`Server ${serverID} (${interaction.guild.name}) sent leave command`);
 
     (async () => {
         // Send leave embed
         const leaveEmbed = new Discord.MessageEmbed()
             .setColor('#62B36F')
-            .setAuthor('Steve', 'https://i.imgur.com/gb5oeQt.png')
+            .setAuthor({ name: 'Steve', iconURL: 'https://i.imgur.com/gb5oeQt.png' })
             .setDescription(`Goodbye! Click [here](${invite} "Invite Steve") to invite me again.`);
-        await message.channel.send(leaveEmbed);
-        message.guild.leave();
+        await interaction.reply({ embeds: [leaveEmbed] });
+        interaction.guild.leave();
     })();
     return;
 }

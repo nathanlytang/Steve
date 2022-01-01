@@ -6,6 +6,7 @@
   "type": "module",
   "scripts": {
     "start": "node .",
+    "register": "node ./scripts/registerslashcommands.js",
     "production": "NODE_ENV=production&&npm start",
     "development": "NODE_ENV=development&&npm start"
   },
@@ -20,14 +21,17 @@
   },
   "homepage": "https://github.com/nathanlytang/Steve#readme",
   "dependencies": {
-    "discord.js": "^12.4.1",
-    "dotenv": "^8.2.0",
+    "@discordjs/builders": "^0.11.0",
+    "@discordjs/rest": "^0.2.0-canary.0",
+    "discord-api-types": "^0.26.0",
+    "discord.js": "^13.5.0",
+    "dotenv": "^10.0.0",
     "mariadb": "^2.5.3",
     "mcping-js": "^1.5.0",
     "mcquery": "^1.0.2",
-    "node-fetch": "^2.6.1"
+    "node-fetch": "^3.1.0"
   },
   "devDependencies": {
-    "eslint": "^7.22.0"
+    "eslint": "^8.5.0"
   }
 }

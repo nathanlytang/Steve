@@ -20,7 +20,7 @@ Display the IP Address/URL of the Minecraft server.
 <img src="../assets/preview_ip.png" style="display: block; border-radius: 10px / 7px; ">
 
 ### Skin
-Specify a Minecraft player name (Eg. `-mc skin Alienics_`) to display their Minecraft skin.
+Specify a Minecraft player name (Eg. `/skin Alienics_`) to display their Minecraft skin.
 
 <img src="../assets/preview_skin.png" style="display: block; border-radius: 10px / 7px; ">
 
@@ -28,16 +28,16 @@ Specify a Minecraft player name (Eg. `-mc skin Alienics_`) to display their Mine
 Only Discord users with the administrator permission can execute these commands.
 ### Setup
 
-If used without arguments (`-mc setup`), Steve will display setup instructions.  Using any of the following arguments will change the settings.
+If used without arguments (`/setup`), Steve will display setup instructions.  Using any of the following arguments will change the settings.
 
 <img src="../assets/preview_setup.png" style="display: block; border-radius: 10px / 7px; ">
 
 ##### Available arguments
-* `ip` - Set the IP address or URL of your Minecraft server.  Eg. `-mc setup ip yourserver.com`
-* `port` - Set the port of your server if not default (25565).  Eg. `-mc setup port 25565`
-* `query` - Enable or disable server querying. (Default enabled).  Eg. `-mc setup query enable`
-* `name` - Set the name of your Minecraft server.  Eg. `-mc setup name Your Server`
-* `footer` - Set a short message to be displayed every time the `status` command is called. Eg. `-mc setup footer Come play with us!`
+* `ip` - Set the IP address or URL of your Minecraft server.  Eg. `/setup ip yourserver.com`
+* `port` - Set the port of your server if not default (25565).  Eg. `/setup port 25565`
+* `query` - Enable or disable server querying. (Default enabled).  Eg. `/setup query enable`
+* `name` - Set the name of your Minecraft server.  Eg. `/setup name Your Server`
+* `footer` - Set a short message to be displayed every time the `status` command is called. Eg. `/setup footer Come play with us!`
 
 
 ### Settings

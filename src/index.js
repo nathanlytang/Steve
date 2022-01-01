@@ -1,10 +1,10 @@
-import Discord from 'discord.js';
+import Discord, { Intents, Permissions } from 'discord.js';
 import dotenv from "dotenv";
 dotenv.config();
 import process from 'process';
 import path from "path";
 const version = process.env.NODE_ENV;
-const client = new Discord.Client();
+const client = new Discord.Client({ intents: [Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILDS] });
 import fs from 'fs';
 import { pool } from '../db/index.js';
 import SQL_Query from '../db/query.js';
@@ -14,23 +14,30 @@ const __filename = url.fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const commandFiles = fs.readdirSync(path.join(__dirname, 'lib')).filter(file => file.endsWith('.js'));
 var invite;
-const prefix = '-mct ';
+var clientId;
+import { REST } from '@discordjs/rest';
+import { Routes } from 'discord-api-types/v9';
+const commands = [];
 
 // Put commands in collection
 (async () => {
     for (const file of commandFiles) {
         const command = await import(`./lib/${file}`);
-        client.commands.set(command.name, command);
+        commands.push(command.data.toJSON());
+        client.commands.set(command.data.name, command);
     }
 })();
 
 if (version === 'production') {
     client.login(); // Production build
+    clientId = process.env.CLIENT_ID;
 } else {
     client.login(process.env.NIGHTLY); // Nightly build
+    clientId = process.env.DEV_CLIENT;
+    var guildId = process.env.DEV_GUILD;
 }
 
-client.on('ready', () => {
+client.on("ready", () => {
     // Create database table if not exists
     let sql = " SHOW TABLES LIKE ? ";
     let vars = ['guild_data'];
@@ -48,29 +55,41 @@ client.on('ready', () => {
             console.log(err);
         });
 
-    // guild_list = client.guilds.cache.map(guild => guild.id);
-
     console.log(`Logged in as ${client.user.tag}! Monitoring ${client.guilds.cache.size} servers.`);
-    client.user.setPresence({ activity: { name: `${prefix}status | ${prefix}help`, type: 'LISTENING' }, status: 'online' })
-        .catch(console.error);
-    invite = `https://discord.com/oauth2/authorize?client_id=${client.user.id}&permissions=18432&scope=bot`;
+    client.user.setPresence({ activities: [{ name: `/status | /help`, type: 'LISTENING' }] });
+    client.user.setStatus("online");
+    invite = `https://discord.com/oauth2/authorize?client_id=${client.user.id}&permissions=2147502080&scope=applications.commands%20bot`;
+
+    // Register guild commands if running dev environment
+    const rest = new REST({ version: '9' }).setToken(version === 'production' ? process.env.DISCORD_TOKEN : process.env.NIGHTLY);
+    (async () => {
+        try {
+            if (version !== "production" || version === "development") {
+                await rest.put(Routes.applicationGuildCommands(clientId, guildId), { body: commands });
+            }
+        } catch (err) {
+            console.error(err);
+        }
+    })();
+
 });
 
 client.on("guildCreate", (guild) => {
     // When the bot joins a server
     console.log(`Joined new guild: ${guild.id} (${guild.name})`);
     addGuildToData(guild);
+    await registerSlashCommands(guild); // Register slash commands
 
-    if (!checkPermissions(guild)) return; // Check if bot has permissions
+    if (!checkBotHasPermissions(guild)) return; // Check if bot has permissions
 
     try {
         // Send welcome embed message
         const welcomeEmbed = new Discord.MessageEmbed()
             .setColor('#62B36F')
-            .setAuthor('Steve', 'https://i.imgur.com/gb5oeQt.png')
-            .setDescription(`Hello! I'm Steve, a bot designed to get and display your Minecraft server status!  Thanks for adding me to your server.  To view all my available commands, use \`${prefix} help\`.`)
-            .setFooter('Made by Alienics#5796 👾');
-        guild.systemChannel.send(welcomeEmbed);
+            .setAuthor({ name: 'Steve', iconURL: 'https://i.imgur.com/gb5oeQt.png' })
+            .setDescription(`Hello! I'm Steve, a bot designed to get and display your Minecraft server status!  Thanks for adding me to your server.  To view all my available commands, use \`/help\`.`)
+            .setFooter({ text: 'Made by Alienics#5796 👾' });
+        guild.systemChannel.send({ embeds: [welcomeEmbed] });
     } catch {
         // System channel not enabled
         console.log(`Server ${guild.id.toString()} (${guild.name}): System channel not enabled.  No permission to send messages.`);
@@ -83,40 +102,28 @@ client.on("guildDelete", (guild) => {
     console.log(`Left guild: ${guild.id} (${guild.name})`);
 
     // Remove guild data from database
-    const serverID = guild.id.toString();
     let sql = "DELETE FROM guild_data WHERE guild_id = ?;";
-    let vars = [serverID];
+    let vars = [guild.id];
     const remove_guild = new SQL_Query(pool, sql, vars);
     remove_guild.query();
     return;
 });
 
-client.on('message', message => {
-
-    // Check if message has bot prefix / mentions bot
-    let sliceLen;
-    if (message.content.startsWith(prefix)) {
-        sliceLen = prefix.length;
-    } else if (message.mentions.has(client.user.id) && !message.mentions.everyone) {
-        sliceLen = 23;
-    } else {
-        return;
-    }
-
-    if (message.channel.type == "dm") return; // Ignore direct messages
-
-    if (!checkPermissions(message.guild)) return; // Check if bot has permissions
+client.on('interactionCreate', async interaction => {
+    if (!interaction.isCommand()) return;
+    const command = client.commands.get(interaction.commandName) || client.commands.find(cmd => cmd.aliases && cmd.aliases.includes(interaction.commandName));
+    if (!command) return; // Check if command in commands folder
 
     // Get guild ID and check if guild in database
-    var serverID = message.guild.id.toString();
     let sql = ' SELECT * FROM guild_data WHERE guild_id = ? ';
-    let vars = [serverID];
+    let vars = [interaction.guildId];
     let guild_exists = new SQL_Query(pool, sql, vars);
-    guild_exists.query()
-        .then((rows) => {
+    await guild_exists.query()
+        .then(async (rows) => {
             if (rows.length === 0) {
-                console.log(`Server ${serverID} (${message.guild.name}): Guild not found in database.  Adding to database.`);
-                addGuildToData(message.guild);
+                console.log(`Server ${interaction.guildId} (${interaction.guild.name}): Guild not found in database.  Adding to database.`);
+                await addGuildToData(interaction.guild);
+                await registerSlashCommands(interaction.guild);
             }
         })
         .catch((err) => {
@@ -124,62 +131,68 @@ client.on('message', message => {
             console.log(err);
         });
 
-    // Separate command and arguments
-    const commandBody = message.content.slice(sliceLen);
-    const args = commandBody.split(' ');
-    const commandName = args.shift().toLowerCase();
-
-    // Grab commands and aliases
-    const command = client.commands.get(commandName) || client.commands.find(cmd => cmd.aliases && cmd.aliases.includes(commandName));
-    if (!command) return; // Check if command in commands folder
-
-    // Check if author has permission to execute commands
-    if (command.permissions) {
-        const perms = message.channel.permissionsFor(message.author);
-        if (!perms || !perms.has(command.permissions)) {
-            const adminEmbed = new Discord.MessageEmbed()
-                .setColor('#E74C3C')
-                .setAuthor('Steve', 'https://i.imgur.com/gb5oeQt.png')
-                .setDescription(`Only administrators can make changes to Steve!`);
-            return message.channel.send(adminEmbed);
-        }
+    // Check if author has permission to execute commands    
+    if (command.permissions && !interaction.memberPermissions.has(command.permissions)) {
+        const adminEmbed = new Discord.MessageEmbed()
+            .setColor('#E74C3C')
+            .setAuthor({ name: 'Steve', iconURL: 'https://i.imgur.com/gb5oeQt.png' })
+            .setDescription(`Only administrators can make changes to Steve!`);
+        return interaction.reply({ embeds: [adminEmbed] });
     }
 
     // Command handler
     try {
-        command.execute(Discord, pool, serverID, message, args, invite, prefix);
+        await command.execute(pool, interaction.guildId, interaction, invite);
     } catch (error) {
         console.error(error);
-        return message.channel.send('There was an error trying to execute that command!');
+        return interaction.reply({ content: 'There was an error trying to execute that command!' });
     }
-
 });
 
-function addGuildToData(guild) {
+/**
+ * Create a new entry in database table with new guild information
+ * @param {Discord.Guild} guild 
+ * @returns Completed SQL query
+ */
+async function addGuildToData(guild) {
     // Create new row in guild_data table with guild ID as primary key
-    let serverID = guild.id.toString();
-    let sql = "INSERT INTO guild_data VALUES (?, 1, '25565', '', '', '', '-mc ');";
-    let vars = [serverID];
+    let sql = "INSERT INTO guild_data VALUES (?, 1, '25565', '', '', '');";
+    let vars = [guild.id];
     const add_guild = new SQL_Query(pool, sql, vars);
-    add_guild.query()
+    return await add_guild.query()
         .catch((err) => {
-            console.log(`\x1b[31m\x1b[1mError adding guild to database for guild ${serverID} (${guild.name}):\x1b[0m`);
+            console.log(`\x1b[31m\x1b[1mError adding guild to database for guild ${guild.id} (${guild.name}):\x1b[0m`);
             console.log(err);
-            return;
         });
-    return;
 }
 
+/**
+ * Register guild commands when bot is added to new guild
+ * @param {Discord.Guild} guild 
+ */
+async function registerSlashCommands(guild) {
+    const rest = new REST({ version: '9' }).setToken(version === 'production' ? process.env.DISCORD_TOKEN : process.env.NIGHTLY);
+    (async () => {
+        try {
+            await rest.put(Routes.applicationGuildCommands(clientId, guild.id), { body: commands });
+        } catch (err) {
+            console.error(err);
+        }
+    })();
+}
+
+/**
+ * Create database table if not exists
+ */
 function createTable() {
     // Create new table if not already existing in database
     let sql = `CREATE TABLE IF NOT EXISTS guild_data (
-        guild_id VARCHAR(18) NOT NULL,   
-        query BOOLEAN NOT NULL DEFAULT 1,          
-        port VARCHAR(5) NOT NULL DEFAULT '25565',   
-        url VARCHAR(2048) DEFAULT '',   
-        name VARCHAR(50) DEFAULT '',   
-        footer VARCHAR(50) DEFAULT '',   
-        prefix VARCHAR(10) NOT NULL DEFAULT '-mc ',   
+        guild_id VARCHAR(18) NOT NULL,
+        query BOOLEAN NOT NULL DEFAULT 1,
+        port VARCHAR(5) NOT NULL DEFAULT '25565',
+        url VARCHAR(2048) DEFAULT '',
+        name VARCHAR(50) DEFAULT '',
+        footer VARCHAR(50) DEFAULT '',
         PRIMARY KEY ( guild_id )) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;`;
     let create_table = new SQL_Query(pool, sql);
     create_table.query()
@@ -190,13 +203,18 @@ function createTable() {
         });
 }
 
-function checkPermissions(guild) {
+/**
+ * Check if the bot has required guild permissions
+ * @param {Discord.Guild} guild 
+ * @returns boolean
+ */
+function checkBotHasPermissions(guild) {
     // Check if bot has permissions
-    if (!guild.me.hasPermission("SEND_MESSAGES")) {
+    if (!guild.me.permissions.has(Permissions.FLAGS.SEND_MESSAGES)) {
         console.log(`Server ${guild.id.toString()} (${guild.name}): No permission to send messages.`);
         return false;
     }
-    if (!guild.me.hasPermission("EMBED_LINKS")) {
+    if (!guild.me.permissions.has(Permissions.FLAGS.EMBED_LINKS)) {
         console.log(`Server ${guild.id.toString()} (${guild.name}): No permission to embed links.`);
         guild.systemChannel.send('Please enable the `Embed Links` permission for the Steve role in your Discord server settings!');
         return false;
@@ -206,8 +224,8 @@ function checkPermissions(guild) {
 
 // Refresh client presence every hour
 setInterval(() => {
-    client.user.setPresence({ activity: { name: `${prefix}status | ${prefix}help`, type: 'LISTENING' }, status: 'online' })
-        .catch(console.error);
+    client.user.setPresence({ activities: [{ name: `/status | /help`, type: 'LISTENING' }] });
+    client.user.setStatus("online");
 }, 3600000);
 
 // Node.js signal event listeners

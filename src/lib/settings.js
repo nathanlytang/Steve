@@ -1,9 +1,17 @@
+import Discord from 'discord.js';
+import { SlashCommandBuilder } from '@discordjs/builders';
+import { Permissions } from 'discord.js';
+import SQL_Query from '../../db/query.js';
+
 export const name = 'settings';
-export const permissions = 'ADMINISTRATOR';
+export const permissions = new Permissions([Permissions.FLAGS.ADMINISTRATOR]);
 export const description = 'Get server settings';
-export async function execute(Discord, pool, serverID, message, args, invite, prefix) {
-    const SQL_Query = (await import(`../../db/query.js`)).Query;
-    console.log(`Server ${serverID} (${message.guild.name}) sent settings command`);
+export const data = new SlashCommandBuilder()
+    .setName('settings')
+    .setDescription('Display the current server settings');
+
+export async function execute(pool, serverID, interaction, invite) {
+    console.log(`Server ${serverID} (${interaction.guild.name}) sent settings command`);
 
     let serverName;
     let serverPort;
@@ -34,9 +42,9 @@ export async function execute(Discord, pool, serverID, message, args, invite, pr
             if ((serverName == "") && (serverURL == "") && (serverFooter == "")) {
                 const noSettingsEmbed = new Discord.MessageEmbed()
                     .setColor('#E74C3C')
-                    .setAuthor('Current Settings', 'https://i.imgur.com/gb5oeQt.png')
-                    .setDescription(`Steve has not been set up on this server yet! Run \`${prefix}setup\` to continue.`);
-                return message.channel.send(noSettingsEmbed);
+                    .setAuthor({ name: 'Current Settings', iconURL: 'https://i.imgur.com/gb5oeQt.png' })
+                    .setDescription(`Steve has not been set up on this server yet! Run \`/setup\` to continue.`);
+                return interaction.reply({ embeds: [noSettingsEmbed] });
             }
 
             // Else display current settings
@@ -45,7 +53,7 @@ export async function execute(Discord, pool, serverID, message, args, invite, pr
             if (serverFooter == "") { serverFooter = "None"; }
             const settingsEmbed = new Discord.MessageEmbed()
                 .setColor('#62B36F')
-                .setAuthor('Current Settings', 'https://i.imgur.com/gb5oeQt.png')
+                .setAuthor({ name: 'Current Settings', iconURL: 'https://i.imgur.com/gb5oeQt.png' })
                 .addFields(
                     { name: 'Server', value: `${serverName}`, inline: true },
                     { name: 'IP address', value: `${serverURL}`, inline: true },
@@ -53,7 +61,7 @@ export async function execute(Discord, pool, serverID, message, args, invite, pr
                     { name: 'Query', value: `${serverQuery}`, inline: true },
                     { name: 'Footer', value: `${serverFooter}`, inline: true }
                 );
-            message.channel.send(settingsEmbed);
+            interaction.reply({ embeds: [settingsEmbed] });
             return;
         })
         .catch((err) => {
@@ -63,7 +71,7 @@ export async function execute(Discord, pool, serverID, message, args, invite, pr
                 .setColor('#E74C3C')
                 .setTitle('Failed to get server information')
                 .setDescription('Failed to get server information.  Please try again in a few minutes.');
-            message.channel.send(fetchFailEmbed);
+            interaction.reply({ embeds: [fetchFailEmbed] });
             return;
         });
 

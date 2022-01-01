@@ -1,18 +1,25 @@
+import Discord from 'discord.js';
+import { SlashCommandBuilder } from '@discordjs/builders';
+import fetch from 'node-fetch';
+
 export const name = 'skin';
 export const description = 'Get player skin';
-export async function execute(Discord, pool, serverID, message, args, invite, prefix) {
-    const fetch = (await import('node-fetch')).default;
+export const data = new SlashCommandBuilder()
+    .setName('skin')
+    .setDescription('Get a player skin')
+    .addStringOption(option =>
+        option.setName("username")
+            .setDescription("Minecraft Player Username")
+            .setRequired(true));
 
-    console.log(`Server ${serverID} (${message.guild.name}) sent skin command`);
+export async function execute(pool, serverID, interaction, invite) {
+    console.log(`Server ${serverID} (${interaction.guild.name}) sent skin command`);
 
-    if (args.length == 0) {
-        return message.channel.send(`You did not provide a username, ${message.author}!`);
-    } else if (args.length > 1) {
-        return message.channel.send(`Too many arguments provided! Please input only one username, ${message.author}`);
-    }
+    const user = interaction.options.getString('username');
+    await interaction.deferReply();
 
     // Get UUID from API
-    const response = await fetch(`https://playerdb.co/api/player/minecraft/${args[0]}`);
+    const response = await fetch(`https://playerdb.co/api/player/minecraft/${user}`);
     try {
         var playerInfo = await response.json();
     } catch (err) {
@@ -21,12 +28,12 @@ export async function execute(Discord, pool, serverID, message, args, invite, pr
             .setColor('#E74C3C')
             .setTitle('Failed to get player skin')
             .setDescription('Failed to get player skin.  Please try again in a few minutes.');
-        message.channel.send(fetchFailEmbed);
+        interaction.editReply({ embeds: [fetchFailEmbed] });
         return;
     }
 
     if (playerInfo.code === 'minecraft.api_failure') {
-        return message.channel.send(`${args[0]} is not a valid Minecraft username, ${message.author}!`);
+        return interaction.reply({ content: `${user} is not a valid Minecraft username!` });
     }
 
     // Create and send skin grab embed
@@ -38,7 +45,7 @@ export async function execute(Discord, pool, serverID, message, args, invite, pr
         .addFields(
             { name: 'Download', value: `To download this skin, click [here](https://minecraft.tools/download-skin/${playerInfo.data.player.username} "${playerInfo.data.player.username}'s skin").\n`, inline: true }
         );
-    message.channel.send(skinEmbed);
+    interaction.editReply({ embeds: [skinEmbed] });
 
     return;
 }
