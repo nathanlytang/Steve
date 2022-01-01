@@ -19,7 +19,7 @@ const clientId = process.env.CLIENT_ID;
 	const rest = new REST({ version: '9' }).setToken(process.env.DISCORD_TOKEN);
 	for (const file of commandFiles) {
 		const command = await import(`../src/lib/${file}`);
-		commands.push(command.data.toJSON());
+		commands.push(await command.data.toJSON());
 	}
 
 	// Register guild commands
