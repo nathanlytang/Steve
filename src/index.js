@@ -81,7 +81,15 @@ client.on("guildCreate", (guild) => {
 
     if (!checkBotHasPermissions(guild)) return; // Check if bot has permissions
 
-    // TODO: Add guild commands when bot is added to guild
+    // Register guild commands when bot is added to new guild
+    const rest = new REST({ version: '9' }).setToken(version === 'production' ? process.env.DISCORD_TOKEN : process.env.NIGHTLY);
+    (async () => {
+        try {
+            await rest.put(Routes.applicationGuildCommands(clientId, guild.id), { body: commands });
+        } catch (err) {
+            console.error(err);
+        }
+    })();
 
     try {
         // Send welcome embed message
@@ -156,7 +164,7 @@ client.on('interactionCreate', async interaction => {
  */
 async function addGuildToData(guild) {
     // Create new row in guild_data table with guild ID as primary key
-    let sql = "INSERT INTO guild_data VALUES (?, 1, '25565', '', '', '', '-mc ');";
+    let sql = "INSERT INTO guild_data VALUES (?, 1, '25565', '', '', '');";
     let vars = [guild.id];
     const add_guild = new SQL_Query(pool, sql, vars);
     return await add_guild.query()
