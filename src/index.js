@@ -60,11 +60,13 @@ client.on("ready", () => {
     client.user.setStatus("online");
     invite = `https://discord.com/oauth2/authorize?client_id=${client.user.id}&permissions=2147502080&scope=applications.commands%20bot`;
 
-    // Register guild commands
+    // Register guild commands if running dev environment
     const rest = new REST({ version: '9' }).setToken(version === 'production' ? process.env.DISCORD_TOKEN : process.env.NIGHTLY);
     (async () => {
         try {
-            version === 'production' ? await rest.put(Routes.applicationCommands(clientId), { body: commands }) : await rest.put(Routes.applicationGuildCommands(clientId, guildId), { body: commands });
+            if (version !== "production" || version === "development") {
+                await rest.put(Routes.applicationGuildCommands(clientId, guildId), { body: commands });
+            }
         } catch (err) {
             console.error(err);
         }
@@ -78,6 +80,8 @@ client.on("guildCreate", (guild) => {
     addGuildToData(guild);
 
     if (!checkBotHasPermissions(guild)) return; // Check if bot has permissions
+
+    // TODO: Add guild commands when bot is added to guild
 
     try {
         // Send welcome embed message
@@ -127,8 +131,14 @@ client.on('interactionCreate', async interaction => {
             console.log(err);
         });
 
-    // Check if author has permission to execute commands
-    if (!checkUserHasPermissions("interaction", command.permissions, interaction)) return;
+    // Check if author has permission to execute commands    
+    if (command.permissions && !interaction.memberPermissions.has(command.permissions)) {
+        const adminEmbed = new Discord.MessageEmbed()
+            .setColor('#E74C3C')
+            .setAuthor({ name: 'Steve', iconURL: 'https://i.imgur.com/gb5oeQt.png' })
+            .setDescription(`Only administrators can make changes to Steve!`);
+        return interaction.reply({ embeds: [adminEmbed] });
+    }
 
     // Command handler
     try {
@@ -139,6 +149,11 @@ client.on('interactionCreate', async interaction => {
     }
 });
 
+/**
+ * Create a new entry in database table with new guild information
+ * @param {Discord.Guild} guild 
+ * @returns Completed SQL query
+ */
 async function addGuildToData(guild) {
     // Create new row in guild_data table with guild ID as primary key
     let sql = "INSERT INTO guild_data VALUES (?, 1, '25565', '', '', '', '-mc ');";
@@ -151,6 +166,9 @@ async function addGuildToData(guild) {
         });
 }
 
+/**
+ * Create database table if not exists
+ */
 function createTable() {
     // Create new table if not already existing in database
     let sql = `CREATE TABLE IF NOT EXISTS guild_data (
@@ -170,6 +188,11 @@ function createTable() {
         });
 }
 
+/**
+ * Check if the bot has required guild permissions
+ * @param {Discord.Guild} guild 
+ * @returns boolean
+ */
 function checkBotHasPermissions(guild) {
     // Check if bot has permissions
     if (!guild.me.permissions.has(Permissions.FLAGS.SEND_MESSAGES)) {
@@ -180,30 +203,6 @@ function checkBotHasPermissions(guild) {
         console.log(`Server ${guild.id.toString()} (${guild.name}): No permission to embed links.`);
         guild.systemChannel.send('Please enable the `Embed Links` permission for the Steve role in your Discord server settings!');
         return false;
-    }
-    return true;
-}
-
-function checkUserHasPermissions(type, permissions, messageType) {
-    const adminEmbed = new Discord.MessageEmbed()
-        .setColor('#E74C3C')
-        .setAuthor({ name: 'Steve', iconURL: 'https://i.imgur.com/gb5oeQt.png' })
-        .setDescription(`Only administrators can make changes to Steve!`);
-
-    if (type === 'interaction') {
-        if (permissions && !messageType.memberPermissions.has(permissions)) {
-            messageType.reply({ embeds: [adminEmbed] });
-            return false;
-        }
-
-    } else if (type === 'message') {
-        if (permissions) {
-            const perms = messageType.channel.permissionsFor(messageType.author);
-            if (!perms || !perms.has(permissions)) {
-                messageType.channel.send({ embeds: [adminEmbed] });
-                return false;
-            }
-        }
     }
     return true;
 }
