@@ -51,8 +51,9 @@ cp .env.example .env
 npm install
 ```
 
-Edit the `.env` file in a text editor and place your Discord token that you grabbed earlier into the DISCORD_TOKEN variable.  Below is the file you will edit:
+Edit the `.env` file in a text editor.  Place your Discord token that you grabbed earlier into the DISCORD_TOKEN variable.  Right click on the bot in your Discord server member list and click "Copy ID", then paste into the CLIENT_ID variable. Below is the file you will edit:
 ```ini
+CLIENT_ID=<YOUR_BOT_CLIENT_ID>
 DISCORD_TOKEN=<YOUR_DISCORD_BOT_TOKEN_HERE>
 
 DB_HOST=127.0.0.1
