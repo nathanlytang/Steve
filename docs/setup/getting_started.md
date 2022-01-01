@@ -70,6 +70,7 @@ DB_PASSWORD=<DATABASE_PASSWORD_HERE>
 >```json
 >"scripts": {
 >    "start": "node .",
+>    "register": "node ./scripts/registerslashcommands.js",
 >    "production": "NODE_ENV=production&&npm start",
 >    "development": "NODE_ENV=development&&npm start"
 >},
