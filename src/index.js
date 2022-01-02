@@ -78,7 +78,6 @@ client.on("guildCreate", async (guild) => {
     // When the bot joins a server
     console.log(`Joined new guild: ${guild.id} (${guild.name})`);
     addGuildToData(guild);
-    await registerSlashCommands(guild); // Register slash commands
 
     if (!checkBotHasPermissions(guild)) return; // Check if bot has permissions
 
@@ -123,7 +122,6 @@ client.on('interactionCreate', async (interaction) => {
             if (rows.length === 0) {
                 console.log(`Server ${interaction.guildId} (${interaction.guild.name}): Guild not found in database.  Adding to database.`);
                 await addGuildToData(interaction.guild);
-                await registerSlashCommands(interaction.guild);
             }
         })
         .catch((err) => {
@@ -164,21 +162,6 @@ async function addGuildToData(guild) {
             console.log(`\x1b[31m\x1b[1mError adding guild to database for guild ${guild.id} (${guild.name}):\x1b[0m`);
             console.log(err);
         });
-}
-
-/**
- * Register guild commands when bot is added to new guild
- * @param {Discord.Guild} guild 
- */
-async function registerSlashCommands(guild) {
-    const rest = new REST({ version: '9' }).setToken(version === 'production' ? process.env.DISCORD_TOKEN : process.env.NIGHTLY);
-    (async () => {
-        try {
-            await rest.put(Routes.applicationGuildCommands(clientId, guild.id), { body: commands });
-        } catch (err) {
-            console.error(err);
-        }
-    })();
 }
 
 /**
