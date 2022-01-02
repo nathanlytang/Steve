@@ -74,7 +74,7 @@ client.on("ready", () => {
 
 });
 
-client.on("guildCreate", (guild) => {
+client.on("guildCreate", async (guild) => {
     // When the bot joins a server
     console.log(`Joined new guild: ${guild.id} (${guild.name})`);
     addGuildToData(guild);
@@ -109,7 +109,7 @@ client.on("guildDelete", (guild) => {
     return;
 });
 
-client.on('interactionCreate', async interaction => {
+client.on('interactionCreate', async (interaction) => {
     if (!interaction.isCommand()) return;
     const command = client.commands.get(interaction.commandName) || client.commands.find(cmd => cmd.aliases && cmd.aliases.includes(interaction.commandName));
     if (!command) return; // Check if command in commands folder
