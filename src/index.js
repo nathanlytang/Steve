@@ -147,6 +147,46 @@ client.on('interactionCreate', async (interaction) => {
     }
 });
 
+client.on('messageCreate', async (message) => {
+
+    // Check if message listening is still allowed
+    let currentDate = Date.now();
+    let expireDate = Date.UTC(2022, 4, 30);
+    if (currentDate >= expireDate) return;
+
+    // Check if message has bot prefix / mentions bot
+    const prefix = '-mc ';
+    let sliceLen;
+    if (message.content.startsWith(prefix)) {
+        sliceLen = prefix.length;
+    } else if (message.mentions.has(client.user.id) && !message.mentions.everyone) {
+        sliceLen = 23;
+    } else {
+        return;
+    }
+
+    if (message.channel.type == "dm") return; // Ignore direct messages
+
+    if (!checkBotHasPermissions(message.guild)) return; // Check if bot has permissions
+
+    // Separate command and arguments
+    const commandBody = message.content.slice(sliceLen);
+    const args = commandBody.split(' ');
+    const commandName = args.shift().toLowerCase();
+
+    // Grab commands and aliases
+    const command = client.commands.get(commandName) || client.commands.find(cmd => cmd.aliases && cmd.aliases.includes(commandName));
+    if (!command) return; // Check if command in commands folder
+
+    const useNewComamndsEmbed = new Discord.MessageEmbed()
+        .setColor('#E74C3C')
+        .setAuthor({ name: 'Steve', iconURL: 'https://i.imgur.com/gb5oeQt.png' })
+        .setDescription(`Steve now uses slash commands! Use /help to learn more.`);
+
+    return message.channel.send({ embeds: [useNewComamndsEmbed] });
+
+});
+
 /**
  * Create a new entry in database table with new guild information
  * @param {Discord.Guild} guild 
