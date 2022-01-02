@@ -1,14 +1,14 @@
 {
   "name": "steve-mc-discord",
-  "version": "4.0.0",
+  "version": "5.0.0",
   "description": "A Discord bot for Minecraft players",
   "main": "src/index.js",
   "type": "module",
   "scripts": {
     "start": "node .",
     "register": "node ./scripts/registerslashcommands.js",
-    "production": "NODE_ENV=production&&npm start",
-    "development": "NODE_ENV=development&&npm start"
+    "production": "cross-env NODE_ENV=production npm start",
+    "development": "cross-env NODE_ENV=development npm start"
   },
   "repository": {
     "type": "git",
@@ -23,6 +23,7 @@
   "dependencies": {
     "@discordjs/builders": "^0.11.0",
     "@discordjs/rest": "^0.2.0-canary.0",
+    "cross-env": "^7.0.3",
     "discord-api-types": "^0.26.0",
     "discord.js": "^13.5.0",
     "dotenv": "^10.0.0",
