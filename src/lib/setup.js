@@ -9,6 +9,7 @@ export const description = 'Get server setup';
 export const data = new SlashCommandBuilder()
     .setName('setup')
     .setDescription('Get setup information for Steve')
+    .setDefaultPermission(true)
     .addStringOption(option =>
         option.setName('ip')
             .setDescription('Minecraft server IP address'))

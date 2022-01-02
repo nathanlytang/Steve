@@ -7,7 +7,8 @@ export const permissions = new Permissions([Permissions.FLAGS.ADMINISTRATOR]);
 export const description = 'Leave the server';
 export const data = new SlashCommandBuilder()
     .setName('leave')
-    .setDescription('Trigger Steve to leave this Discord server');
+    .setDescription('Trigger Steve to leave this Discord server')
+    .setDefaultPermission(true);
 
 export function execute(pool, serverID, interaction, invite) {
     console.log(`Server ${serverID} (${interaction.guild.name}) sent leave command`);

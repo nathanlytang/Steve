@@ -8,7 +8,8 @@ export const permissions = new Permissions([Permissions.FLAGS.ADMINISTRATOR]);
 export const description = 'Get server settings';
 export const data = new SlashCommandBuilder()
     .setName('settings')
-    .setDescription('Display the current server settings');
+    .setDescription('Display the current server settings')
+    .setDefaultPermission(true);
 
 export async function execute(pool, serverID, interaction, invite) {
     console.log(`Server ${serverID} (${interaction.guild.name}) sent settings command`);

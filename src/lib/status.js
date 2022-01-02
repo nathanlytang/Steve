@@ -12,7 +12,8 @@ export const name = 'status';
 export const description = 'Get server status';
 export const data = new SlashCommandBuilder()
     .setName('status')
-    .setDescription('Get current Minecraft server status');
+    .setDescription('Get current Minecraft server status')
+    .setDefaultPermission(true);
 
 export async function execute(pool, serverID, interaction, invite) {
     const defaultFavicon = "../../assets/favicon.png";

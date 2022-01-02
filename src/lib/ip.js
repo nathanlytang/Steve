@@ -7,7 +7,8 @@ export const aliases = ['join'];
 export const description = 'Get the server join IP';
 export const data = new SlashCommandBuilder()
     .setName('ip')
-    .setDescription('Get the Minecraft server address');
+    .setDescription('Get the Minecraft server address')
+    .setDefaultPermission(true);
 
 export async function execute(pool, serverID, interaction, invite) {
     console.log(`Server ${serverID} (${interaction.guild.name}) sent ip command`);

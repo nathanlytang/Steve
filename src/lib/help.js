@@ -6,7 +6,8 @@ export const aliases = ['commands'];
 export const description = 'Steve Help Command';
 export const data = new SlashCommandBuilder()
     .setName('help')
-    .setDescription('Get command information for Steve');
+    .setDescription('Get command information for Steve')
+    .setDefaultPermission(true);
 
 export function execute(pool, serverID, interaction, invite) {
     console.log(`Server ${serverID} (${interaction.guild.name}) sent help command`);

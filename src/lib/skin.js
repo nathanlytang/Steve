@@ -7,6 +7,7 @@ export const description = 'Get player skin';
 export const data = new SlashCommandBuilder()
     .setName('skin')
     .setDescription('Get a player skin')
+    .setDefaultPermission(true)
     .addStringOption(option =>
         option.setName("username")
             .setDescription("Minecraft Player Username")
