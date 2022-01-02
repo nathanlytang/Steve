@@ -27,7 +27,7 @@ Invite Steve to your Discord server [here](https://discord.com/api/oauth2/author
 - Ensure the query port is port forwarded if not using server port.
 - Save and restart the proxy.
 ##### Unable to use Query
-If you cannot enable query on your server, run `/setup query <enable|disable` to enable or disable querying. When query is disabled, Steve will instead use server pinging. Note that this may break some functionality (Player list will not be shown on Bungeecord servers).
+If you cannot enable query on your server, run `/setup query <True|False` to enable or disable querying. When query is disabled, Steve will instead use server pinging. Note that this may break some functionality (Player list will not be shown on Bungeecord servers).
 
 ### Use the Setup commands
 `/setup ip <SERVER IP>` | Set the server IP (URL also accepted)
