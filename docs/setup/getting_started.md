@@ -1,6 +1,6 @@
 # Getting Started
 
-The following document is a tutorial on how to host the bot yourself.  Click [here](https://discord.com/oauth2/authorize?client_id=773117222380896276&permissions=18432&scope=bot) to invite the bot if you do not wish to self host.
+The following document is a tutorial on how to host the bot yourself.  Click [here](https://discord.com/oauth2/authorize?client_id=773117222380896276&permissions=2147502080&scope=applications.commands%20bot) to invite the bot if you do not wish to self host.
 
 ## Install Script
 A script is available [here](https://raw.githubusercontent.com/nathanlytang/Steve/master/scripts/setup.sh) for Linux installations.  If you are using Windows or do not wish to use this script, skip to the next section.
@@ -63,27 +63,6 @@ DB_USERNAME=stevebotuser
 DB_PASSWORD=<DATABASE_PASSWORD_HERE>
 ```
 **Note**: Remove the `<` and `>` signs when pasting your Discord token.
-
-
-#### Extra Windows Setup
->Skip this section if you are hosting the bot on Linux.  If you are hosting the bot on Windows, a slight modification to the `package.json` file is required.  Below is the section you will modify:
->```json
->"scripts": {
->    "start": "node .",
->    "register": "node ./scripts/registerslashcommands.js",
->    "production": "NODE_ENV=production&&npm start",
->    "development": "NODE_ENV=development&&npm start"
->},
->```
->Open the `package.json` file in a text editor and change the line
->```json
->"production": "NODE_ENV=production&&npm start",
->```
->to 
->```json
->"production": "set NODE_ENV=production&&npm start",
->```
->then save and close the file.
 
 ## Database Setup
 Steve stores all its information in a database. To set one up, follow [this short guide](db_setup.md).  Once the database has been setup, return here to continue.
