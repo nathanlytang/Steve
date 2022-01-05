@@ -36,7 +36,7 @@ export async function execute(pool, serverID, interaction, invite) {
             .setTitle('Server Status')
             .addFields(
                 { name: 'Status', value: `Offline\n`, inline: true },
-                { name: 'Version', value: `Unkown\n`, inline: true }
+                { name: 'Version', value: `Unknown\n`, inline: true }
             )
             .addFields(
                 { name: 'Players', value: `None\n`, inline: true }
