@@ -34,7 +34,7 @@ export async function execute(pool, serverID, interaction, invite) {
     }
 
     if (playerInfo.code === 'minecraft.api_failure') {
-        return interaction.reply({ content: `${user} is not a valid Minecraft username!` });
+        return interaction.editReply({ content: `${user} is not a valid Minecraft username!` });
     }
 
     // Create and send skin grab embed
