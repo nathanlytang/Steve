@@ -280,9 +280,11 @@ process.on('SIGINT', () => { // Ctrl+C
 process.on('warning', (e) => {
     console.log('Warn:');
     console.warn(e.stack);
+    logger ? logger.error({ message: e.message, error: e.stack }) : null;
 });
 
 process.on("unhandledRejection", (e) => {
     console.log(e);
-    logger ? logger.error({ message: e.message, error: e.stack }) : null;
+    const message = e.message ? e.message : "Error";
+    logger ? logger.error({ message: message, error: e }) : null;
 });
