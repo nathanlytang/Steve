@@ -1,8 +1,11 @@
 import Discord, { Intents, Permissions } from 'discord.js';
+import { REST } from '@discordjs/rest';
+import { Routes } from 'discord-api-types/v9';
 import dotenv from "dotenv";
 dotenv.config();
 import process from 'process';
 import path from "path";
+import { Logger } from 'log2discord';
 const version = process.env.NODE_ENV;
 const client = new Discord.Client({ intents: [Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILDS] });
 import fs from 'fs';
@@ -15,9 +18,21 @@ const __dirname = path.dirname(__filename);
 const commandFiles = fs.readdirSync(path.join(__dirname, 'lib')).filter(file => file.endsWith('.js'));
 var invite;
 var clientId;
-import { REST } from '@discordjs/rest';
-import { Routes } from 'discord-api-types/v9';
 const commands = [];
+
+if (process.env.WEBHOOK) {
+    var logger = new Logger({
+        webhook: process.env.WEBHOOK,
+        icon: "https://i.imgur.com/gb5oeQt.png",
+        name: "Steve (Logs)",
+        pid: true,
+        host: true,
+        dateTime: {
+            timeZone: process.env.TIMEZONE || "UTC",
+            locale: process.env.LOCALE || "default"
+        }
+    });
+}
 
 // Put commands in collection
 (async () => {
@@ -265,4 +280,9 @@ process.on('SIGINT', () => { // Ctrl+C
 process.on('warning', (e) => {
     console.log('Warn:');
     console.warn(e.stack);
+});
+
+process.on("unhandledRejection", (e) => {
+    console.log(e);
+    logger ? logger.error({ message: e.message, error: e.stack }) : null;
 });
