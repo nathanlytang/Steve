@@ -31,7 +31,7 @@ export async function execute(pool, serverID, interaction, invite) {
     function replyError(arg, err) {
         console.log(`\x1b[31m\x1b[1mError setting ${arg} for server ${serverID} (${interaction.guild.name}):\x1b[0m`);
         console.error(err);
-        settingsModifiedEmbed.addField(`${arg}`, `Errors setting ${args}!`);
+        settingsModifiedEmbed.addField(`⛔ ${arg.charAt(0).toUpperCase() + arg.slice(1)}`, `There was an error setting ${arg}!`);
     }
 
     // Start of command
@@ -191,28 +191,34 @@ export async function execute(pool, serverID, interaction, invite) {
 
     if (args.footer) { // Setup footer
         try {
-            // Delete footer message
-            if (args.footer === "remove" || args.footer === "delete") {
-                args.footer = ``;
+            if (args.footer.length > 50) {
+                const longFooterEmbed = new Discord.MessageEmbed()
+                    .setTitle('Footer too long')
+                    .setColor('#E74C3C')
+                    .setDescription(`The maximum footer length is 50 characters.  No changes to the footer have been made.`);
+                embeds.push(longFooterEmbed);
+            } else {
+                // Delete footer message
+                if (args.footer === "remove" || args.footer === "delete") {
+                    args.footer = ``;
+                }
+                // Update footer message in database
+                let sql = "UPDATE guild_data SET footer = ? WHERE guild_id = ?;";
+                let vars = [args.footer, serverID];
+                let setup_query = new SQL_Query(pool, sql, vars);
+                await setup_query.query()
+                    .then(() => {
+                        console.log(`Successfully set up footer for server ${serverID} (${interaction.guild.name})`);
+                        if (args.footer.length === 0) {
+                            settingsModifiedEmbed.addField('Footer', 'Server footer successfully removed!');
+                        } else {
+                            settingsModifiedEmbed.addField('Footer', `Server footer set to \`${args.footer}\``);
+                        }
+                    })
+                    .catch((err) => {
+                        replyError("footer", err);
+                    });
             }
-
-            // Update footer message in database
-            let sql = "UPDATE guild_data SET footer = ? WHERE guild_id = ?;";
-            let vars = [args.footer, serverID];
-            let setup_query = new SQL_Query(pool, sql, vars);
-            await setup_query.query()
-                .then(() => {
-                    console.log(`Successfully set up footer for server ${serverID} (${interaction.guild.name})`);
-                    if (args.footer.length === 0) {
-                        settingsModifiedEmbed.addField('Footer', 'Server footer successfully removed!');
-                    } else {
-                        settingsModifiedEmbed.addField('Footer', `Server footer set to \`${args.footer}\``);
-                    }
-                })
-                .catch((err) => {
-                    replyError("footer", err);
-                });
-
         }
         catch (err) {
             replyError("footer", err);
