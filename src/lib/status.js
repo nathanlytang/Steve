@@ -102,11 +102,7 @@ export async function execute(pool, serverID, interaction, invite) {
                                         }
                                     } catch {
                                         console.log(`Server ${serverID} (${interaction.guild.name}): Player number does not match list`);
-                                        if (stat.numplayers > 20) {
-                                            playerList = 'Too many to show!';
-                                        } else {
-                                            playerList = 'Unknown';
-                                        }
+                                        playerList = 'Unknown';
                                     }
 
                                     // Create and send server online embed
