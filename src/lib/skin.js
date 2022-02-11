@@ -59,11 +59,11 @@ export async function execute(pool, serverID, interaction, invite) {
     // Create and send skin grab embed
     const skinEmbed = new Discord.MessageEmbed()
         .setColor('#62B36F')
-        .setTitle(`${user}'s Minecraft Skin`)
+        .setTitle(`${playerInfo.name}'s Minecraft Skin`)
         .setThumbnail(`https://crafatar.com/renders/body/${playerInfo.id}?overlay=true`)
         .setImage(skin ? skin : `https://crafatar.com/skins/${playerInfo.id}`)
         .addFields(
-            { name: 'Download', value: `To download this skin, click [here](${skin ? skin : `https://minecraft.tools/download-skin/${playerInfo.name}`} "${user}'s skin").\n`, inline: true }
+            { name: 'Download', value: `To download this skin, click [here](${skin ? skin : `https://minecraft.tools/download-skin/${playerInfo.name}`} "${playerInfo.name}'s skin").\n`, inline: true }
         );
     return interaction.editReply({ embeds: [skinEmbed] });
 }
