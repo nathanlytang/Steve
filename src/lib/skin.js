@@ -27,7 +27,7 @@ export async function execute(pool, serverID, interaction, invite) {
         }
         var playerInfo = await uuidResponse.json();
     } catch (err) {
-        console.log(`Failed to fetch player skin: ${err}`);
+        console.error(`Failed to fetch player skin: ${err}`);
         const fetchFailEmbed = new Discord.MessageEmbed()
             .setColor('#E74C3C')
             .setTitle('Failed to get player skin')
@@ -50,7 +50,6 @@ export async function execute(pool, serverID, interaction, invite) {
             }
             if (textures !== null) {
                 var skin = JSON.parse(Buffer.from(skinInfo.properties[textures].value, "base64").toString()).textures.SKIN.url;
-                console.log(skin);
             }
         }
     } catch (err) {

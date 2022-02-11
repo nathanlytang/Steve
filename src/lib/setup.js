@@ -29,7 +29,7 @@ export const data = new SlashCommandBuilder()
 export async function execute(pool, serverID, interaction, invite) {
     // Functions
     function replyError(arg, err) {
-        console.log(`\x1b[31m\x1b[1mError setting ${arg} for server ${serverID} (${interaction.guild.name}):\x1b[0m`);
+        console.error(`\x1b[31m\x1b[1mError setting ${arg} for server ${serverID} (${interaction.guild.name}):\x1b[0m`);
         console.error(err);
         settingsModifiedEmbed.addField(`⛔ ${arg.charAt(0).toUpperCase() + arg.slice(1)}`, `There was an error setting ${arg}!`);
     }

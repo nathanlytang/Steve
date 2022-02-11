@@ -20,7 +20,7 @@ export async function execute(pool, serverID, interaction, invite) {
 
     // Functions
     function statusCheckFail(err) {
-        console.log(`Failed to fetch server info: ${err}`);
+        console.error(`Failed to fetch server info: ${err}`);
         const fetchFailEmbed = new Discord.MessageEmbed()
             .setColor('#E74C3C')
             .setTitle('Failed to get server information')
