@@ -20,26 +20,41 @@ export async function execute(pool, serverID, interaction, invite) {
     await interaction.deferReply();
 
     // Get UUID from API
-    const response = await fetch(`https://api.mojang.com/users/profiles/minecraft/${user}`);
     try {
-
-        if (response.status === 204) {
+        const uuidResponse = await fetch(`https://api.mojang.com/users/profiles/minecraft/${user}`);
+        if (uuidResponse.status === 204) {
             return interaction.editReply({ content: `${user} is not a valid Minecraft username!` });
         }
-
-        var playerInfo = await response.json();
+        var playerInfo = await uuidResponse.json();
     } catch (err) {
         console.log(`Failed to fetch player skin: ${err}`);
         const fetchFailEmbed = new Discord.MessageEmbed()
             .setColor('#E74C3C')
             .setTitle('Failed to get player skin')
             .setDescription('Failed to get player skin.  Please try again in a few minutes.');
-        interaction.editReply({ embeds: [fetchFailEmbed] });
-        return;
+        return interaction.editReply({ embeds: [fetchFailEmbed] });
     }
 
     if (playerInfo.error === "Not Found") {
         return interaction.editReply({ content: `${user} is not a valid Minecraft username!` });
+    }
+
+    // Get skin from UUID
+    try {
+        const skinResponse = await fetch(`https://sessionserver.mojang.com/session/minecraft/profile/${playerInfo.id}`);
+        var skinInfo = await skinResponse.json();
+        if (!skinInfo.errorMessage) {
+            let textures = null;
+            for (let i = 0; i < skinInfo.properties.length; i++) {
+                if (skinInfo.properties[i].name === "textures") textures = i;
+            }
+            if (textures !== null) {
+                var skin = JSON.parse(Buffer.from(skinInfo.properties[textures].value, "base64").toString()).textures.SKIN.url;
+                console.log(skin);
+            }
+        }
+    } catch (err) {
+        console.error(`Failed to get player skin: ${err}`);
     }
 
     // Create and send skin grab embed
@@ -47,11 +62,9 @@ export async function execute(pool, serverID, interaction, invite) {
         .setColor('#62B36F')
         .setTitle(`${user}'s Minecraft Skin`)
         .setThumbnail(`https://crafatar.com/renders/body/${playerInfo.id}?overlay=true`)
-        .setImage(`https://crafatar.com/skins/${playerInfo.id}`)
+        .setImage(skin ? skin : `https://crafatar.com/skins/${playerInfo.id}`)
         .addFields(
-            { name: 'Download', value: `To download this skin, click [here](https://minecraft.tools/download-skin/${playerInfo.name} "${user}'s skin").\n`, inline: true }
+            { name: 'Download', value: `To download this skin, click [here](${skin ? skin : `https://minecraft.tools/download-skin/${playerInfo.name}`} "${user}'s skin").\n`, inline: true }
         );
-    interaction.editReply({ embeds: [skinEmbed] });
-
-    return;
+    return interaction.editReply({ embeds: [skinEmbed] });
 }
