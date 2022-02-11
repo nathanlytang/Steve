@@ -20,8 +20,13 @@ export async function execute(pool, serverID, interaction, invite) {
     await interaction.deferReply();
 
     // Get UUID from API
-    const response = await fetch(`https://playerdb.co/api/player/minecraft/${user}`);
+    const response = await fetch(`https://api.mojang.com/users/profiles/minecraft/${user}`);
     try {
+
+        if (response.status === 204) {
+            return interaction.editReply({ content: `${user} is not a valid Minecraft username!` });
+        }
+
         var playerInfo = await response.json();
     } catch (err) {
         console.log(`Failed to fetch player skin: ${err}`);
@@ -33,18 +38,18 @@ export async function execute(pool, serverID, interaction, invite) {
         return;
     }
 
-    if (playerInfo.code === 'minecraft.api_failure') {
+    if (playerInfo.error === "Not Found") {
         return interaction.editReply({ content: `${user} is not a valid Minecraft username!` });
     }
 
     // Create and send skin grab embed
     const skinEmbed = new Discord.MessageEmbed()
         .setColor('#62B36F')
-        .setTitle(`${playerInfo.data.player.username}'s Minecraft Skin`)
-        .setThumbnail(`https://crafatar.com/renders/body/${playerInfo.data.player.id}?overlay=true`)
-        .setImage(`https://crafatar.com/skins/${playerInfo.data.player.id}`)
+        .setTitle(`${user}'s Minecraft Skin`)
+        .setThumbnail(`https://crafatar.com/renders/body/${playerInfo.id}?overlay=true`)
+        .setImage(`https://crafatar.com/skins/${playerInfo.id}`)
         .addFields(
-            { name: 'Download', value: `To download this skin, click [here](https://minecraft.tools/download-skin/${playerInfo.data.player.username} "${playerInfo.data.player.username}'s skin").\n`, inline: true }
+            { name: 'Download', value: `To download this skin, click [here](https://minecraft.tools/download-skin/${playerInfo.name} "${user}'s skin").\n`, inline: true }
         );
     interaction.editReply({ embeds: [skinEmbed] });
 
