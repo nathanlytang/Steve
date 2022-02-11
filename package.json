@@ -1,6 +1,6 @@
 {
   "name": "steve-mc-discord",
-  "version": "5.0.0",
+  "version": "5.0.1",
   "description": "A Discord bot for Minecraft players",
   "main": "src/index.js",
   "type": "module",
@@ -14,7 +14,7 @@
     "type": "git",
     "url": "git+https://github.com/nathanlytang/Steve.git"
   },
-  "author": "Alienics",
+  "author": "Nathan Tang",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/nathanlytang/Steve/issues"
