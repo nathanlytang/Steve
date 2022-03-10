@@ -254,7 +254,11 @@ function checkBotHasPermissions(guild) {
     }
     if (!guild.me.permissions.has(Permissions.FLAGS.EMBED_LINKS)) {
         console.log(`Server ${guild.id.toString()} (${guild.name}): No permission to embed links.`);
-        guild.systemChannel.send('Please enable the `Embed Links` permission for the Steve role in your Discord server settings!');
+        try {
+            guild.systemChannel.send('Please enable the `Embed Links` permission for the Steve role in your Discord server settings!');
+        } catch {
+            console.log(`Server ${guild.id.toString()} (${guild.name}): No permission to send system channel messages.`);
+        }
         return false;
     }
     return true;
