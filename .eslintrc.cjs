@@ -3,13 +3,21 @@ module.exports = {
         "es2021": true,
         "node": true
     },
-    "extends": "eslint:recommended",
+    "extends": [
+        "eslint:recommended",
+        "plugin:@typescript-eslint/recommended"
+    ],
+    "parser": "@typescript-eslint/parser",
     "parserOptions": {
-        "ecmaVersion": 12,
+        "ecmaVersion": 13,
         "sourceType": "module"
     },
+    "plugins": [
+        "@typescript-eslint"
+    ],
     "rules": {
         "no-unused-vars": 0,
-        "semi": "warn"
+        "semi": "warn",
+        "eqeqeq": "always"
     }
 };
