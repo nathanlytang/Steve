@@ -1,0 +1,19 @@
+import { SlashCommandBuilder } from "@discordjs/builders";
+import { CommandInteraction, PermissionResolvable } from "discord.js";
+import { Pool } from "mariadb";
+
+export interface Command {
+    name: string;
+    aliases: string[];
+    description: string;
+    data: SlashCommandBuilder
+    permissions: PermissionResolvable[]
+    execute: (options: CommandOptions) => null;
+}
+
+export interface CommandOptions {
+    pool: Pool;
+    serverID: string;
+    interaction: CommandInteraction;
+    invite: string;
+}
