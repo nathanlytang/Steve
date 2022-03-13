@@ -7,6 +7,7 @@ const __dirname = path.dirname(__filename);
 import Query from 'mcquery/lib/index.js';
 import mcping from 'mcping-js';
 import SQL_Query from '../../db/query.js';
+import { CommandOptions } from '../../types/index.js';
 
 export const name = 'status';
 export const description = 'Get server status';
@@ -15,11 +16,12 @@ export const data = new SlashCommandBuilder()
     .setDescription('Get current Minecraft server status')
     .setDefaultPermission(true);
 
-export async function execute(pool, serverID, interaction, invite) {
+export async function execute(options: CommandOptions) {
+    const { pool, serverID, interaction } = options;
     const defaultFavicon = "../../assets/favicon.png";
 
     // Functions
-    function statusCheckFail(err) {
+    function statusCheckFail(err: Error | unknown) {
         console.error(`Failed to fetch server info: ${err}`);
         const fetchFailEmbed = new Discord.MessageEmbed()
             .setColor('#E74C3C')
@@ -46,13 +48,13 @@ export async function execute(pool, serverID, interaction, invite) {
     }
 
     // Start of command
-    console.log(`Server ${serverID} (${interaction.guild.name}) sent status command`);
+    console.log(`Server ${serverID} (${interaction.guild?.name}) sent status command`);
 
     await interaction.deferReply();
 
-    let sql = "SELECT url, port, query, footer FROM guild_data WHERE guild_id = ?";
-    let vars = [serverID];
-    let status_query = new SQL_Query(pool, sql, vars);
+    const sql = "SELECT url, port, query, footer FROM guild_data WHERE guild_id = ?";
+    const vars = [serverID];
+    const status_query = new SQL_Query(pool, sql, vars);
     status_query.query()
         .then((rows) => {
             if (rows[0].url == "") { // Check if URL set up
@@ -61,7 +63,7 @@ export async function execute(pool, serverID, interaction, invite) {
 
             if (rows[0].query === 1) { // Grab server information using query if querying enabled
                 // Create a new query using the server IP/port
-                var query = new Query(rows[0].url, rows[0].port);
+                const query = new Query(rows[0].url, rows[0].port);
 
                 // Sends a query request to the server IP/port
                 query.connect()
@@ -81,16 +83,17 @@ export async function execute(pool, serverID, interaction, invite) {
                                     if (pingErr || !res.favicon) {
                                         imgAttach = path.join(__dirname, defaultFavicon);
                                     } else {
-                                        var image = Buffer.from(res.favicon.split(",")[1], 'base64');
+                                        const image = Buffer.from(res.favicon.split(",")[1], 'base64');
                                         imgAttach = new Discord.MessageAttachment(image, "favicon.png");
                                     }
 
                                     // Get player list
+                                    let playerList;
                                     try {
-                                        var playerList = 'No current players';
+                                        playerList = 'No current players';
                                         if (stat.numplayers > 0 && stat.numplayers <= 20) {
                                             playerList = ``;
-                                            for (var i = 0; i < stat.numplayers; i++) {
+                                            for (let i = 0; i < stat.numplayers; i++) {
                                                 if (i % 4 == 0) {
                                                     playerList += `\n`;
                                                 }
@@ -101,7 +104,7 @@ export async function execute(pool, serverID, interaction, invite) {
                                             playerList = 'Too many to show!';
                                         }
                                     } catch {
-                                        console.log(`Server ${serverID} (${interaction.guild.name}): Player number does not match list`);
+                                        console.log(`Server ${serverID} (${interaction.guild?.name}): Player number does not match list`);
                                         playerList = 'Unknown';
                                     }
 
@@ -155,18 +158,19 @@ export async function execute(pool, serverID, interaction, invite) {
                         if (!res.favicon) {
                             imgAttach = path.join(__dirname, defaultFavicon);
                         } else {
-                            var image = Buffer.from(res.favicon.split(",")[1], 'base64');
+                            const image = Buffer.from(res.favicon.split(",")[1], 'base64');
                             imgAttach = new Discord.MessageAttachment(image, "favicon.png");
                         }
 
                         // Get player list
+                        let playerList;
                         try {
-                            var playerList = 'No current players';
+                            playerList = 'No current players';
                             if (res.players.online > 20) {
                                 playerList = 'Too many to show!';
                             } else if (res.players.online > 0 && res.players.online <= 20) {
                                 playerList = ``;
-                                for (var i = 0; i < res.players.online; i++) {
+                                for (let i = 0; i < res.players.online; i++) {
                                     if (i % 4 == 0) {
                                         playerList += `\n`;
                                     }
@@ -175,7 +179,7 @@ export async function execute(pool, serverID, interaction, invite) {
                                 playerList = playerList.substring(0, playerList.length - 2);
                             }
                         } catch {
-                            console.log(`Server ${serverID} (${interaction.guild.name}): Player number does not match list`);
+                            console.log(`Server ${serverID} (${interaction.guild?.name}): Player number does not match list`);
                             playerList = 'Unknown';
                         }
 

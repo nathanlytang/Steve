@@ -1,5 +1,6 @@
 import Discord from 'discord.js';
 import { SlashCommandBuilder } from '@discordjs/builders';
+import { CommandOptions } from '../../types/index.js';
 
 export const name = 'help';
 export const aliases = ['commands'];
@@ -9,8 +10,9 @@ export const data = new SlashCommandBuilder()
     .setDescription('Get command information for Steve')
     .setDefaultPermission(true);
 
-export function execute(pool, serverID, interaction, invite) {
-    console.log(`Server ${serverID} (${interaction.guild.name}) sent help command`);
+export function execute(options: CommandOptions) {
+    const { serverID, interaction, invite } = options;
+    console.log(`Server ${serverID} (${interaction.guild?.name}) sent help command`);
 
     // Create and send help embed
     const helpEmbed = new Discord.MessageEmbed()
