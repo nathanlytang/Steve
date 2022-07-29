@@ -1,8 +1,8 @@
 import Discord from 'discord.js';
 import { SlashCommandBuilder } from '@discordjs/builders';
 import { Permissions } from 'discord.js';
-import query from '../../db/query';
-import { CommandOptions } from '../../types/index';
+import { query } from '../../db/query.js';
+import { CommandOptions } from '../../types';
 
 export const name = 'settings';
 export const permissions = new Permissions([Permissions.FLAGS.ADMINISTRATOR]);
