@@ -5,15 +5,16 @@ import dotenv from "dotenv";
 dotenv.config();
 import process, { exit } from 'process';
 import path from "path";
+//@ts-ignore
 import { Logger } from 'log2discord';
 const version = process.env.NODE_ENV;
 const client: Discord.Client = new Discord.Client({ intents: [Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILDS] });
 import fs from 'fs';
-import { pool } from '../db/index';
-import query from '../db/query';
+import { pool } from '../db/index.js';
+import query from '../db/query.js';
 const commandCollection = new Discord.Collection();
 import url from 'url';
-import { Command } from '../types/index.js';
+import { Command } from '../types';
 const __filename = url.fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const commandFiles = fs.readdirSync(path.join(__dirname, 'lib')).filter(file => file.endsWith('.js'));
@@ -125,7 +126,7 @@ client.on("guildDelete", async (guild) => {
 
 client.on('interactionCreate', async (interaction: Discord.Interaction) => {
     if (!interaction.isCommand() || !interaction.guildId) return;
-    const command: Command = commandCollection.get(interaction.commandName) || commandCollection.find(cmd => cmd.aliases && cmd.aliases.includes(interaction.commandName));
+    const command = commandCollection.get(interaction.commandName) as Command;
     if (!command) return; // Check if command in commands folder
 
     try {
@@ -160,47 +161,6 @@ client.on('interactionCreate', async (interaction: Discord.Interaction) => {
         console.error(error);
         return interaction.reply({ content: 'There was an error trying to execute that command!' });
     }
-});
-
-client.on('messageCreate', async (message: Discord.Message) => {
-
-    // Check if message listening is still allowed
-    const currentDate = Date.now();
-    const expireDate = Date.UTC(2022, 4, 30);
-    if (currentDate >= expireDate) return;
-
-    // Check if message has bot prefix / mentions bot
-    const prefix = '-mc ';
-    let sliceLen;
-    if (message.content.startsWith(prefix)) {
-        sliceLen = prefix.length;
-    } else if (message.mentions.has(client.user.id) && !message.mentions.everyone) {
-        sliceLen = 23;
-    } else {
-        return;
-    }
-
-    if (message.channel.type === "DM") return; // Ignore direct messages
-    if (!message.guild) return;
-
-    if (!checkBotHasPermissions(message.guild)) return; // Check if bot has permissions
-
-    // Separate command and arguments
-    const commandBody = message.content.slice(sliceLen);
-    const args = commandBody.split(' ');
-    const commandName = args.shift().toLowerCase();
-
-    // Grab commands and aliases
-    const command = commandCollection.get(commandName) || commandCollection.find(cmd => cmd.aliases && cmd.aliases.includes(commandName));
-    if (!command) return; // Check if command in commands folder
-
-    const useNewComamndsEmbed = new Discord.MessageEmbed()
-        .setColor('#E74C3C')
-        .setAuthor({ name: 'Steve', iconURL: 'https://i.imgur.com/gb5oeQt.png' })
-        .setDescription(`Steve now uses slash commands! Use /help to learn more.`);
-
-    return message.channel.send({ embeds: [useNewComamndsEmbed] });
-
 });
 
 /**
