@@ -225,7 +225,7 @@ async function addGuildToData(guild) {
 function createTable() {
     // Create new table if not already existing in database
     let sql = `CREATE TABLE IF NOT EXISTS guild_data (
-        guild_id VARCHAR(18) NOT NULL,
+        guild_id VARCHAR(255) NOT NULL,
         query BOOLEAN NOT NULL DEFAULT 1,
         port VARCHAR(5) NOT NULL DEFAULT '25565',
         url VARCHAR(2048) DEFAULT '',
