@@ -1,7 +1,7 @@
 import Discord from 'discord.js';
 import { SlashCommandBuilder } from '@discordjs/builders';
 import fetch from 'node-fetch';
-import { CommandOptions } from '../../types';
+import { CommandOptions, PlayerInfo, SkinInfo } from '../../types';
 
 export const name = 'skin';
 export const description = 'Get player skin';
@@ -22,13 +22,13 @@ export async function execute(options: CommandOptions) {
     await interaction.deferReply();
 
     // Get UUID from API
-    let playerInfo;
+    let playerInfo: PlayerInfo;
     try {
         const uuidResponse = await fetch(`https://api.mojang.com/users/profiles/minecraft/${user}`);
         if (uuidResponse.status === 204) {
             return interaction.editReply({ content: `${user} is not a valid Minecraft username!` });
         }
-        playerInfo = await uuidResponse.json();
+        playerInfo = await uuidResponse.json() as PlayerInfo;
     } catch (err) {
         console.error(`Failed to fetch player skin: ${err}`);
         const fetchFailEmbed = new Discord.MessageEmbed()
@@ -38,22 +38,20 @@ export async function execute(options: CommandOptions) {
         return interaction.editReply({ embeds: [fetchFailEmbed] });
     }
 
-    if (playerInfo.error === "Not Found") {
-        return interaction.editReply({ content: `${user} is not a valid Minecraft username!` });
-    }
-
     // Get skin from UUID
     let skin;
     try {
         const skinResponse = await fetch(`https://sessionserver.mojang.com/session/minecraft/profile/${playerInfo.id}`);
-        const skinInfo = await skinResponse.json();
-        if (!skinInfo.errorMessage) {
-            let textures = null;
+        if (skinResponse.status !== 204) {
+            const skinInfo = await skinResponse.json() as SkinInfo;
             for (let i = 0; i < skinInfo.properties.length; i++) {
-                if (skinInfo.properties[i].name === "textures") textures = i;
+                if (skinInfo.properties[i].name === "textures") {
+                    skin = JSON.parse(Buffer.from(skinInfo.properties[i].value, "base64").toString()).textures.SKIN.url;
+                    break;
+                }
             }
-            if (textures !== null) {
-                skin = JSON.parse(Buffer.from(skinInfo.properties[textures].value, "base64").toString()).textures.SKIN.url;
+            if (!skin) {
+                throw new Error("Failed to parse skin");
             }
         }
     } catch (err) {
