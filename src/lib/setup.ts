@@ -1,8 +1,8 @@
 import Discord from 'discord.js';
 import { SlashCommandBuilder } from '@discordjs/builders';
 import { Permissions } from 'discord.js';
-import query from '../../db/query';
-import { CommandOptions } from '../../types/index';
+import query from '../../db/query.js';
+import { CommandOptions } from '../../types';
 
 export const name = 'setup';
 export const permissions = new Permissions([Permissions.FLAGS.ADMINISTRATOR]);
@@ -54,7 +54,7 @@ export async function execute(options: CommandOptions) {
         query: interaction.options.getBoolean('query')
     };
 
-    if (!Object.keys(args).some(i => args[i] !== null)) { // Display setup instructions
+    if (Object.values(args).filter(p => p === null).length === 0) { // Display setup instructions
         const setupEmbed = new Discord.MessageEmbed()
             .setColor('#62B36F')
             .setAuthor({ name: 'Steve Setup Instructions', iconURL: 'https://i.imgur.com/gb5oeQt.png' })
