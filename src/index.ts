@@ -157,7 +157,7 @@ client.on('interactionCreate', async (interaction: Discord.Interaction) => {
             .setColor('#E74C3C')
             .setAuthor({ name: 'Steve', iconURL: 'https://i.imgur.com/gb5oeQt.png' })
             .setDescription(`Only administrators can make changes to Steve!`);
-        return interaction.reply({ embeds: [adminEmbed] });
+        return interaction.reply({ embeds: [adminEmbed], ephemeral: true });
     }
 
     // Command handler
