@@ -5,7 +5,6 @@ import dotenv from "dotenv";
 dotenv.config();
 import process, { exit } from 'process';
 import path from "path";
-//@ts-ignore
 import { Logger } from 'log2discord';
 const version = process.env.NODE_ENV;
 const client: Discord.Client = new Discord.Client({ intents: [Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILDS] });
