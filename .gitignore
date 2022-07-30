@@ -3,6 +3,8 @@ node_modules
 
 # Other directories
 backups
+build
+dist
 .vscode
 
 # Environment variables
