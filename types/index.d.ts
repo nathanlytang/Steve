@@ -11,10 +11,6 @@ export interface Command {
     execute: (options: CommandOptions) => null;
 }
 
-export interface Cmd {
-    aliases: string[];
-}
-
 export interface CommandOptions {
     pool: Pool;
     serverID: string;
