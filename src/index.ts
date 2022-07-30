@@ -48,11 +48,11 @@ if (process.env.WEBHOOK) {
 
 if (version === 'production') {
     client.login(); // Production build
-    clientId = process.env.CLIENT_ID || "";
+    clientId = process.env.CLIENT_ID as string;
 } else {
     client.login(process.env.NIGHTLY); // Nightly build
-    clientId = process.env.DEV_CLIENT || "";
-    guildId = process.env.DEV_GUILD || "";
+    clientId = process.env.DEV_CLIENT as string;
+    guildId = process.env.DEV_GUILD as string;
 }
 
 client.on("ready", async () => {
@@ -80,7 +80,7 @@ client.on("ready", async () => {
     invite = `https://discord.com/oauth2/authorize?client_id=${client.user.id}&permissions=2147502080&scope=applications.commands%20bot`;
 
     // Register guild commands if running dev environment
-    const rest = new REST({ version: '9' }).setToken(version === 'production' ? process.env.DISCORD_TOKEN || "" : process.env.NIGHTLY || "");
+    const rest = new REST({ version: '9' }).setToken(version === 'production' ? process.env.DISCORD_TOKEN as string : process.env.NIGHTLY as string);
     try {
         if (version !== "production") {
             await rest.put(Routes.applicationGuildCommands(clientId, guildId), { body: commands });
@@ -97,6 +97,14 @@ client.on("guildCreate", async (guild) => {
     addGuildToData(guild);
 
     if (!checkBotHasPermissions(guild)) return; // Check if bot has permissions
+
+    // Add slash commands
+    const rest = new REST({ version: '9' }).setToken(version === 'production' ? process.env.DISCORD_TOKEN as string : process.env.NIGHTLY as string);
+    try {
+        await rest.put(Routes.applicationGuildCommands(clientId, guild.id), { body: commands });
+    } catch (err) {
+        console.error(err);
+    }
 
     // Send welcome embed message
     const welcomeEmbed = new Discord.MessageEmbed()
@@ -168,15 +176,15 @@ client.on('interactionCreate', async (interaction: Discord.Interaction) => {
  * @returns Completed SQL query
  */
 async function addGuildToData(guild: Discord.Guild) {
-    // Create new row in guild_data table with guild ID as primary key
-    const sql = "INSERT INTO guild_data VALUES (?, 1, '25565', '', '', '');";
-    const vars = [guild.id];
-    const add_guild = await query(pool, sql, vars);
-    return await add_guild.query()
-        .catch((err: Error) => {
-            console.log(`\x1b[31m\x1b[1mError adding guild to database for guild ${guild.id} (${guild.name}):\x1b[0m`);
-            console.log(err);
-        });
+    try {
+        // Create new row in guild_data table with guild ID as primary key
+        const sql = "INSERT INTO guild_data VALUES (?, 1, '25565', '', '', '');";
+        const vars = [guild.id];
+        return await query(pool, sql, vars);
+    } catch (err) {
+        console.log(`\x1b[31m\x1b[1mError adding guild to database for guild ${guild.id} (${guild.name}):\x1b[0m`);
+        console.log(err);
+    }
 }
 
 /**
