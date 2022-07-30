@@ -1,4 +1,4 @@
-import Discord, { Intents, Permissions } from 'discord.js';
+import Discord, { ActivityType, Intents, Permissions } from 'discord.js';
 import { REST } from '@discordjs/rest';
 import { Routes } from 'discord-api-types/v9';
 import dotenv from "dotenv";
@@ -75,7 +75,7 @@ client.on("ready", async () => {
     }
 
     console.log(`Logged in as ${client.user.tag}! Monitoring ${client.guilds.cache.size} servers.`);
-    client.user.setPresence({ activities: [{ name: `/status | /help`, type: 'LISTENING' }] });
+    client.user.setPresence({ activities: [{ name: `/status | /help`, type: ActivityType.Listening }] });
     client.user.setStatus("online");
     invite = `https://discord.com/oauth2/authorize?client_id=${client.user.id}&permissions=2147502080&scope=applications.commands%20bot`;
 
