@@ -54,7 +54,7 @@ export async function execute(options: CommandOptions) {
         query: interaction.options.getBoolean('query')
     };
 
-    if (Object.values(args).filter(p => p === null).length === 0) { // Display setup instructions
+    if (Object.values(args).filter(p => p !== null).length === 0) { // Display setup instructions
         const setupEmbed = new Discord.MessageEmbed()
             .setColor('#62B36F')
             .setAuthor({ name: 'Steve Setup Instructions', iconURL: 'https://i.imgur.com/gb5oeQt.png' })
@@ -123,8 +123,7 @@ export async function execute(options: CommandOptions) {
                 // Update URL in database
                 const sql = "UPDATE guild_data SET url = ? WHERE guild_id = ?;";
                 const vars = [args.ip, serverID];
-                const setup_query = await query(pool, sql, vars);
-                await setup_query.query()
+                await query(pool, sql, vars);
                 console.log(`Successfully set up IP for server ${serverID} (${interaction.guild?.name})`);
                 settingsModifiedEmbed.addFields({ name: 'IP address', value: `Server IP set to \`${args.ip}\`` });
             }
@@ -147,8 +146,7 @@ export async function execute(options: CommandOptions) {
                     // Update port in database
                     const sql = "UPDATE guild_data SET port = ? WHERE guild_id = ?;";
                     const vars = [args.port, serverID];
-                    const setup_query = await query(pool, sql, vars);
-                    await setup_query.query()
+                    await query(pool, sql, vars);
                     console.log(`Successfully set up port for server ${serverID} (${interaction.guild?.name})`);
                     settingsModifiedEmbed.addFields({ name: 'Port', value: `Server port set to \`${args.port}\`` });
                 } catch (err) {
@@ -166,8 +164,7 @@ export async function execute(options: CommandOptions) {
             // Update name in database
             const sql = "UPDATE guild_data SET name = ? WHERE guild_id = ?;";
             const vars = [args.name, serverID];
-            const setup_query = await query(pool, sql, vars);
-            await setup_query.query()
+            await query(pool, sql, vars);
             console.log(`Successfully set up name for server ${serverID} (${interaction.guild?.name})`);
             settingsModifiedEmbed.addFields({ name: 'Name', value: `Server name set to \`${args.name}\`` });
         }
@@ -193,8 +190,7 @@ export async function execute(options: CommandOptions) {
                     // Update footer message in database
                     const sql = "UPDATE guild_data SET footer = ? WHERE guild_id = ?;";
                     const vars = [args.footer, serverID];
-                    const setup_query = await query(pool, sql, vars);
-                    await setup_query.query()
+                    await query(pool, sql, vars);
 
                     console.log(`Successfully set up footer for server ${serverID} (${interaction.guild?.name})`);
                     if (args.footer.length === 0) {
