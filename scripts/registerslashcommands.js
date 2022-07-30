@@ -14,13 +14,28 @@ const commandFiles = fs
     .filter((file) => file.endsWith(".js"));
 
 (async () => {
-    if (process.argv.length > 2 && process.argv[2] === "dev") {
+    for (const file of commandFiles) {
+        const command = await import(`../dist/src/lib/${file}`);
+        commands.push(await command.data.toJSON());
+    }
+
+    if (process.argv.length === 3 && process.argv[2] === "prod") {
+        // Put commands in collection
+        const rest = new REST({ version: "9" }).setToken(
+            process.env.DISCORD_TOKEN
+        );
+        // Register guild commands
+        try {
+            await rest.put(Routes.applicationCommands(process.env.CLIENT_ID), {
+                body: commands,
+            });
+            console.log("Slash commands registered");
+        } catch (err) {
+            console.error(err);
+        }
+    } else if (process.argv.length === 3 && process.argv[2] === "dev") {
         // Put commands in collection
         const rest = new REST({ version: "9" }).setToken(process.env.NIGHTLY);
-        for (const file of commandFiles) {
-            const command = await import(`../dist/src/lib/${file}`);
-            commands.push(await command.data.toJSON());
-        }
 
         // Register guild commands
         try {
@@ -36,23 +51,6 @@ const commandFiles = fs
             console.error(err);
         }
     } else {
-        // Put commands in collection
-        const rest = new REST({ version: "9" }).setToken(
-            process.env.DISCORD_TOKEN
-        );
-        for (const file of commandFiles) {
-            const command = await import(`../dist/src/lib/${file}`);
-            commands.push(await command.data.toJSON());
-        }
-
-        // Register guild commands
-        try {
-            await rest.put(Routes.applicationCommands(process.env.CLIENT_ID), {
-                body: commands,
-            });
-            console.log("Slash commands registered");
-        } catch (err) {
-            console.error(err);
-        }
+        console.log("Not a valid option");
     }
 })();
