@@ -96,15 +96,7 @@ client.on("guildCreate", async (guild) => {
     console.log(`Joined new guild: ${guild.id} (${guild.name})`);
     addGuildToData(guild);
 
-    if (!checkBotHasPermissions(guild)) return; // Check if bot has permissions
-
-    // Add slash commands
-    const rest = new REST({ version: '9' }).setToken(version === 'production' ? process.env.DISCORD_TOKEN as string : process.env.NIGHTLY as string);
-    try {
-        await rest.put(Routes.applicationGuildCommands(clientId, guild.id), { body: commands });
-    } catch (err) {
-        console.error(err);
-    }
+    if (!checkBotHasPermissions(guild)) return; // Check if bot has permission
 
     // Send welcome embed message
     const welcomeEmbed = new Discord.MessageEmbed()
