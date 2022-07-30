@@ -24,7 +24,7 @@ export function execute(options: CommandOptions) {
             // { name: '\u200B', value: '\u200B', inline: true },
             { name: 'Description', value: 'Display this message\nDisplay setup instructions\nDisplay current settings\nGet the server status\nGet the server IP address\nGet a username\'s MC skin\nSteve will leave the server\n', inline: true }
         )
-        .addField('Invite', `Invite me to your Discord server [here](${invite} "Invite Steve").\u200B`)
+        .addFields({ name: 'Invite', value: `Invite me to your Discord server [here](${invite} "Invite Steve").\u200B` })
         .setFooter({ text: 'Made by Alienics#5796 👾' });
     return interaction.reply({ embeds: [helpEmbed] });
 }

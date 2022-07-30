@@ -33,7 +33,7 @@ export async function execute(options: CommandOptions) {
     function replyError(arg: string, err: Error | unknown) {
         console.error(`\x1b[31m\x1b[1mError setting ${arg} for server ${serverID} (${interaction.guild?.name}):\x1b[0m`);
         console.error(err);
-        settingsModifiedEmbed.addField(`⛔ ${arg.charAt(0).toUpperCase() + arg.slice(1)}`, `There was an error setting ${arg}!`);
+        settingsModifiedEmbed.addFields({ name: `⛔ ${arg.charAt(0).toUpperCase() + arg.slice(1)}`, value: `There was an error setting ${arg}!` });
     }
 
     // Start of command
@@ -59,8 +59,8 @@ export async function execute(options: CommandOptions) {
             .setColor('#62B36F')
             .setAuthor({ name: 'Steve Setup Instructions', iconURL: 'https://i.imgur.com/gb5oeQt.png' })
             .setDescription(`Follow these commands to set Steve up for your server!`)
-            .addField('Vanilla', '- In your `server.properties` file, set `enable-query` to `true`.\n- In `server.properties`, ensure `query.port` is the same as `server.port`.\n- Ensure the query port is port forwarded if not using server port.\n- Save and restart the server.')
-            .addField('Bungeecord', '- In `config.yml`, set `query_enabled` to `true`.\n- In `config.yml`, ensure `query_port` is the same as server port (`host` port)\n- Ensure the query port is port forwarded if not using server port.\n- Save and restart the proxy.')
+            .addFields({ name: 'Vanilla', value: '- In your `server.properties` file, set `enable-query` to `true`.\n- In `server.properties`, ensure `query.port` is the same as `server.port`.\n- Ensure the query port is port forwarded if not using server port.\n- Save and restart the server.' })
+            .addFields({ name: 'Bungeecord', value: '- In `config.yml`, set `query_enabled` to `true`.\n- In `config.yml`, ensure `query_port` is the same as server port (`host` port)\n- Ensure the query port is port forwarded if not using server port.\n- Save and restart the proxy.' })
             .addFields(
                 { name: 'Commands', value: `/setup ip <Server IP>\n/setup port <Query Port>\n/setup name <Server name>\n/setup footer <Footer message>\n`, inline: true },
                 { name: 'Description', value: 'Set the server IP (IP or URL accepted)\nSet the server port (Default 25565)\nSet your server name\nSet a footer message\n', inline: true },
@@ -78,7 +78,7 @@ export async function execute(options: CommandOptions) {
                     const vars = [1, serverID];
                     await query(pool, sql, vars);
                     console.log(`Successfully enabled query for server ${serverID} (${interaction.guild?.name})`);
-                    settingsModifiedEmbed.addField('Query', 'Server querying enabled!  Server querying will be used instead of ping.');
+                    settingsModifiedEmbed.addFields({ name: 'Query', value: 'Server querying enabled!  Server querying will be used instead of ping.' });
                 } catch (err) {
                     replyError("query", err);
                 };
@@ -89,7 +89,7 @@ export async function execute(options: CommandOptions) {
                     const vars = [0, serverID];
                     await query(pool, sql, vars);
                     console.log(`Successfully disabled query for server ${serverID} (${interaction.guild?.name})`);
-                    settingsModifiedEmbed.addField('Query', 'Server querying disabled!  Server pinging will be used instead.');
+                    settingsModifiedEmbed.addFields({ name: 'Query', value: 'Server querying disabled!  Server pinging will be used instead.' });
                 } catch (err) {
                     replyError("query", err);
                 }
@@ -126,7 +126,7 @@ export async function execute(options: CommandOptions) {
                 const setup_query = await query(pool, sql, vars);
                 await setup_query.query()
                 console.log(`Successfully set up IP for server ${serverID} (${interaction.guild?.name})`);
-                settingsModifiedEmbed.addField('IP address', `Server IP set to \`${args.ip}\``);
+                settingsModifiedEmbed.addFields({ name: 'IP address', value: `Server IP set to \`${args.ip}\`` });
             }
             catch (err) {
                 replyError("IP address", err);
@@ -150,7 +150,7 @@ export async function execute(options: CommandOptions) {
                     const setup_query = await query(pool, sql, vars);
                     await setup_query.query()
                     console.log(`Successfully set up port for server ${serverID} (${interaction.guild?.name})`);
-                    settingsModifiedEmbed.addField('Port', `Server port set to \`${args.port}\``);
+                    settingsModifiedEmbed.addFields({ name: 'Port', value: `Server port set to \`${args.port}\`` });
                 } catch (err) {
                     replyError("port", err);
                 }
@@ -169,7 +169,7 @@ export async function execute(options: CommandOptions) {
             const setup_query = await query(pool, sql, vars);
             await setup_query.query()
             console.log(`Successfully set up name for server ${serverID} (${interaction.guild?.name})`);
-            settingsModifiedEmbed.addField('Name', `Server name set to \`${args.name}\``);
+            settingsModifiedEmbed.addFields({ name: 'Name', value: `Server name set to \`${args.name}\`` });
         }
         catch (err) {
             replyError("name", err);
@@ -198,9 +198,9 @@ export async function execute(options: CommandOptions) {
 
                     console.log(`Successfully set up footer for server ${serverID} (${interaction.guild?.name})`);
                     if (args.footer.length === 0) {
-                        settingsModifiedEmbed.addField('Footer', 'Server footer successfully removed!');
+                        settingsModifiedEmbed.addFields({ name: 'Footer', value: 'Server footer successfully removed!' });
                     } else {
-                        settingsModifiedEmbed.addField('Footer', `Server footer set to \`${args.footer}\``);
+                        settingsModifiedEmbed.addFields({ name: 'Footer', value: `Server footer set to \`${args.footer}\`` });
                     }
                 } catch (err) {
                     replyError("footer", err);

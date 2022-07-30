@@ -64,8 +64,6 @@ export async function execute(options: CommandOptions) {
         .setTitle(`${playerInfo.name}'s Minecraft Skin`)
         .setThumbnail(`https://crafatar.com/renders/body/${playerInfo.id}?overlay=true`)
         .setImage(skin ? skin : `https://crafatar.com/skins/${playerInfo.id}`)
-        .addFields(
-            { name: 'Download', value: `To download this skin, click [here](${skin ? skin : `https://minecraft.tools/download-skin/${playerInfo.name}`} "${playerInfo.name}'s skin").\n`, inline: true }
-        );
+        .addFields({ name: 'Download', value: `To download this skin, click [here](${skin ? skin : `https://minecraft.tools/download-skin/${playerInfo.name}`} "${playerInfo.name}'s skin").\n`, inline: true });
     return interaction.editReply({ embeds: [skinEmbed] });
 }
