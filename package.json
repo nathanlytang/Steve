@@ -6,7 +6,8 @@
   "type": "module",
   "scripts": {
     "start": "node .",
-    "register": "node ./scripts/registerslashcommands.js",
+    "build": "tsc && node ./scripts/distributeAssets.js",
+    "register": "node ./scripts/registerSlashCommands.js",
     "production": "cross-env NODE_ENV=production npm start",
     "development": "cross-env NODE_ENV=development npm start"
   },
