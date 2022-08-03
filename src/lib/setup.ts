@@ -1,16 +1,15 @@
-import Discord from 'discord.js';
+import Discord, { PermissionsBitField, PermissionFlagsBits } from 'discord.js';
 import { SlashCommandBuilder } from '@discordjs/builders';
-import { Permissions } from 'discord.js';
 import query from '../../db/query.js';
 import { CommandOptions } from '../../types';
 
 export const name = 'setup';
-export const permissions = new Permissions([Permissions.FLAGS.ADMINISTRATOR]);
+export const permissions = PermissionsBitField.Flags.Administrator;
 export const description = 'Get server setup';
 export const data = new SlashCommandBuilder()
     .setName('setup')
     .setDescription('Get setup information for Steve')
-    .setDefaultPermission(true)
+    .setDefaultMemberPermissions(PermissionFlagsBits.UseApplicationCommands)
     .addStringOption(option =>
         option.setName('ip')
             .setDescription('Minecraft server IP address'))
@@ -40,22 +39,22 @@ export async function execute(options: CommandOptions) {
     console.log(`Server ${serverID} (${interaction.guild?.name}) sent setup command`);
 
     await interaction.deferReply();
-    const settingsModifiedEmbed = new Discord.MessageEmbed()
+    const settingsModifiedEmbed = new Discord.EmbedBuilder()
         .setColor('#2ECC71')
         .setAuthor({ name: 'Steve Setup', iconURL: 'https://i.imgur.com/gb5oeQt.png' })
         .setDescription(`The following settings have been modified:`);
 
     const embeds = [settingsModifiedEmbed];
     const args = {
-        ip: interaction.options.getString('ip'),
-        port: interaction.options.getInteger('port'),
-        name: interaction.options.getString('name'),
-        footer: interaction.options.getString('footer'),
-        query: interaction.options.getBoolean('query')
+        ip: interaction.options.get("ip")?.value as string || null,
+        port: interaction.options.get("port")?.value as number || null,
+        name: interaction.options.get("name")?.value as string || null,
+        footer: interaction.options.get("footer")?.value as string || null,
+        query: interaction.options.get("query")?.value as boolean || null
     };
 
     if (Object.values(args).filter(p => p !== null).length === 0) { // Display setup instructions
-        const setupEmbed = new Discord.MessageEmbed()
+        const setupEmbed = new Discord.EmbedBuilder()
             .setColor('#62B36F')
             .setAuthor({ name: 'Steve Setup Instructions', iconURL: 'https://i.imgur.com/gb5oeQt.png' })
             .setDescription(`Follow these commands to set Steve up for your server!`)
@@ -64,8 +63,8 @@ export async function execute(options: CommandOptions) {
             .addFields(
                 { name: 'Commands', value: `/setup ip <Server IP>\n/setup port <Query Port>\n/setup name <Server name>\n/setup footer <Footer message>\n`, inline: true },
                 { name: 'Description', value: 'Set the server IP (IP or URL accepted)\nSet the server port (Default 25565)\nSet your server name\nSet a footer message\n', inline: true },
-                { name: 'Unable to use Query', value: `If you cannot enable query on your server, run \`/setup query <True|False>\` to enable or disable querying.  When query is disabled, Steve will instead use server pinging.  Note that this may break some functionality (Player list will not be shown on Bungeecord servers).` },
-                { name: 'Note', value: 'Remove the `<` and the `>` when using the setup commands.' }
+                { name: 'Unable to use Query?', value: `If you cannot enable query on your server, run \`/setup query <True|False>\` to enable or disable querying.  When query is disabled, Steve will instead use server pinging.  Note that this may break some functionality (Player list will not be shown on Bungeecord servers).  If you are using a service like **Aternos**, server querying *must* be set to \`False\`.` },
+                { name: 'Note', value: 'Do not include the `<` and the `>` characters when using the setup commands.' }
             );
         return interaction.editReply({ embeds: [setupEmbed] });
     }
@@ -112,7 +111,7 @@ export async function execute(options: CommandOptions) {
         // Check if private IP address
         if (/^(10)\.(.*)\.(.*)\.(.*)$/.test(args.ip) || /^(172)\.(1[6-9]|2[0-9]|3[0-1])\.(.*)\.(.*)$/.test(args.ip) || /^(192)\.(168)\.(.*)\.(.*)$/.test(args.ip)) {
             console.log(`\x1b[31m\x1b[1mError setting IP for server ${serverID} (${interaction.guild?.name}):  Private IP address\x1b[0m`);
-            const privateIPEmbed = new Discord.MessageEmbed()
+            const privateIPEmbed = new Discord.EmbedBuilder()
                 .setTitle('Invalid IP Address')
                 .setColor('#E74C3C')
                 .setDescription(`The IP address entered is a private IP address! This means that I cannot reach your server.
@@ -136,7 +135,7 @@ export async function execute(options: CommandOptions) {
     if (args.port) { // Setup server port
         try {
             if (args.port < 1 || args.port > 65535) { // Ensure valid port
-                const badPortEmbed = new Discord.MessageEmbed()
+                const badPortEmbed = new Discord.EmbedBuilder()
                     .setColor('#E74C3C')
                     .setTitle(`Port Not Allowed`)
                     .setDescription(`Please ensure your port is a number between 1 and 65535!  No changes have been made.`);
@@ -176,7 +175,7 @@ export async function execute(options: CommandOptions) {
     if (args.footer) { // Setup footer
         try {
             if (args.footer.length > 50) {
-                const longFooterEmbed = new Discord.MessageEmbed()
+                const longFooterEmbed = new Discord.EmbedBuilder()
                     .setTitle('Footer too long')
                     .setColor('#E74C3C')
                     .setDescription(`The maximum footer length is 50 characters.  No changes to the footer have been made.`);
@@ -209,7 +208,7 @@ export async function execute(options: CommandOptions) {
     }
 
     // If no settings are changed, do not show settings modified embed
-    if (settingsModifiedEmbed.fields.length === 0) {
+    if (settingsModifiedEmbed.data.fields?.length === 0) {
         embeds.shift();
     }
 

@@ -1,16 +1,15 @@
-import Discord from 'discord.js';
+import Discord, { PermissionFlagsBits, PermissionsBitField } from 'discord.js';
 import { SlashCommandBuilder } from '@discordjs/builders';
-import { Permissions } from 'discord.js';
 import { query } from '../../db/query.js';
 import { CommandOptions } from '../../types';
 
 export const name = 'settings';
-export const permissions = new Permissions([Permissions.FLAGS.ADMINISTRATOR]);
+export const permissions = PermissionsBitField.Flags.Administrator;
 export const description = 'Get server settings';
 export const data = new SlashCommandBuilder()
     .setName('settings')
     .setDescription('Display the current server settings')
-    .setDefaultPermission(true);
+    .setDefaultMemberPermissions(PermissionFlagsBits.UseApplicationCommands)
 
 export async function execute(options: CommandOptions) {
     const { pool, serverID, interaction } = options;
@@ -30,7 +29,7 @@ export async function execute(options: CommandOptions) {
 
         // If guild not set up
         if ((serverName == "") && (serverURL == "") && (serverFooter == "")) {
-            const noSettingsEmbed = new Discord.MessageEmbed()
+            const noSettingsEmbed = new Discord.EmbedBuilder()
                 .setColor('#E74C3C')
                 .setAuthor({ name: 'Current Settings', iconURL: 'https://i.imgur.com/gb5oeQt.png' })
                 .setDescription(`Steve has not been set up on this server yet! Run \`/setup\` to continue.`);
@@ -41,7 +40,7 @@ export async function execute(options: CommandOptions) {
         if (serverName == "") { serverName = "None"; }
         if (serverURL == "") { serverURL = "None"; }
         if (serverFooter == "") { serverFooter = "None"; }
-        const settingsEmbed = new Discord.MessageEmbed()
+        const settingsEmbed = new Discord.EmbedBuilder()
             .setColor('#62B36F')
             .setAuthor({ name: 'Current Settings', iconURL: 'https://i.imgur.com/gb5oeQt.png' })
             .addFields(
@@ -56,7 +55,7 @@ export async function execute(options: CommandOptions) {
     } catch (err) {
         // If failed to get server information from database
         console.error(`Failed to fetch server info: ${err}`);
-        const fetchFailEmbed = new Discord.MessageEmbed()
+        const fetchFailEmbed = new Discord.EmbedBuilder()
             .setColor('#E74C3C')
             .setTitle('Failed to get server information')
             .setDescription('Failed to get server information.  Please try again in a few minutes.');

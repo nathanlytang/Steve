@@ -1,4 +1,4 @@
-import Discord from 'discord.js';
+import Discord, { PermissionFlagsBits } from 'discord.js';
 import { SlashCommandBuilder } from '@discordjs/builders';
 import fetch from 'node-fetch';
 import { CommandOptions, PlayerInfo, SkinInfo } from '../../types';
@@ -8,7 +8,7 @@ export const description = 'Get player skin';
 export const data = new SlashCommandBuilder()
     .setName('skin')
     .setDescription('Get a player skin')
-    .setDefaultPermission(true)
+    .setDefaultMemberPermissions(PermissionFlagsBits.UseApplicationCommands)
     .addStringOption(option =>
         option.setName("username")
             .setDescription("Minecraft Player Username")
@@ -18,7 +18,7 @@ export async function execute(options: CommandOptions) {
     const { serverID, interaction } = options;
     console.log(`Server ${serverID} (${interaction.guild?.name}) sent skin command`);
 
-    const user = interaction.options.getString('username');
+    const user = interaction.options.get("username")?.value as string;
     await interaction.deferReply();
 
     // Get UUID from API
@@ -31,7 +31,7 @@ export async function execute(options: CommandOptions) {
         playerInfo = await uuidResponse.json() as PlayerInfo;
     } catch (err) {
         console.error(`Failed to fetch player skin: ${err}`);
-        const fetchFailEmbed = new Discord.MessageEmbed()
+        const fetchFailEmbed = new Discord.EmbedBuilder()
             .setColor('#E74C3C')
             .setTitle('Failed to get player skin')
             .setDescription('Failed to get player skin.  Please try again in a few minutes.');
@@ -59,7 +59,7 @@ export async function execute(options: CommandOptions) {
     }
 
     // Create and send skin grab embed
-    const skinEmbed = new Discord.MessageEmbed()
+    const skinEmbed = new Discord.EmbedBuilder()
         .setColor('#62B36F')
         .setTitle(`${playerInfo.name}'s Minecraft Skin`)
         .setThumbnail(`https://crafatar.com/renders/body/${playerInfo.id}?overlay=true`)
