@@ -21,6 +21,7 @@
   },
   "homepage": "https://github.com/nathanlytang/Steve#readme",
   "dependencies": {
+    "@discordjs/builders": "^1.1.0",
     "@discordjs/rest": "^1.0.1",
     "cross-env": "^7.0.3",
     "discord-api-types": "^0.37.0",

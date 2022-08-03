@@ -1,4 +1,4 @@
-import Discord, { ActivityType, Intents, Permissions } from 'discord.js';
+import Discord, { ActivityType, IntentsBitField, PermissionsBitField } from 'discord.js';
 import { REST } from '@discordjs/rest';
 import { Routes } from 'discord-api-types/v9';
 import dotenv from "dotenv";
@@ -7,7 +7,7 @@ import process, { exit } from 'process';
 import path from "path";
 import { Logger } from 'log2discord';
 const version = process.env.NODE_ENV;
-const client: Discord.Client = new Discord.Client({ intents: [Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILDS] });
+const client: Discord.Client = new Discord.Client({ intents: [IntentsBitField.Flags.GuildMessages, IntentsBitField.Flags.Guilds] });
 import fs from 'fs';
 import { pool } from '../db/index.js';
 import query from '../db/query.js';
@@ -99,7 +99,7 @@ client.on("guildCreate", async (guild) => {
     if (!checkBotHasPermissions(guild)) return; // Check if bot has permission
 
     // Send welcome embed message
-    const welcomeEmbed = new Discord.MessageEmbed()
+    const welcomeEmbed = new Discord.EmbedBuilder()
         .setColor('#62B36F')
         .setAuthor({ name: 'Steve', iconURL: 'https://i.imgur.com/gb5oeQt.png' })
         .setDescription(`Hello! I'm Steve, a bot designed to get and display your Minecraft server status!  Thanks for adding me to your server.  To view all my available commands, use \`/help\`.`)
@@ -142,14 +142,14 @@ client.on('interactionCreate', async (interaction: Discord.Interaction) => {
         console.log(err);
     }
 
-
     // Check if author has permission to execute commands    
     if (command.permissions && !interaction.memberPermissions?.has(command.permissions)) {
-        const adminEmbed = new Discord.MessageEmbed()
+        const adminEmbed = new Discord.EmbedBuilder()
             .setColor('#E74C3C')
             .setAuthor({ name: 'Steve', iconURL: 'https://i.imgur.com/gb5oeQt.png' })
             .setDescription(`Only administrators can make changes to Steve!`);
-        return interaction.reply({ embeds: [adminEmbed], ephemeral: true });
+        interaction.reply({ embeds: [adminEmbed], ephemeral: true });
+        return;
     }
 
     // Command handler
@@ -158,7 +158,8 @@ client.on('interactionCreate', async (interaction: Discord.Interaction) => {
         command.execute(options);
     } catch (error) {
         console.error(error);
-        return interaction.reply({ content: 'There was an error trying to execute that command!' });
+        interaction.reply({ content: 'There was an error trying to execute that command!' });
+        return;
     }
 });
 
@@ -208,11 +209,11 @@ async function createTable() {
  */
 function checkBotHasPermissions(guild: Discord.Guild): boolean {
     // Check if bot has permissions
-    if (!guild.me?.permissions.has(Permissions.FLAGS.SEND_MESSAGES)) {
+    if (!guild.members.me?.permissions.has(PermissionsBitField.Flags.SendMessages)) {
         console.log(`Server ${guild.id.toString()} (${guild.name}): No permission to send messages.`);
         return false;
     }
-    if (!guild.me.permissions.has(Permissions.FLAGS.EMBED_LINKS)) {
+    if (!guild.members.me.permissions.has(PermissionsBitField.Flags.EmbedLinks)) {
         console.log(`Server ${guild.id.toString()} (${guild.name}): No permission to embed links.`);
         if (guild.systemChannel) {
             guild.systemChannel.send('Please enable the `Embed Links` permission for the Steve role in your Discord server settings!');
@@ -227,7 +228,7 @@ function checkBotHasPermissions(guild: Discord.Guild): boolean {
 // Refresh client presence every hour
 setInterval(() => {
     if (!client.user) exit();
-    client.user.setPresence({ activities: [{ name: `/status | /help`, type: 'LISTENING' }] });
+    client.user.setPresence({ activities: [{ name: `/status | /help`, type: ActivityType.Listening }] });
     client.user.setStatus("online");
 }, 3600000);
 
@@ -243,6 +244,10 @@ process.on('SIGINT', () => { // Ctrl+C
 });
 
 process.on('warning', (e: Error) => {
+    if (e.name === "ExperimentalWarning") {
+        return console.log(`${e.name}: ${e.message}`);
+    }
+
     console.log('Warn:');
     console.warn(e.stack);
     logger ? logger.error({ message: e.message, error: e }) : null;

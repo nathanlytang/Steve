@@ -1,4 +1,4 @@
-import Discord from 'discord.js';
+import Discord, { PermissionFlagsBits } from 'discord.js';
 import { SlashCommandBuilder } from '@discordjs/builders';
 import path from "path";
 import url from 'url';
@@ -16,7 +16,7 @@ export const description = 'Get server status';
 export const data = new SlashCommandBuilder()
     .setName('status')
     .setDescription('Get current Minecraft server status')
-    .setDefaultPermission(true);
+    .setDefaultMemberPermissions(PermissionFlagsBits.UseApplicationCommands)
 
 export async function execute(options: CommandOptions) {
     const { pool, serverID, interaction } = options;
@@ -25,7 +25,7 @@ export async function execute(options: CommandOptions) {
     // Functions
     function statusCheckFail(err: Error | unknown) {
         console.error(`Failed to fetch server info: ${err}`);
-        const fetchFailEmbed = new Discord.MessageEmbed()
+        const fetchFailEmbed = new Discord.EmbedBuilder()
             .setColor('#E74C3C')
             .setTitle('Failed to get server information')
             .setDescription('Failed to get server information.  Please try again in a few minutes.');
@@ -35,7 +35,7 @@ export async function execute(options: CommandOptions) {
 
     function offlineEmbed() {
         // Create and send server offline embed
-        const statusEmbed = new Discord.MessageEmbed()
+        const statusEmbed = new Discord.EmbedBuilder()
             .setColor('#E74C3C')
             .setTitle('Server Status')
             .addFields(
@@ -85,7 +85,7 @@ export async function execute(options: CommandOptions) {
                                     imgAttach = path.join(__dirname, defaultFavicon);
                                 } else {
                                     const image = Buffer.from(res.favicon.split(",")[1], 'base64');
-                                    imgAttach = new Discord.MessageAttachment(image, "favicon.png");
+                                    imgAttach = new Discord.AttachmentBuilder(image, { name: "favicon.png" });
                                 }
 
                                 // Get player list
@@ -110,7 +110,7 @@ export async function execute(options: CommandOptions) {
                                 }
 
                                 // Create and send server online embed
-                                const statusEmbed = new Discord.MessageEmbed()
+                                const statusEmbed = new Discord.EmbedBuilder()
                                     .setColor('#2ECC71')
                                     .setTitle('Minecraft Server Status')
                                     .addFields(
@@ -160,7 +160,7 @@ export async function execute(options: CommandOptions) {
                         imgAttach = path.join(__dirname, defaultFavicon);
                     } else {
                         const image = Buffer.from(res.favicon.split(",")[1], 'base64');
-                        imgAttach = new Discord.MessageAttachment(image, "favicon.png");
+                        imgAttach = new Discord.AttachmentBuilder(image, { name: "favicon.png" });
                     }
 
                     // Get player list
@@ -185,7 +185,7 @@ export async function execute(options: CommandOptions) {
                     }
 
                     // Create and send server online embed
-                    const statusEmbed = new Discord.MessageEmbed()
+                    const statusEmbed = new Discord.EmbedBuilder()
                         .setColor('#2ECC71')
                         .setTitle('Minecraft Server Status')
                         .addFields(

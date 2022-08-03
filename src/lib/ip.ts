@@ -1,4 +1,4 @@
-import Discord from 'discord.js';
+import Discord, { PermissionFlagsBits } from 'discord.js';
 import { SlashCommandBuilder } from '@discordjs/builders';
 import query from '../../db/query.js';
 import { CommandOptions } from '../../types';
@@ -9,7 +9,7 @@ export const description = 'Get the server join IP';
 export const data = new SlashCommandBuilder()
     .setName('ip')
     .setDescription('Get the Minecraft server address')
-    .setDefaultPermission(true);
+    .setDefaultMemberPermissions(PermissionFlagsBits.UseApplicationCommands)
 
 export async function execute(options: CommandOptions) {
     const { pool, serverID, interaction } = options;
@@ -22,7 +22,7 @@ export async function execute(options: CommandOptions) {
         const rows = await query(pool, sql, vars);
         // Check if URL exists
         if (rows[0].url === '') {
-            const noSettingsEmbed = new Discord.MessageEmbed()
+            const noSettingsEmbed = new Discord.EmbedBuilder()
                 .setColor('#E74C3C')
                 .setAuthor({ name: 'Current Settings', iconURL: 'https://i.imgur.com/gb5oeQt.png' })
                 .setDescription(`Steve has not been set up on this server yet! Run \`/setup\` to continue.`);
@@ -33,7 +33,7 @@ export async function execute(options: CommandOptions) {
         const serverIP = rows[0].port === "25565" ? `${rows[0].url}` : `${rows[0].url}:${rows[0].port}`;
 
         // Create and send join embed
-        const joinEmbed = new Discord.MessageEmbed()
+        const joinEmbed = new Discord.EmbedBuilder()
             .setColor('#62B36F')
             .setThumbnail(`https://eu.mc-api.net/v3/server/favicon/${rows[0].url}`)
             .setTitle(`Join the Server`)
@@ -42,7 +42,7 @@ export async function execute(options: CommandOptions) {
     } catch (err) {
         // If failed to get server information from database
         console.log(err);
-        const fetchFailEmbed = new Discord.MessageEmbed()
+        const fetchFailEmbed = new Discord.EmbedBuilder()
             .setColor('#E74C3C')
             .setTitle('Failed to get server information')
             .setDescription('Failed to get server information.  Please try again in a few minutes.');
