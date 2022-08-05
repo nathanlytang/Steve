@@ -50,7 +50,7 @@ export async function execute(options: CommandOptions) {
         port: interaction.options.get("port")?.value as number || null,
         name: interaction.options.get("name")?.value as string || null,
         footer: interaction.options.get("footer")?.value as string || null,
-        query: interaction.options.get("query")?.value as boolean || null
+        query: typeof interaction.options.get("query")?.value === 'boolean' ? interaction.options.get("query")?.value : null,
     };
 
     if (Object.values(args).filter(p => p !== null).length === 0) { // Display setup instructions
