@@ -122,7 +122,9 @@ export async function execute(options: CommandOptions) {
                                         { name: 'Players', value: `${stat.numplayers}/${stat.maxplayers}\n`, inline: true },
                                         { name: 'List', value: `${playerList}\n`, inline: true }
                                     )
-                                    .setFooter({ text: `${rows[0].footer}` });
+                                if (rows[0].footer.length > 0) {
+                                    statusEmbed.setFooter({ text: `${rows[0].footer}` });
+                                }
                                 interaction.editReply({ embeds: [statusEmbed], files: [imgAttach] });
                             });
 
@@ -197,7 +199,9 @@ export async function execute(options: CommandOptions) {
                             { name: 'Players', value: `${res.players.online}/${res.players.max}\n`, inline: true },
                             { name: 'List', value: `${playerList}\n`, inline: true }
                         )
-                        .setFooter({ text: `${rows[0].footer}` });
+                    if (rows[0].footer.length > 0) {
+                        statusEmbed.setFooter({ text: `${rows[0].footer}` });
+                    }
                     interaction.editReply({ embeds: [statusEmbed], files: [imgAttach] });
                     return;
                 });
