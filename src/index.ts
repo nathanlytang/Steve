@@ -11,6 +11,8 @@ const client: Discord.Client = new Discord.Client({ intents: [IntentsBitField.Fl
 import fs from 'fs';
 import { pool } from '../db/index.js';
 import query from '../db/query.js';
+// @ts-ignore
+import { register } from '../scripts/registerSlashCommands.js' 
 const commandCollection = new Discord.Collection();
 import url from 'url';
 import { Command } from '../types';
@@ -68,6 +70,8 @@ client.on("ready", async () => {
             console.log('Database table detected. Using existing table.');
         } else if (rows.length === 0) {
             createTable();
+            // Assume slash commands have not been registered
+            register();
         }
     } catch (err) {
         console.log("Error while checking if table exists.");

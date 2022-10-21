@@ -6,8 +6,9 @@
   "type": "module",
   "scripts": {
     "start": "node .",
-    "build": "tsc && node ./scripts/distributeAssets.js",
-    "register": "node ./scripts/registerSlashCommands.js",
+    "build": "node ./scripts/distributeAssets.js && tsc",
+    "register-prod": "node --input-type=module -e \"import {register} from './scripts/registerSlashCommands.js';register(true, true);\"",
+    "register-dev": "node --input-type=module -e \"import {register} from './scripts/registerSlashCommands.js';register(true, false);\"",
     "production": "cross-env NODE_ENV=production npm start",
     "development": "cross-env NODE_ENV=development npm start"
   },
