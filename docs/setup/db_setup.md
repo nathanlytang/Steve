@@ -10,7 +10,7 @@ mysql -u root -p
 ```
 
 ### Create a user
-Next, we will create a new MySQL user with a username and password. We will call it `stevebotuser` here, but it can be changed to whatever name you wish.
+Next, we will create a new MySQL user with a username and password. We will call it `stevebotuser` here, but it can be changed to whatever name you wish.  Ensure that the password used is the same as `DB_PASSWORD` in the `.env` file.
 
 **Note**: If you do change the name, `DB_USERNAME` will need to be changed in the `.env` file to reflect this change.
 
