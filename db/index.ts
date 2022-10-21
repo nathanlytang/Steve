@@ -7,6 +7,7 @@ export const pool = mariadb.createPool({
     user: process.env.DB_USERNAME,
     password: process.env.DB_PASSWORD,
     database: process.env.DB_DATABASE,
+    port: Number(process.env.DB_PORT ?? 3306)
 });
 
 export function getConnection() {
