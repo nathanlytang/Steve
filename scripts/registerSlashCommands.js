@@ -31,11 +31,6 @@ export async function register(local = false, prod = true) {
                 body: commands,
             });
             console.log("Slash commands registered");
-            fs.writeFile('./results.txt', 'success\n', err => {
-                if (err) {
-                    console.error(err);
-                }
-            })
         } catch (err) {
             console.error(err);
         }
