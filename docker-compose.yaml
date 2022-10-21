@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+    app:
+        container_name: 'stevebot'
+        depends_on:
+            - mariadb
+        restart: unless-stopped
+        env_file: ./.env
+        environment:
+            DB_HOST: 'mariadb'
+        build: ./
+    mariadb:
+        image: mariadb
+        container_name: mariadb
+        restart: always
+        env_file: ./.env
+        environment:
+            MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+            MYSQL_DATABASE: ${DB_DATABASE}
+            MYSQL_USER: ${DB_USERNAME}
+            MYSQL_PASSWORD: ${DB_PASSWORD}
+            MYSQL_HOST: ${DB_HOST}
+            MYSQL_TCP_PORT: ${DB_PORT}
+            MYSQL_UNIX_PORT: ${DB_PORT}
+        volumes:
+            - db:/var/lib/mysql
+volumes:
+    db:

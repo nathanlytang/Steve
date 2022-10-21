@@ -14,8 +14,12 @@ wget -q https://raw.githubusercontent.com/nathanlytang/Steve/master/scripts/setu
 This script is also a configuration script, and can be run to change your environment configuration.  Note that database names cannot be changed in MySQL after they have been created. 
 
 ## Dependencies
-* Node.js `v12` or higher with npm
-* MySQL `8` or higher **or** MariaDB `v10.5` or higher
+Docker Setup Dependencies
+* Docker with Docker Compose
+
+Manual Setup Dependencies
+* `Node.js v18` or higher with npm
+* `MySQL 8` or higher **or** `MariaDB v10.5` or higher
 * A Windows or Linux (Ubuntu and Debian tested) environment to run the bot
 
 ## Discord Developer Portal
@@ -28,8 +32,9 @@ To run a Discord bot, you must have a Discord application with the correct permi
 
 **NOTE**: Do not share your Discord token publicly as it can be used maliciously to impersonate your bot.  If you suspect your token is compromised, click `Regenerate` to assign a new token to your bot.
 
-## Download Files
-Download a zip of the repository [here](https://github.com/nathanlytang/Steve/archive/master.zip) or use git to clone.
+## Installation
+### Download Files
+Download a zip of the repository [here](https://github.com/nathanlytang/Steve/archive/master.zip) or use Git to clone.
 ```bash
 # Change directory (Assuming you are using Linux)
 cd /opt
@@ -37,34 +42,48 @@ cd /opt
 # Clone the Git repository from Github
 git clone https://github.com/nathanlytang/Steve.git/
 ```
-
-## Installation
-Once the required files are installed, we need to install the Node.js dependencies and copy the environment variables file.
+### Add Environment Variables
+Once the required files are installed, we need to create our environment variables.
 ```bash
 # Change directory (Assuming you are using Linux)
 cd /opt/Steve/
 
 # Copy the environment variables file
 cp .env.example .env
-
-# Install node.js dependencies
-npm install
 ```
 
-Edit the `.env` file in a text editor.  Place your Discord token that you grabbed earlier into the DISCORD_TOKEN variable.  Right click on the bot in your Discord server member list and click "Copy ID", then paste into the CLIENT_ID variable. Below is the file you will edit:
+Edit the `.env` file in a text editor.  Place your Discord token that you grabbed earlier into the DISCORD_TOKEN variable.  Right click on the bot in your Discord server member list and click "Copy ID", then paste into the CLIENT_ID variable. If you plan on using Docker, you will also have to fill out `DB_ROOT_PASSWORD`.
+
+Below is the file you will edit:
 ```ini
 CLIENT_ID=<YOUR_BOT_CLIENT_ID>
 DISCORD_TOKEN=<YOUR_DISCORD_BOT_TOKEN_HERE>
 
 DB_HOST=127.0.0.1
-DB_PORT=3306
+DB_PORT=3306 # Change the port if it is unavailable on your system
 DB_DATABASE=stevebot
 DB_USERNAME=stevebotuser
 DB_PASSWORD=<DATABASE_PASSWORD_HERE>
+DB_ROOT_PASSWORD=<MYSQL_DATABASE_ROOT_PASSWORD_HERE> # Docker only
 ```
 **Note**: Remove the `<` and `>` signs when pasting your Discord token.
 
-## Database Setup
+### Docker
+For easy deployment, we can take advantage of Docker Compose. If you do not wish to use Docker, you can skip this step.  If you install with Docker, then you can ignore all the steps after this section.
+
+1. Run `docker compose up`
+2. That's it!  Docker takes care of database setup, your bot should now be available.
+
+**Note**: Due to Discord's slow public slash command registration, it may take up to an hour before commands are available on the first run of the bot.  Subsequent startups of the bot will have commands instantly available.
+
+### Manual
+Next, we need to install the Node.js dependencies.
+```bash
+# Install node.js dependencies
+npm install
+```
+
+### Database Setup
 Steve stores all its information in a database. To set one up, follow [this short guide](db_setup.md).  Once the database has been setup, return here to continue.
 
 Next, we will edit the `.env` file again.  This time, take the password you just created during database setup and edit this line with your new password:
@@ -72,11 +91,13 @@ Next, we will edit the `.env` file again.  This time, take the password you just
 DB_PASSWORD=<DATABASE_PASSWORD_HERE>
 ```
 
-## Running the bot
+### Running the bot
 The formal set up is complete!  All you need to do to start the bot is run the following command in the terminal:
 ```
 npm run production
 ```
 
-## Additional Configuration
+**Note**: Due to Discord's slow public slash command registration, it may take up to an hour before commands are available on the first run of the bot.  Subsequent startups of the bot will have commands instantly available.
+
+### Additional Configuration
 Refer [here](additional_configuration.md) for additional configuration, including backups, and setting up background processes/autostart.

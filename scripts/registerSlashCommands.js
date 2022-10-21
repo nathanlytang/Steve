@@ -8,18 +8,19 @@ import url from "url";
 const __filename = url.fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const commands = [];
-const commandFiles = fs
-    .readdirSync(path.join(__dirname, "../dist/src/lib"))
-    .filter((file) => file.endsWith(".js"));
-
-(async () => {
+export async function register(local = false, prod = true) {
+    const commandPath = local ? "../dist/src/lib" : "../src/lib"
+    const commands = [];
+    const commandFiles = fs
+        .readdirSync(path.join(__dirname, commandPath))
+        .filter((file) => file.endsWith(".js"));
+    
     for (const file of commandFiles) {
-        const command = await import(`../dist/src/lib/${file}`);
+        const command = await import(`${commandPath}/${file}`);
         commands.push(await command.data.toJSON());
     }
 
-    if (process.argv.length === 3 && process.argv[2] === "prod") {
+    if (prod) {
         // Put commands in collection
         const rest = new REST({ version: "9" }).setToken(
             process.env.DISCORD_TOKEN
@@ -33,7 +34,7 @@ const commandFiles = fs
         } catch (err) {
             console.error(err);
         }
-    } else if (process.argv.length === 3 && process.argv[2] === "dev") {
+    } else if (!prod) {
         // Put commands in collection
         const rest = new REST({ version: "9" }).setToken(process.env.NIGHTLY);
 
@@ -53,4 +54,4 @@ const commandFiles = fs
     } else {
         console.log("Not a valid option");
     }
-})();
+};
