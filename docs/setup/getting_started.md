@@ -79,6 +79,8 @@ DB_ROOT_PASSWORD=<MYSQL_DATABASE_ROOT_PASSWORD_HERE> # Docker only
 
 **At this point, the steps required for both Docker and manual installation has been completed.  Choose your path below:**
 
+---
+
 ### Docker
 For easy deployment, we can take advantage of Docker Compose. If you do not wish to use Docker, you can skip this step.  If you install with Docker, then you can ignore all the steps after this section.
 
@@ -88,6 +90,8 @@ For easy deployment, we can take advantage of Docker Compose. If you do not wish
 
 > **Note**:
 > Due to Discord's slow public slash command registration, it may take up to an hour before commands are available on the first run of the bot.  Subsequent startups of the bot will have commands instantly available.
+
+---
 
 ### Manual
 Next, we need to install the Node.js dependencies.
