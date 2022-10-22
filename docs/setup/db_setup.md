@@ -12,7 +12,8 @@ mysql -u root -p
 ### Create a user
 Next, we will create a new MySQL user with a username and password. We will call it `stevebotuser` here, but it can be changed to whatever name you wish.  Ensure that the password used is the same as `DB_PASSWORD` in the `.env` file.
 
-**Note**: If you do change the name, `DB_USERNAME` will need to be changed in the `.env` file to reflect this change.
+> **Note**: 
+> If you do change the name, `DB_USERNAME` will need to be changed in the `.env` file to reflect this change.
 
 ```sql
 # Use the mysql database to create a new user
@@ -36,4 +37,4 @@ FLUSH PRIVILEGES;
 ```
 
 ## Next Steps
-You have finished the database setup! Click [here](getting_started.md#running-the-bot) to continue the rest of the setup.
+You have finished the database setup! Click [here](getting_started.md#database-setup) to continue the rest of the setup.
