@@ -115,6 +115,7 @@ if [ $choice -eq 0 ]; then # Install from scratch
     git clone https://github.com/nathanlytang/Steve.git
     cd Steve
     npm install
+    npm run build
 
     # Set variables
     DB_HOST='127.0.0.1'
