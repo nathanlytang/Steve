@@ -28,12 +28,15 @@ Manual Setup/Install Script Dependencies
 ## Install Script
 A script is [available here](https://raw.githubusercontent.com/nathanlytang/Steve/master/scripts/setup.sh) for Linux installations.  If you are using Windows or do not wish to use this script, skip to the next section.
 
+> **Note**:
+> The Discord application still must be created manually on the [Discord Developer Portal](https://discord.com/developers/applications). The guide on setting up a Discord application can be found [here](#discord-developer-portal).
+
 To use this script, run this command with **root access**:
 ```bash
 wget -q https://raw.githubusercontent.com/nathanlytang/Steve/master/scripts/setup.sh && sudo ./setup.sh
 ```
-> **Note**:
-> The Discord application still must be created manually on the [Discord Developer Portal](https://discord.com/developers/applications). The guide on setting up a Discord application can be found [here](#discord-developer-portal).
+
+After completing the setup script, you can skip to the [running your bot](#running-the-bot) section.
 
 This script is also a configuration script, and can be run to change your environment configuration.  Note that database names cannot be changed in MySQL after they have been created. 
 
