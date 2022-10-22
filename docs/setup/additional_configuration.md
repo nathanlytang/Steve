@@ -1,6 +1,6 @@
 # Additional Configuration
 
-The following configurations are made with Linux hosting in mind.  
+The following configurations are made with Linux hosting in mind.  These configurations **do not** apply to Docker deployments.
 
 ## Daemon
 You can use systemd on Linux to run your bot as a system process.  This allows your bot to run in the background and autostart on boot.  To enable this, create a file called `steve.service` in `/etc/systemd/system` with the following contents:
@@ -42,7 +42,8 @@ Change the `DATABASE` and `BACKUP` variables to match your configuration.  To ru
 ```bash
 /opt/Steve/scripts/backup.sh -u stevebotuser -h 127.0.0.1 -p somePassword
 ```
-**NOTE**: Change the user and password to match the user and password you set up in the database.  Change the path to match the path to your backup script as well.
+> **Note**:
+> Change the user and password to match the user and password you set up in the database.  Change the path to match the path to your backup script as well.
 
 ### Automate
 To automate this process, we will use cron.

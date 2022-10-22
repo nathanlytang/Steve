@@ -1,5 +1,5 @@
 <p align="center"><img width=100 src="assets/logo.png"></p>
-<h1 align="center">Steve.</h1>
+<h1 align="center">Steve</h1>
 <h3 align="center">A Minecraft Server Status Panel</h3>
 <p align="center">
     <a href="https://github.com/nathanlytang/Steve" alt="Version"><img src="https://img.shields.io/github/package-json/v/nathanlytang/Steve"/></a>
@@ -27,25 +27,26 @@ Invite Steve to your Discord server [here](https://discord.com/api/oauth2/author
 - Ensure the query port is port forwarded if not using server port.
 - Save and restart the proxy.
 ##### Unable to use Query
-If you cannot enable query on your server, run `/setup query <True|False` to enable or disable querying. When query is disabled, Steve will instead use server pinging. Note that this may break some functionality (Player list will not be shown on Bungeecord servers).
+If you cannot enable query on your server, run `/setup query <True|False>` to enable or disable querying. When query is disabled, Steve will instead use server pinging. Note that this may break some functionality (Player list will not be shown on Bungeecord servers).
 
 ### Use the Setup commands
-`/setup ip <SERVER IP>` | Set the server IP (URL also accepted)
-
-`/setup port <SERVER PORT>` | Set the server port (Default 25565)
-
-`/setup name <SERVER NAME>` | Give your server a name
-
-`/setup footer <FOOTER MESSAGE>` | Set a footer message for your status panel
+| Command                          | Description                                |
+|----------------------------------|--------------------------------------------|
+| `/setup ip <SERVER IP>`          | Set the server IP (URL also accepted)      |
+| `/setup port <SERVER PORT>`      | Set the server port (Default 25565)        |
+| `/setup name <SERVER NAME>`      | Give your server a name                    |
+| `/setup footer <FOOTER MESSAGE>` | Set a footer message for your status panel |
 
 
 ### Finish
 Setup is complete!  Run `/status` to display the server status panel.  More commands can be found [here](/docs/usage/commands.md) or by typing `/help` in your Discord server.
 
+---
+
 ## Self Host
 If you would like to host the bot yourself, instructions on how to do so can be found [here](docs/setup/getting_started.md).
 
-Direct Links:
+### Direct Links:
 * [Getting Started](docs/setup/getting_started.md)
 * [Database Setup](docs/setup/db_setup.md)
 * [Additional Configuration](docs/setup/additional_configuration.md)
