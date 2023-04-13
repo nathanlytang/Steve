@@ -1,6 +1,6 @@
 {
   "name": "steve-mc-discord",
-  "version": "5.1.0",
+  "version": "5.1.1",
   "description": "A Discord bot for Minecraft players",
   "main": "dist/src/index.js",
   "type": "module",
