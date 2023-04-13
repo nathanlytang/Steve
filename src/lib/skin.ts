@@ -25,7 +25,7 @@ export async function execute(options: CommandOptions) {
     let playerInfo: PlayerInfo;
     try {
         const uuidResponse = await fetch(`https://api.mojang.com/users/profiles/minecraft/${user}`);
-        if (uuidResponse.status === 204) {
+        if (uuidResponse.status === 404) {
             return interaction.editReply({ content: `${user} is not a valid Minecraft username!` });
         }
         playerInfo = await uuidResponse.json() as PlayerInfo;
@@ -39,19 +39,22 @@ export async function execute(options: CommandOptions) {
     }
 
     // Get skin from UUID
-    let skin;
+    let skin = null;
     try {
         const skinResponse = await fetch(`https://sessionserver.mojang.com/session/minecraft/profile/${playerInfo.id}`);
-        if (skinResponse.status !== 204) {
+        if (skinResponse.status !== 400) {
             const skinInfo = await skinResponse.json() as SkinInfo;
-            for (let i = 0; i < skinInfo.properties.length; i++) {
-                if (skinInfo.properties[i].name === "textures") {
-                    skin = JSON.parse(Buffer.from(skinInfo.properties[i].value, "base64").toString()).textures.SKIN.url;
+
+            if (!skinInfo.properties) throw new Error("Failed to parse skin properties");
+
+            for (const property of skinInfo.properties) {
+                if (property.name === "textures") {
+                    skin = JSON.parse(Buffer.from(property.value, "base64").toString()).textures.SKIN.url;
                     break;
                 }
             }
             if (!skin) {
-                throw new Error("Failed to parse skin");
+                throw new Error("Failed to parse skin texture");
             }
         }
     } catch (err) {
