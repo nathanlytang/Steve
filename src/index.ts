@@ -81,7 +81,7 @@ client.on("ready", async () => {
     console.log(`Logged in as ${client.user.tag}! Monitoring ${client.guilds.cache.size} servers.`);
     client.user.setPresence({ activities: [{ name: `/status | /help`, type: ActivityType.Listening }] });
     client.user.setStatus("online");
-    invite = `https://discord.com/oauth2/authorize?client_id=${client.user.id}&permissions=2147502080&scope=applications.commands%20bot`;
+    invite = `https://discord.com/oauth2/authorize?client_id=${client.user.id}&permissions=2147503104&scope=applications.commands%20bot`;
 
     // Register guild commands if running dev environment
     const rest = new REST({ version: '9' }).setToken(version === 'production' ? process.env.DISCORD_TOKEN as string : process.env.NIGHTLY as string);
@@ -213,8 +213,21 @@ async function createTable() {
  */
 function checkBotHasPermissions(guild: Discord.Guild): boolean {
     // Check if bot has permissions
+    if (!guild.members.me?.permissions.has(PermissionsBitField.Flags.ViewChannel)) {
+        console.log(`Server ${guild.id.toString()} (${guild.name}): No permission to view channel.`);
+        return false;
+    }
     if (!guild.members.me?.permissions.has(PermissionsBitField.Flags.SendMessages)) {
         console.log(`Server ${guild.id.toString()} (${guild.name}): No permission to send messages.`);
+        return false;
+    }
+    if (!guild.members.me?.permissions.has(PermissionsBitField.Flags.UseApplicationCommands)) {
+        console.log(`Server ${guild.id.toString()} (${guild.name}): No permission to send application commands.`);
+        if (guild.systemChannel) {
+            guild.systemChannel.send('Please enable the `Use Application Commands` permission for the Steve role in your Discord server settings!');
+        } else {
+            console.log(`Server ${guild.id.toString()} (${guild.name}): No permission to send system channel messages.`);
+        }
         return false;
     }
     if (!guild.members.me.permissions.has(PermissionsBitField.Flags.EmbedLinks)) {

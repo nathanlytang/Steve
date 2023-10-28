@@ -1,6 +1,6 @@
 # Getting Started
 
-The following document is a tutorial on how to host the bot yourself.  [Click here](https://discord.com/oauth2/authorize?client_id=773117222380896276&permissions=2147502080&scope=applications.commands%20bot) to invite the bot if you do not wish to self host.
+The following document is a tutorial on how to host the bot yourself.  [Click here](https://discord.com/oauth2/authorize?client_id=773117222380896276&permissions=2147503104&scope=applications.commands%20bot) to invite the bot if you do not wish to self host.
 
 There are three ways to deploy: via the [install script](#install-script), [Docker](#docker--manual-installation), or [manually](#docker--manual-installation).  Before proceeding with any of the deployment methods, you must create the Discord application.  Follow the [Discord Developer Portal](#discord-developer-portal) steps below.
 
@@ -10,7 +10,7 @@ To run a Discord bot, you must have a Discord application with the correct permi
 2. After the new application is created, select it and you will see a new screen with a *Settings* sidebar on the left. Open the **Bot** settings and click `Add Bot`.
 3. Under the *Build-A-Bot* section in the **Bot** settings, click on `Reveal Token`.  Copy this token, you will need it later in the guide.
 4. In **OAuth2 General**, look for *CLIENT ID*.  Make note of this ID, as you will need it later.
-5. In **OAuth2 URL Generator** settings, select the *application.commands* scope and the *bot* scope with *Send Messages*, *Embed Links*, and *Use Slash Commands* permissions. A link that looks like this `https://discord.com/api/oauth2/authorize?client_id=YOUR_BOT_CLIENT_ID&permissions=2147502080&scope=applications.commands%20bot` will appear, this is the link you will use to invite your bot to your Discord servers.
+5. In **OAuth2 URL Generator** settings, select the *application.commands* scope and the *bot* scope with *Send Messages*, *Embed Links*, and *Use Slash Commands* permissions. A link that looks like this `https://discord.com/api/oauth2/authorize?client_id=YOUR_BOT_CLIENT_ID&permissions=2147503104&scope=applications.commands%20bot` will appear, this is the link you will use to invite your bot to your Discord servers.
 6. Invite the bot to your server.
 
 > **Warning**:
