@@ -1,15 +1,15 @@
-import Discord, { PermissionFlagsBits, PermissionsBitField } from 'discord.js';
-import { SlashCommandBuilder } from '@discordjs/builders';
-import { query } from '../../db/query.js';
-import { CommandOptions } from '../../types';
+import Discord, { PermissionFlagsBits, PermissionsBitField } from "discord.js";
+import { SlashCommandBuilder } from "@discordjs/builders";
+import { query } from "../../db/query.js";
+import { CommandOptions } from "../../types";
 
-export const name = 'settings';
+export const name = "settings";
 export const permissions = PermissionsBitField.Flags.Administrator;
-export const description = 'Get server settings';
+export const description = "Get server settings";
 export const data = new SlashCommandBuilder()
-    .setName('settings')
-    .setDescription('Display the current server settings')
-    .setDefaultMemberPermissions(PermissionFlagsBits.UseApplicationCommands)
+    .setName("settings")
+    .setDescription("Display the current server settings")
+    .setDefaultMemberPermissions(PermissionFlagsBits.UseApplicationCommands);
 
 export async function execute(options: CommandOptions) {
     const { pool, serverID, interaction } = options;
@@ -28,37 +28,37 @@ export async function execute(options: CommandOptions) {
         let serverFooter: string = rows[0].footer;
 
         // If guild not set up
-        if ((serverName == "") && (serverURL == "") && (serverFooter == "")) {
+        if (serverName == "" && serverURL == "" && serverFooter == "") {
             const noSettingsEmbed = new Discord.EmbedBuilder()
-                .setColor('#E74C3C')
-                .setAuthor({ name: 'Current Settings', iconURL: 'https://i.imgur.com/gb5oeQt.png' })
+                .setColor("#E74C3C")
+                .setAuthor({ name: "Current Settings", iconURL: "https://i.imgur.com/gb5oeQt.png" })
                 .setDescription(`Steve has not been set up on this server yet! Run \`/setup\` to continue.`);
             return interaction.reply({ embeds: [noSettingsEmbed] });
         }
 
         // Else display current settings
-        if (serverName == "") { serverName = "None"; }
-        if (serverURL == "") { serverURL = "None"; }
-        if (serverFooter == "") { serverFooter = "None"; }
+        if (serverName == "") serverName = "None";
+        if (serverURL == "") serverURL = "None";
+        if (serverFooter == "") serverFooter = "None";
+
         const settingsEmbed = new Discord.EmbedBuilder()
-            .setColor('#62B36F')
-            .setAuthor({ name: 'Current Settings', iconURL: 'https://i.imgur.com/gb5oeQt.png' })
+            .setColor("#62B36F")
+            .setAuthor({ name: "Current Settings", iconURL: "https://i.imgur.com/gb5oeQt.png" })
             .addFields(
-                { name: 'Server', value: `${serverName}`, inline: true },
-                { name: 'IP address', value: `${serverURL}`, inline: true },
-                { name: 'Port', value: `${serverPort}`, inline: true },
-                { name: 'Query', value: `${serverQuery ? "Enabled" : "Disabled"}`, inline: true },
-                { name: 'Footer', value: `${serverFooter}`, inline: true }
+                { name: "Server", value: `${serverName}`, inline: true },
+                { name: "IP address", value: `${serverURL}`, inline: true },
+                { name: "Port", value: `${serverPort}`, inline: true },
+                { name: "Query", value: `${serverQuery ? "Enabled" : "Disabled"}`, inline: true },
+                { name: "Footer", value: `${serverFooter}`, inline: true }
             );
         return interaction.reply({ embeds: [settingsEmbed] });
-
     } catch (err) {
         // If failed to get server information from database
         console.error(`Failed to fetch server info: ${err}`);
         const fetchFailEmbed = new Discord.EmbedBuilder()
-            .setColor('#E74C3C')
-            .setTitle('Failed to get server information')
-            .setDescription('Failed to get server information.  Please try again in a few minutes.');
+            .setColor("#E74C3C")
+            .setTitle("Failed to get server information")
+            .setDescription("Failed to get server information.  Please try again in a few minutes.");
         return interaction.reply({ embeds: [fetchFailEmbed] });
     }
 }

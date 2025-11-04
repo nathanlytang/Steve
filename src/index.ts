@@ -1,24 +1,26 @@
-import Discord, { ActivityType, IntentsBitField, PermissionsBitField } from 'discord.js';
-import { REST } from '@discordjs/rest';
-import { Routes } from 'discord-api-types/v9';
+import Discord, { ActivityType, IntentsBitField, PermissionsBitField } from "discord.js";
+import { REST } from "@discordjs/rest";
+import { Routes } from "discord-api-types/v9";
 import dotenv from "dotenv";
-dotenv.config();
-import process, { exit } from 'process';
+dotenv.config({ quiet: true });
+import process, { exit } from "process";
 import path from "path";
-import { Logger } from 'log2discord';
+import { Logger } from "log2discord";
 const version = process.env.NODE_ENV;
-const client: Discord.Client = new Discord.Client({ intents: [IntentsBitField.Flags.GuildMessages, IntentsBitField.Flags.Guilds] });
-import fs from 'fs';
-import { pool } from '../db/index.js';
-import query from '../db/query.js';
+const client: Discord.Client = new Discord.Client({
+    intents: [IntentsBitField.Flags.GuildMessages, IntentsBitField.Flags.Guilds],
+});
+import fs from "fs";
+import { pool } from "../db/index.js";
+import query from "../db/query.js";
 // @ts-ignore
-import { register } from '../scripts/registerSlashCommands.js' 
+import { register } from "../scripts/registerSlashCommands.js";
 const commandCollection = new Discord.Collection();
-import url from 'url';
-import { Command } from '../types';
+import url from "url";
+import { Command } from "../types";
 const __filename = url.fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const commandFiles = fs.readdirSync(path.join(__dirname, 'lib')).filter(file => file.endsWith('.js'));
+const commandFiles = fs.readdirSync(path.join(__dirname, "lib")).filter((file) => file.endsWith(".js"));
 let invite: string;
 let clientId: string;
 let guildId: string;
@@ -34,8 +36,9 @@ if (process.env.WEBHOOK) {
         host: true,
         dateTime: {
             timeZone: process.env.TIMEZONE || "UTC",
-            locale: process.env.LOCALE || "default"
-        }
+            locale: process.env.LOCALE || "default",
+        },
+        jsonPretty: true,
     });
 }
 
@@ -48,7 +51,7 @@ if (process.env.WEBHOOK) {
     }
 })();
 
-if (version === 'production') {
+if (version === "production") {
     client.login(); // Production build
     clientId = process.env.CLIENT_ID as string;
 } else {
@@ -57,17 +60,16 @@ if (version === 'production') {
     guildId = process.env.DEV_GUILD as string;
 }
 
-client.on("ready", async () => {
-
+client.on("clientReady", async () => {
     if (!client.user) exit();
 
     // Create database table if not exists
     try {
         const sql = " SHOW TABLES LIKE ? ";
-        const vars = ['guild_data'];
+        const vars = ["guild_data"];
         const rows = await query(pool, sql, vars);
         if (rows.length === 1) {
-            console.log('Database table detected. Using existing table.');
+            console.log("Database table detected. Using existing table.");
         } else if (rows.length === 0) {
             createTable();
             // Assume slash commands have not been registered
@@ -84,7 +86,9 @@ client.on("ready", async () => {
     invite = `https://discord.com/oauth2/authorize?client_id=${client.user.id}&permissions=2147503104&scope=applications.commands%20bot`;
 
     // Register guild commands if running dev environment
-    const rest = new REST({ version: '9' }).setToken(version === 'production' ? process.env.DISCORD_TOKEN as string : process.env.NIGHTLY as string);
+    const rest = new REST({ version: "9" }).setToken(
+        version === "production" ? (process.env.DISCORD_TOKEN as string) : (process.env.NIGHTLY as string)
+    );
     try {
         if (version !== "production") {
             await rest.put(Routes.applicationGuildCommands(clientId, guildId), { body: commands });
@@ -92,7 +96,6 @@ client.on("ready", async () => {
     } catch (err) {
         console.error(err);
     }
-
 });
 
 client.on("guildCreate", async (guild) => {
@@ -104,14 +107,20 @@ client.on("guildCreate", async (guild) => {
 
     // Send welcome embed message
     const welcomeEmbed = new Discord.EmbedBuilder()
-        .setColor('#62B36F')
-        .setAuthor({ name: 'Steve', iconURL: 'https://i.imgur.com/gb5oeQt.png' })
-        .setDescription(`Hello! I'm Steve, a bot designed to get and display your Minecraft server status!  Thanks for adding me to your server.  To view all my available commands, use \`/help\`.`)
-        .setFooter({ text: 'Made by Alienics#5796 👾' });
+        .setColor("#62B36F")
+        .setAuthor({ name: "Steve", iconURL: "https://i.imgur.com/gb5oeQt.png" })
+        .setDescription(
+            `Hello! I'm Steve, a bot designed to get and display your Minecraft server status!  Thanks for adding me to your server.  To view all my available commands, use \`/help\`.`
+        )
+        .setFooter({ text: "Made by Alienics#5796 👾" });
     if (guild.systemChannel) {
         guild.systemChannel.send({ embeds: [welcomeEmbed] });
     } else {
-        console.log(`Server ${guild.id.toString()} (${guild.name}): System channel not enabled.  No permission to send messages.`);
+        console.log(
+            `Server ${guild.id.toString()} (${
+                guild.name
+            }): System channel not enabled.  No permission to send messages.`
+        );
     }
     return;
 });
@@ -127,17 +136,19 @@ client.on("guildDelete", async (guild) => {
     return;
 });
 
-client.on('interactionCreate', async (interaction: Discord.Interaction) => {
+client.on("interactionCreate", async (interaction: Discord.Interaction) => {
     if (!interaction.isCommand() || !interaction.guildId) return;
     const command = commandCollection.get(interaction.commandName) as Command;
     if (!command) return; // Check if command in commands folder
 
     try {
-        const sql = ' SELECT * FROM guild_data WHERE guild_id = ? ';
+        const sql = " SELECT * FROM guild_data WHERE guild_id = ? ";
         const vars = [interaction.guildId ? interaction.guildId : ""];
         const rows = await query(pool, sql, vars);
         if (rows.length === 0 && interaction.guild) {
-            console.log(`Server ${interaction.guildId} (${interaction.guild?.name}): Guild not found in database.  Adding to database.`);
+            console.log(
+                `Server ${interaction.guildId} (${interaction.guild?.name}): Guild not found in database.  Adding to database.`
+            );
             await addGuildToData(interaction.guild);
         }
     } catch (err) {
@@ -146,11 +157,11 @@ client.on('interactionCreate', async (interaction: Discord.Interaction) => {
         console.log(err);
     }
 
-    // Check if author has permission to execute commands    
+    // Check if author has permission to execute commands
     if (command.permissions && !interaction.memberPermissions?.has(command.permissions)) {
         const adminEmbed = new Discord.EmbedBuilder()
-            .setColor('#E74C3C')
-            .setAuthor({ name: 'Steve', iconURL: 'https://i.imgur.com/gb5oeQt.png' })
+            .setColor("#E74C3C")
+            .setAuthor({ name: "Steve", iconURL: "https://i.imgur.com/gb5oeQt.png" })
             .setDescription(`Only administrators can make changes to Steve!`);
         interaction.reply({ embeds: [adminEmbed], ephemeral: true });
         return;
@@ -158,18 +169,19 @@ client.on('interactionCreate', async (interaction: Discord.Interaction) => {
 
     // Command handler
     try {
+        if (!interaction.isChatInputCommand()) return;
         const options = { pool: pool, serverID: interaction.guildId, interaction: interaction, invite: invite };
         command.execute(options);
     } catch (error) {
         console.error(error);
-        interaction.reply({ content: 'There was an error trying to execute that command!' });
+        interaction.reply({ content: "There was an error trying to execute that command!" });
         return;
     }
 });
 
 /**
  * Create a new entry in database table with new guild information
- * @param {Discord.Guild} guild 
+ * @param {Discord.Guild} guild
  * @returns Completed SQL query
  */
 async function addGuildToData(guild: Discord.Guild) {
@@ -208,7 +220,7 @@ async function createTable() {
 
 /**
  * Check if the bot has required guild permissions
- * @param {Discord.Guild} guild 
+ * @param {Discord.Guild} guild
  * @returns boolean
  */
 function checkBotHasPermissions(guild: Discord.Guild): boolean {
@@ -224,18 +236,26 @@ function checkBotHasPermissions(guild: Discord.Guild): boolean {
     if (!guild.members.me?.permissions.has(PermissionsBitField.Flags.UseApplicationCommands)) {
         console.log(`Server ${guild.id.toString()} (${guild.name}): No permission to send application commands.`);
         if (guild.systemChannel) {
-            guild.systemChannel.send('Please enable the `Use Application Commands` permission for the Steve role in your Discord server settings!');
+            guild.systemChannel.send(
+                "Please enable the `Use Application Commands` permission for the Steve role in your Discord server settings!"
+            );
         } else {
-            console.log(`Server ${guild.id.toString()} (${guild.name}): No permission to send system channel messages.`);
+            console.log(
+                `Server ${guild.id.toString()} (${guild.name}): No permission to send system channel messages.`
+            );
         }
         return false;
     }
     if (!guild.members.me.permissions.has(PermissionsBitField.Flags.EmbedLinks)) {
         console.log(`Server ${guild.id.toString()} (${guild.name}): No permission to embed links.`);
         if (guild.systemChannel) {
-            guild.systemChannel.send('Please enable the `Embed Links` permission for the Steve role in your Discord server settings!');
+            guild.systemChannel.send(
+                "Please enable the `Embed Links` permission for the Steve role in your Discord server settings!"
+            );
         } else {
-            console.log(`Server ${guild.id.toString()} (${guild.name}): No permission to send system channel messages.`);
+            console.log(
+                `Server ${guild.id.toString()} (${guild.name}): No permission to send system channel messages.`
+            );
         }
         return false;
     }
@@ -250,22 +270,24 @@ setInterval(() => {
 }, 3600000);
 
 // Node.js signal event listeners
-process.on('SIGTERM', () => { // Kill process
-    console.log('SIGTERM signal received.');
+process.on("SIGTERM", () => {
+    // Kill process
+    console.log("SIGTERM signal received.");
     process.exit(0);
 });
 
-process.on('SIGINT', () => { // Ctrl+C
-    console.log('SIGINT signal recieved.');
+process.on("SIGINT", () => {
+    // Ctrl+C
+    console.log("SIGINT signal recieved.");
     process.exit(0);
 });
 
-process.on('warning', (e: Error) => {
+process.on("warning", (e: Error) => {
     if (e.name === "ExperimentalWarning") {
         return console.log(`${e.name}: ${e.message}`);
     }
 
-    console.log('Warn:');
+    console.log("Warn:");
     console.warn(e.stack);
     logger ? logger.error({ message: e.message, error: e }) : null;
 });

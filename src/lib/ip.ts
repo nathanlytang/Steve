@@ -1,15 +1,15 @@
-import Discord, { PermissionFlagsBits } from 'discord.js';
-import { SlashCommandBuilder } from '@discordjs/builders';
-import query from '../../db/query.js';
-import { CommandOptions } from '../../types';
+import Discord, { PermissionFlagsBits } from "discord.js";
+import { SlashCommandBuilder } from "@discordjs/builders";
+import query from "../../db/query.js";
+import { CommandOptions } from "../../types";
 
-export const name = 'ip';
-export const aliases = ['join'];
-export const description = 'Get the server join IP';
+export const name = "ip";
+export const aliases = ["join"];
+export const description = "Get the server join IP";
 export const data = new SlashCommandBuilder()
-    .setName('ip')
-    .setDescription('Get the Minecraft server address')
-    .setDefaultMemberPermissions(PermissionFlagsBits.UseApplicationCommands)
+    .setName("ip")
+    .setDescription("Get the Minecraft server address")
+    .setDefaultMemberPermissions(PermissionFlagsBits.UseApplicationCommands);
 
 export async function execute(options: CommandOptions) {
     const { pool, serverID, interaction } = options;
@@ -21,10 +21,10 @@ export async function execute(options: CommandOptions) {
         const vars = [serverID];
         const rows = await query(pool, sql, vars);
         // Check if URL exists
-        if (rows[0].url === '') {
+        if (rows[0].url === "") {
             const noSettingsEmbed = new Discord.EmbedBuilder()
-                .setColor('#E74C3C')
-                .setAuthor({ name: 'Current Settings', iconURL: 'https://i.imgur.com/gb5oeQt.png' })
+                .setColor("#E74C3C")
+                .setAuthor({ name: "Current Settings", iconURL: "https://i.imgur.com/gb5oeQt.png" })
                 .setDescription(`Steve has not been set up on this server yet! Run \`/setup\` to continue.`);
             return interaction.reply({ embeds: [noSettingsEmbed] });
         }
@@ -34,7 +34,7 @@ export async function execute(options: CommandOptions) {
 
         // Create and send join embed
         const joinEmbed = new Discord.EmbedBuilder()
-            .setColor('#62B36F')
+            .setColor("#62B36F")
             .setThumbnail(`https://eu.mc-api.net/v3/server/favicon/${rows[0].url}`)
             .setTitle(`Join the Server`)
             .setDescription(`Join ${rows[0].name} at **${serverIP}**!`);
@@ -43,9 +43,9 @@ export async function execute(options: CommandOptions) {
         // If failed to get server information from database
         console.log(err);
         const fetchFailEmbed = new Discord.EmbedBuilder()
-            .setColor('#E74C3C')
-            .setTitle('Failed to get server information')
-            .setDescription('Failed to get server information.  Please try again in a few minutes.');
+            .setColor("#E74C3C")
+            .setTitle("Failed to get server information")
+            .setDescription("Failed to get server information.  Please try again in a few minutes.");
         return interaction.reply({ embeds: [fetchFailEmbed] });
     }
 }

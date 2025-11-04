@@ -1,14 +1,14 @@
-version: '3.8'
+version: "3.8"
 
 services:
     app:
-        container_name: 'stevebot'
+        container_name: "stevebot"
         depends_on:
             - mariadb
         restart: unless-stopped
         env_file: ./.env
         environment:
-            DB_HOST: 'mariadb'
+            DB_HOST: "mariadb"
         build: ./
     mariadb:
         image: mariadb

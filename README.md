@@ -31,7 +31,7 @@ If you cannot enable query on your server, run `/setup query <True|False>` to en
 
 ### Use the Setup commands
 | Command                          | Description                                |
-|----------------------------------|--------------------------------------------|
+| -------------------------------- | ------------------------------------------ |
 | `/setup ip <SERVER IP>`          | Set the server IP (URL also accepted)      |
 | `/setup port <SERVER PORT>`      | Set the server port (Default 25565)        |
 | `/setup name <SERVER NAME>`      | Give your server a name                    |

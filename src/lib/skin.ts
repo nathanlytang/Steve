@@ -1,18 +1,16 @@
-import Discord, { PermissionFlagsBits } from 'discord.js';
-import { SlashCommandBuilder } from '@discordjs/builders';
-import fetch from 'node-fetch';
-import { CommandOptions, PlayerInfo, SkinInfo } from '../../types';
+import Discord, { PermissionFlagsBits } from "discord.js";
+import { SlashCommandBuilder } from "@discordjs/builders";
+import { CommandOptions, PlayerInfo, SkinInfo } from "../../types";
 
-export const name = 'skin';
-export const description = 'Get player skin';
+export const name = "skin";
+export const description = "Get player skin";
 export const data = new SlashCommandBuilder()
-    .setName('skin')
-    .setDescription('Get a player skin')
+    .setName("skin")
+    .setDescription("Get a player skin")
     .setDefaultMemberPermissions(PermissionFlagsBits.UseApplicationCommands)
-    .addStringOption(option =>
-        option.setName("username")
-            .setDescription("Minecraft Player Username")
-            .setRequired(true));
+    .addStringOption((option) =>
+        option.setName("username").setDescription("Minecraft Player Username").setRequired(true)
+    );
 
 export async function execute(options: CommandOptions) {
     const { serverID, interaction } = options;
@@ -28,13 +26,13 @@ export async function execute(options: CommandOptions) {
         if (uuidResponse.status === 404) {
             return interaction.editReply({ content: `${user} is not a valid Minecraft username!` });
         }
-        playerInfo = await uuidResponse.json() as PlayerInfo;
+        playerInfo = (await uuidResponse.json()) as PlayerInfo;
     } catch (err) {
         console.error(`Failed to fetch player skin: ${err}`);
         const fetchFailEmbed = new Discord.EmbedBuilder()
-            .setColor('#E74C3C')
-            .setTitle('Failed to get player skin')
-            .setDescription('Failed to get player skin.  Please try again in a few minutes.');
+            .setColor("#E74C3C")
+            .setTitle("Failed to get player skin")
+            .setDescription("Failed to get player skin.  Please try again in a few minutes.");
         return interaction.editReply({ embeds: [fetchFailEmbed] });
     }
 
@@ -43,7 +41,7 @@ export async function execute(options: CommandOptions) {
     try {
         const skinResponse = await fetch(`https://sessionserver.mojang.com/session/minecraft/profile/${playerInfo.id}`);
         if (skinResponse.status !== 400) {
-            const skinInfo = await skinResponse.json() as SkinInfo;
+            const skinInfo = (await skinResponse.json()) as SkinInfo;
 
             if (!skinInfo.properties) throw new Error("Failed to parse skin properties");
 
@@ -63,10 +61,16 @@ export async function execute(options: CommandOptions) {
 
     // Create and send skin grab embed
     const skinEmbed = new Discord.EmbedBuilder()
-        .setColor('#62B36F')
+        .setColor("#62B36F")
         .setTitle(`${playerInfo.name}'s Minecraft Skin`)
         .setThumbnail(`https://crafatar.com/renders/body/${playerInfo.id}?overlay=true`)
         .setImage(skin ? skin : `https://crafatar.com/skins/${playerInfo.id}`)
-        .addFields({ name: 'Download', value: `To download this skin, click [here](${skin ? skin : `https://minecraft.tools/download-skin/${playerInfo.name}`} "${playerInfo.name}'s skin").\n`, inline: true });
+        .addFields({
+            name: "Download",
+            value: `To download this skin, click [here](${
+                skin ? skin : `https://minecraft.tools/download-skin/${playerInfo.name}`
+            } "${playerInfo.name}'s skin").\n`,
+            inline: true,
+        });
     return interaction.editReply({ embeds: [skinEmbed] });
 }

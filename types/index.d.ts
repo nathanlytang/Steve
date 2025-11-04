@@ -1,5 +1,5 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
-import { CommandInteraction, PermissionResolvable } from "discord.js";
+import { ChatInputCommandInteraction, PermissionResolvable } from "discord.js";
 import { Pool } from "mariadb";
 
 export interface Command {
@@ -14,13 +14,13 @@ export interface Command {
 export interface CommandOptions {
     pool: Pool;
     serverID: string;
-    interaction: CommandInteraction;
+    interaction: ChatInputCommandInteraction;
     invite: string;
 }
 
 export interface PlayerInfo {
     name: string;
-    id: string
+    id: string;
 }
 
 export interface SkinInfo {
@@ -29,5 +29,5 @@ export interface SkinInfo {
     properties: {
         name: string;
         value: string;
-    }[]
+    }[];
 }
